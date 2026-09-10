@@ -20,14 +20,21 @@ public class DocumentsController {
   private final BlobStore blobs;
   private final WorkerClient worker;
   private final DocumentUploadService uploads;
+  private final Tasks tasks;
 
   public DocumentsController(
-      Db db, Identity auth, BlobStore blobs, WorkerClient worker, DocumentUploadService uploads) {
+      Db db,
+      Identity auth,
+      BlobStore blobs,
+      WorkerClient worker,
+      DocumentUploadService uploads,
+      Tasks tasks) {
     this.db = db;
     this.auth = auth;
     this.blobs = blobs;
     this.worker = worker;
     this.uploads = uploads;
+    this.tasks = tasks;
   }
 
   public record Publish(@NotBlank String version_id, long revision) {}
@@ -64,27 +71,27 @@ public class DocumentsController {
   }
 
   @PostMapping("/knowledge-bases/{id}/documents")
-  @Transactional
   public Object upload(
       @RequestAttribute Actor actor,
       @PathVariable String id,
       @RequestHeader("Idempotency-Key") String requestKey,
+      @RequestHeader("Authorization") String authorization,
       @RequestParam MultipartFile file)
       throws Exception {
     auth.kb(actor, id, "edit");
-    return uploads.upload(actor, id, null, requestKey, file);
+    return uploads.upload(actor, authorization, id, null, requestKey, file);
   }
 
   @PostMapping("/documents/{id}/versions")
-  @Transactional
   public Object replace(
       @RequestAttribute Actor actor,
       @PathVariable String id,
       @RequestHeader("Idempotency-Key") String requestKey,
+      @RequestHeader("Authorization") String authorization,
       @RequestParam MultipartFile file)
       throws Exception {
     var d = auth.document(actor, id, "edit");
-    return uploads.upload(actor, str(d, "kb_id"), id, requestKey, file);
+    return uploads.upload(actor, authorization, str(d, "kb_id"), id, requestKey, file);
   }
 
   @GetMapping("/documents/{id}/versions")
@@ -312,6 +319,7 @@ public class DocumentsController {
     var result = new LinkedHashMap<>(job);
     result.remove("lease_token");
     result.remove("request_key");
+    result.remove("upload_fingerprint");
     return result;
   }
 
@@ -323,14 +331,7 @@ public class DocumentsController {
   }
 
   @PostMapping("/jobs/{id}/cancel")
-  @Transactional
   public void cancel(@RequestAttribute Actor actor, @PathVariable String id) {
-    auth.lock(actor);
-    var j = db.one("SELECT * FROM jobs WHERE tenant_id=? AND id=?", actor.tenant(), id);
-    auth.version(actor, str(j, "version_id"), "edit");
-    if (!Set.of("QUEUED", "RUNNING").contains(str(j, "state"))) throw ApiException.conflict();
-    db.exec("UPDATE jobs SET state='CANCELLED',lease_token=NULL WHERE id=?", id);
-    db.exec("UPDATE document_versions SET state='FAILED' WHERE id=?", str(j, "version_id"));
-    auth.audit(actor, "JOB_CANCEL", id, "");
+    tasks.cancel(actor, id);
   }
 }

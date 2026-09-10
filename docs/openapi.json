@@ -658,6 +658,47 @@
         }
       }
     },
+    "/internal/v1/jobs/{id}/checkpoint": {
+      "post": {
+        "tags": [
+          "internal-controller"
+        ],
+        "operationId": "checkpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Lease-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Checkpoint"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/retrieval/search": {
       "post": {
         "tags": [
@@ -945,6 +986,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -1098,6 +1147,14 @@
           },
           {
             "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
             "in": "header",
             "required": true,
             "schema": {
@@ -2512,6 +2569,18 @@
         },
         "required": [
           "knowledge_base_ids"
+        ]
+      },
+      "Checkpoint": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "stage"
         ]
       },
       "Query": {

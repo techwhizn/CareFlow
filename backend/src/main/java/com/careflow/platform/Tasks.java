@@ -20,15 +20,18 @@ public class Tasks {
   private final RabbitTemplate rabbit;
   private final TransactionTemplate tx;
   private final boolean enabled;
+  private final Identity auth;
 
   public Tasks(
       Db db,
       RabbitTemplate rabbit,
       TransactionTemplate tx,
+      Identity auth,
       @Value("${careflow.scheduling}") boolean enabled) {
     this.db = db;
     this.rabbit = rabbit;
     this.tx = tx;
+    this.auth = auth;
     this.enabled = enabled;
   }
 
@@ -56,22 +59,73 @@ public class Tasks {
   }
 
   public void recover() {
-    tx.executeWithoutResult(
-        status -> {
-          for (var job :
-              db.list(
-                  "SELECT * FROM jobs WHERE state='RUNNING' AND lease_until<CURRENT_TIMESTAMP FOR UPDATE")) {
-            String next = num(job, "attempts") >= 3 ? "FAILED" : "QUEUED";
+    for (var candidate :
+        db.list(
+            "SELECT id,tenant_id FROM jobs WHERE state='RUNNING' AND lease_until<CURRENT_TIMESTAMP ORDER BY lease_until LIMIT 100")) {
+      tx.executeWithoutResult(
+          status -> {
+            db.one("SELECT id FROM tenants WHERE id=? FOR UPDATE", str(candidate, "tenant_id"));
+            var rows =
+                db.list(
+                    "SELECT * FROM jobs WHERE id=? AND state='RUNNING' AND lease_until<CURRENT_TIMESTAMP FOR UPDATE",
+                    str(candidate, "id"));
+            if (rows.isEmpty()) return;
+            var job = rows.getFirst();
+            boolean accessible =
+                !db.list(
+                        "SELECT d.id FROM documents d JOIN document_versions v ON v.document_id=d.id JOIN knowledge_bases k ON k.id=d.kb_id WHERE v.id=? AND d.status='ACTIVE' AND k.status='ACTIVE'",
+                        str(job, "version_id"))
+                    .isEmpty();
+            String next =
+                !accessible ? "CANCELLED" : num(job, "attempts") >= 3 ? "FAILED" : "QUEUED";
             db.exec(
-                "UPDATE jobs SET state=?,lease_token=NULL,error_code='LEASE_EXPIRED' WHERE id=?",
+                "UPDATE jobs SET state=?,lease_token=NULL,lease_until=NULL,error_code='LEASE_EXPIRED' WHERE id=?",
                 next,
                 str(job, "id"));
+            db.exec(
+                "UPDATE document_versions SET state=? WHERE id=?",
+                next.equals("CANCELLED") ? "FAILED" : next,
+                str(job, "version_id"));
             if (next.equals("QUEUED"))
               db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), str(job, "id"));
-            else
-              db.exec(
-                  "UPDATE document_versions SET state='FAILED' WHERE id=?", str(job, "version_id"));
-          }
+          });
+    }
+  }
+
+  public void cancel(Identity.Actor actor, String id) {
+    tx.executeWithoutResult(
+        status -> {
+          auth.lock(actor);
+          var job =
+              db.one(
+                  "SELECT * FROM jobs WHERE tenant_id=? AND id=? FOR UPDATE", actor.tenant(), id);
+          auth.version(actor, str(job, "version_id"), "edit");
+          if (!Set.of("QUEUED", "RUNNING").contains(str(job, "state")))
+            throw ApiException.conflict();
+          db.exec(
+              "UPDATE jobs SET state='CANCELLED',lease_token=NULL,lease_until=NULL,error_code='CANCELLED' WHERE id=?",
+              id);
+          db.exec("UPDATE document_versions SET state='FAILED' WHERE id=?", str(job, "version_id"));
+          auth.audit(actor, "JOB_CANCEL", id, "");
+        });
+  }
+
+  public void checkpoint(String id, String lease, String checkpoint) {
+    tx.executeWithoutResult(
+        status -> {
+          var job = validate(id, lease);
+          List<String> order =
+              str(job, "kind").equals("PARSE")
+                  ? List.of("QUEUED", "STARTED", "SOURCE_READY", "PARSED")
+                  : List.of("QUEUED", "STARTED", "INDEXING", "INDEX_VERIFIED");
+          if (!order.contains(checkpoint)
+              || order.indexOf(checkpoint) < order.indexOf(str(job, "checkpoint")))
+            throw new IllegalArgumentException();
+          db.exec(
+              "UPDATE jobs SET checkpoint=?,heartbeat_at=CURRENT_TIMESTAMP,lease_until=? WHERE id=?",
+              checkpoint,
+              Timestamp.from(Instant.now().plusSeconds(90)),
+              id);
         });
   }
 
@@ -88,7 +142,7 @@ public class Tasks {
                   str(j, "version_id"));
           String lease = id();
           db.exec(
-              "UPDATE jobs SET state='RUNNING',attempts=attempts+1,lease_token=?,lease_until=? WHERE id=?",
+              "UPDATE jobs SET state='RUNNING',attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
               lease,
               Timestamp.from(Instant.now().plusSeconds(90)),
               id);
@@ -129,7 +183,7 @@ public class Tasks {
         status -> {
           validate(id, lease);
           db.exec(
-              "UPDATE jobs SET lease_until=? WHERE id=?",
+              "UPDATE jobs SET lease_until=?,heartbeat_at=CURRENT_TIMESTAMP WHERE id=?",
               Timestamp.from(Instant.now().plusSeconds(90)),
               id);
         });
@@ -173,17 +227,29 @@ public class Tasks {
                 str(body, "model_identity"),
                 version);
           }
-          db.exec("UPDATE jobs SET state='DONE',lease_token=NULL,lease_until=NULL WHERE id=?", id);
+          db.exec(
+              "UPDATE jobs SET state='DONE',checkpoint='DONE',lease_token=NULL,lease_until=NULL,error_code=NULL WHERE id=?",
+              id);
         });
   }
 
   public void failed(String id, String lease, String code, boolean retryable) {
     tx.executeWithoutResult(
         status -> {
+          var tenant = db.one("SELECT tenant_id FROM jobs WHERE id=?", id);
+          db.one("SELECT id FROM tenants WHERE id=? FOR UPDATE", str(tenant, "tenant_id"));
           var j = validate(id, lease);
-          String next = retryable && num(j, "attempts") < 3 ? "QUEUED" : "FAILED";
+          boolean terminal =
+              Set.of(
+                      "INVALID_FILE",
+                      "PARSE_TIMEOUT",
+                      "PARSE_RESOURCE_LIMIT",
+                      "PARSING_FAILED",
+                      "MODEL_CONFIGURATION_REQUIRED")
+                  .contains(code);
+          String next = retryable && !terminal && num(j, "attempts") < 3 ? "QUEUED" : "FAILED";
           db.exec(
-              "UPDATE jobs SET state=?,error_code=?,lease_token=NULL WHERE id=?",
+              "UPDATE jobs SET state=?,error_code=?,lease_token=NULL,lease_until=NULL WHERE id=?",
               next,
               code.replaceAll("[^A-Z0-9_]", "")
                   .substring(0, Math.min(code.replaceAll("[^A-Z0-9_]", "").length(), 90)),

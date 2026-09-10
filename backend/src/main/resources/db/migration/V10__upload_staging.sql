@@ -1,0 +1,12 @@
+CREATE TABLE upload_staging (
+  id VARCHAR(36) PRIMARY KEY,
+  tenant_id VARCHAR(36) NOT NULL,
+  object_key VARCHAR(300) NOT NULL UNIQUE,
+  state VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+  expires_at TIMESTAMP NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_upload_staging_cleanup ON upload_staging(state,expires_at);
+ALTER TABLE jobs ADD COLUMN checkpoint VARCHAR(32) NOT NULL DEFAULT 'QUEUED';
+ALTER TABLE jobs ADD COLUMN heartbeat_at TIMESTAMP NULL;

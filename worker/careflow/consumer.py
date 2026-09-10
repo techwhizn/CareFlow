@@ -42,17 +42,33 @@ def run_job(job_id):
 
         thread = threading.Thread(target=heartbeat, daemon=True)
         thread.start()
+
+        def checkpoint(stage):
+            if lease_lost.is_set():
+                raise ParseFailure("LEASE_LOST")
+            client.post(
+                base + "/checkpoint", headers=headers, json={"stage": stage}
+            ).raise_for_status()
+
         try:
             if job["kind"] == "PARSE":
                 source = client.get(base + "/source", headers=headers)
                 source.raise_for_status()
-                result = {"chunks": parse_document(source.content, job["filename"])}
+                checkpoint("SOURCE_READY")
+                result = {
+                    "chunks": parse_document(
+                        source.content, job["filename"], cancelled=lease_lost.is_set
+                    )
+                }
+                checkpoint("PARSED")
             else:
                 chunks = client.get(base + "/chunks", headers=headers)
                 chunks.raise_for_status()
+                checkpoint("INDEXING")
                 result = retrieval.index(
                     job["tenant_id"], job["version_id"], chunks.json()
                 )
+                checkpoint("INDEX_VERIFIED")
             if not lease_lost.is_set():
                 client.post(
                     base + "/complete", headers=headers, json=result

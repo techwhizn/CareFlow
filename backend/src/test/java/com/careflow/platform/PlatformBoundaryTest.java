@@ -35,6 +35,7 @@ class PlatformBoundaryTest {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper json;
   @Autowired Tasks tasks;
+  @Autowired UploadStaging staging;
   @Autowired RetrievalService retrieval;
   @MockitoBean BlobStore blobs;
   @MockitoBean WorkerClient worker;
@@ -83,6 +84,181 @@ class PlatformBoundaryTest {
         chunk,
         tenant,
         version);
+  }
+
+  @Test
+  void uploadStorageRunsOutsideTransactionAndRevocationPreventsAttachment() throws Exception {
+    org.mockito.Mockito.doAnswer(
+            invocation -> {
+              assertThat(
+                      org.springframework.transaction.support.TransactionSynchronizationManager
+                          .isActualTransactionActive())
+                  .isFalse();
+              db.exec("UPDATE credentials SET active=FALSE WHERE tenant_id=?", tenant);
+              return null;
+            })
+        .when(blobs)
+        .put(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.any(byte[].class));
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(
+                    new MockMultipartFile(
+                        "file", "revoked.txt", "text/plain", "Synthetic revocation".getBytes()))
+                .header("Authorization", token)
+                .header("Idempotency-Key", Db.id()))
+        .andExpect(status().isUnauthorized());
+    assertThat(db.list("SELECT id FROM jobs WHERE tenant_id=?", tenant)).isEmpty();
+    assertThat(db.list("SELECT id FROM documents WHERE tenant_id=?", tenant)).hasSize(1);
+    var pending = db.one("SELECT * FROM upload_staging WHERE tenant_id=?", tenant);
+    db.exec(
+        "UPDATE upload_staging SET expires_at=? WHERE id=?",
+        java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+        Db.str(pending, "id"));
+    staging.cleanup();
+    org.mockito.Mockito.verify(blobs).delete(Db.str(pending, "object_key"));
+    assertThat(
+            Db.str(
+                db.one("SELECT state FROM upload_staging WHERE id=?", Db.str(pending, "id")),
+                "state"))
+        .isEqualTo("DELETED");
+  }
+
+  @Test
+  void failedStorageLeavesRetryableCleanupButNeverPublishesDocument() throws Exception {
+    org.mockito.Mockito.doThrow(new ApiException(503, "STORAGE_UNAVAILABLE", "Failure"))
+        .when(blobs)
+        .put(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.any(byte[].class));
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(
+                    new MockMultipartFile(
+                        "file", "failed.txt", "text/plain", "Synthetic failure".getBytes()))
+                .header("Authorization", token)
+                .header("Idempotency-Key", Db.id()))
+        .andExpect(status().isServiceUnavailable());
+    var stage = db.one("SELECT * FROM upload_staging WHERE tenant_id=?", tenant);
+    String key = Db.str(stage, "object_key"), id = Db.str(stage, "id");
+    db.exec(
+        "UPDATE upload_staging SET expires_at=? WHERE id=?",
+        java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+        id);
+    org.mockito.Mockito.doThrow(new ApiException(503, "STORAGE_UNAVAILABLE", "Failure"))
+        .doNothing()
+        .when(blobs)
+        .delete(key);
+    staging.cleanup();
+    assertThat(Db.str(db.one("SELECT state FROM upload_staging WHERE id=?", id), "state"))
+        .isEqualTo("CLEANING");
+    db.exec(
+        "UPDATE upload_staging SET expires_at=? WHERE id=?",
+        java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+        id);
+    staging.cleanup();
+    assertThat(Db.str(db.one("SELECT state FROM upload_staging WHERE id=?", id), "state"))
+        .isEqualTo("DELETED");
+    assertThat(db.list("SELECT id FROM jobs WHERE tenant_id=?", tenant)).isEmpty();
+  }
+
+  @Test
+  void attachedUploadSurvivesCleanupAndExactReplayDoesNotStoreAgain() throws Exception {
+    String key = Db.id();
+    var file =
+        new MockMultipartFile(
+            "file", "once.txt", "text/plain", "Synthetic exact replay".getBytes());
+    String first =
+        mvc.perform(
+                multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                    .file(file)
+                    .header("Authorization", token)
+                    .header("Idempotency-Key", key))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(file)
+                .header("Authorization", token)
+                .header("Idempotency-Key", key))
+        .andExpect(status().isOk())
+        .andExpect(content().json(first));
+    var stage = db.one("SELECT * FROM upload_staging WHERE tenant_id=?", tenant);
+    db.exec(
+        "UPDATE upload_staging SET expires_at=? WHERE id=?",
+        java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+        Db.str(stage, "id"));
+    staging.cleanup();
+    org.mockito.Mockito.verify(blobs, org.mockito.Mockito.times(1))
+        .put(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.any(byte[].class));
+    org.mockito.Mockito.verify(blobs, org.mockito.Mockito.never())
+        .delete(Db.str(stage, "object_key"));
+  }
+
+  @Test
+  void checkpointsHeartbeatAndCancellationFenceLateCallbacks() {
+    String job = Db.id();
+    db.exec("UPDATE document_versions SET ever_published=FALSE WHERE id=?", version);
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'PARSE',?)",
+        job,
+        tenant,
+        version,
+        Db.id());
+    String lease = Db.str(tasks.claim(job), "lease_token");
+    tasks.checkpoint(job, lease, "SOURCE_READY");
+    tasks.heartbeat(job, lease);
+    assertThat(Db.str(db.one("SELECT checkpoint FROM jobs WHERE id=?", job), "checkpoint"))
+        .isEqualTo("SOURCE_READY");
+    assertThatThrownBy(() -> tasks.checkpoint(job, lease, "STARTED"))
+        .isInstanceOf(IllegalArgumentException.class);
+    tasks.cancel(actor, job);
+    assertThatThrownBy(() -> tasks.heartbeat(job, lease)).isInstanceOf(ApiException.class);
+    assertThatThrownBy(() -> tasks.complete(job, lease, Map.of("chunks", List.of())))
+        .isInstanceOf(ApiException.class);
+    assertThat(Db.str(db.one("SELECT state FROM jobs WHERE id=?", job), "state"))
+        .isEqualTo("CANCELLED");
+  }
+
+  @Test
+  void leaseRecoveryStopsAfterThreeAttemptsAndTerminalFailuresNeverRetry() {
+    String job = Db.id();
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'PARSE',?)",
+        job,
+        tenant,
+        version,
+        Db.id());
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      String lease = Db.str(tasks.claim(job), "lease_token");
+      db.exec(
+          "UPDATE jobs SET lease_until=? WHERE id=?",
+          java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+          job);
+      tasks.recover();
+      tasks.recover();
+      assertThatThrownBy(() -> tasks.heartbeat(job, lease)).isInstanceOf(ApiException.class);
+    }
+    assertThat(Db.str(db.one("SELECT state FROM jobs WHERE id=?", job), "state"))
+        .isEqualTo("FAILED");
+    assertThat(db.list("SELECT id FROM outbox WHERE job_id=?", job)).hasSize(2);
+    String terminal = Db.id();
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'PARSE',?)",
+        terminal,
+        tenant,
+        version,
+        Db.id());
+    String lease = Db.str(tasks.claim(terminal), "lease_token");
+    tasks.failed(terminal, lease, "INVALID_FILE", true);
+    assertThat(Db.str(db.one("SELECT state FROM jobs WHERE id=?", terminal), "state"))
+        .isEqualTo("FAILED");
+    assertThat(db.list("SELECT id FROM outbox WHERE job_id=?", terminal)).isEmpty();
   }
 
   @Test

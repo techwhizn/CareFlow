@@ -89,3 +89,11 @@ applications 返回当前绑定应用的 id/name/published；还需具备应用�
 时间必须使用含Z或UTC偏移的ISO 8601，例如 `2026-09-10T09:00:00+08:00`。统一按UTC存入DATETIME，返回UTC时间，界面展示本地时区；支持UTC年份1000～9999。空值代表不限制；区间为包含开始、不包含结束，开始必须早于结束。修改立即影响默认召回范围、证据外发复核、流式继续交付和历史答案可见性；已有版本自身有效期仍作为额外限制。原文件/切片不因此改写或自动发布。
 
 更新使用文档共享revision；冲突409不写入元数据或历史。`GET /documents/{id}/metadata-history?page=0` 需edit，50条一页，返回操作者、时间、修订以及before/after快照（metadata_json）。旧数据没有凭空生成修改记录。历史快照按文档授权保护，普通审计日志仅保存修订号。
+
+## 上传暂存与任务检查点（V1-14）
+
+上传接口保持兼容。新增内部上传暂存：先用短事务登记唯一对象键（15分钟有效），再在事务外写S3，最后短事务重新认证/授权、核对幂等和重复内容，原子创建文档版本、任务及Outbox。相同请求并发最终指向同一任务；未挂接对象不作为文档可见。原凭证撤销或知识库归档后不得完成挂接。暂存过期返回409 UPLOAD_EXPIRED。
+
+公共任务响应增加checkpoint、heartbeat_at，继续隐藏lease_token、request_key和upload_fingerprint。阶段为STARTED、SOURCE_READY、PARSED（解析）或INDEXING、INDEX_VERIFIED（索引），完成为DONE。检查点表示最近已确认阶段，不是进度百分比；失败后从当前任务阶段的安全起点重跑，不承诺恢复解析进程内存或部分模型结果。
+
+内部Worker使用 `POST /internal/v1/jobs/{id}/checkpoint`，X-Lease-Token及 `{stage}`；旧租约/取消/已删除资料拒绝，阶段不能倒退。心跳每20秒，租约90秒。租约过期重投，总计最多3次；INVALID_FILE、PARSE_TIMEOUT、PARSE_RESOURCE_LIMIT、PARSING_FAILED、MODEL_CONFIGURATION_REQUIRED不自动重试。取消即时封锁回调，解析子进程在检测租约丢失后终止；已经发出的模型请求成本不能因此倒退。

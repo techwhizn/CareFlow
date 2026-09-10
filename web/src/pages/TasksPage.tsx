@@ -38,6 +38,8 @@ export default function TasksPage() {
               <tr>
                 <th>任务</th>
                 <th>阶段</th>
+                <th>最后检查点</th>
+                <th>最近心跳</th>
                 <th>状态</th>
                 <th>尝试次数</th>
                 <th>错误类型</th>
@@ -53,6 +55,8 @@ export default function TasksPage() {
                   <td>
                     {j.kind === "PARSE" ? "文档解析与切片" : "向量化与索引"}
                   </td>
+                  <td>{({QUEUED:"排队",STARTED:"已领取",SOURCE_READY:"原文件已读取",PARSED:"解析完成",INDEXING:"索引处理中",INDEX_VERIFIED:"索引已验证",DONE:"已完成"} as Record<string,string>)[j.checkpoint] || j.checkpoint}</td>
+                  <td>{j.heartbeat_at ? new Date(j.heartbeat_at).toLocaleString() : "—"}</td>
                   <td>
                     <Badge value={j.state} />
                   </td>

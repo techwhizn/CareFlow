@@ -70,3 +70,13 @@ def test_timeout_reaps_child(monkeypatch):
         parse_document(b"long synthetic text " * 500000, "long.txt")
     assert error.value.code in {"PARSE_TIMEOUT", "PARSE_RESOURCE_LIMIT"}
     assert {p.pid for p in multiprocessing.active_children()} == before
+
+
+def test_lease_loss_terminates_parser_child():
+    before = {p.pid for p in multiprocessing.active_children()}
+    with pytest.raises(ParseFailure) as error:
+        parse_document(
+            b"synthetic cancel fixture " * 300000, "cancel.txt", cancelled=lambda: True
+        )
+    assert error.value.code == "LEASE_LOST"
+    assert {p.pid for p in multiprocessing.active_children()} == before

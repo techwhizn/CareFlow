@@ -2,6 +2,7 @@
 
 import multiprocessing
 import sys
+import time
 
 from careflow.parsing_limits import Limits, bounded
 from careflow.parsing_types import InvalidFile
@@ -36,7 +37,7 @@ def _child(connection, data, filename):
         connection.close()
 
 
-def parse_document(data: bytes, filename: str) -> list[dict]:
+def parse_document(data: bytes, filename: str, cancelled=None) -> list[dict]:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)
@@ -44,8 +45,12 @@ def parse_document(data: bytes, filename: str) -> list[dict]:
     try:
         process.start()
         sender.close()
-        if not receiver.poll(seconds):
-            raise ParseFailure("PARSE_TIMEOUT")
+        deadline = time.monotonic() + seconds
+        while not receiver.poll(min(1, max(0, deadline - time.monotonic()))):
+            if cancelled is not None and cancelled():
+                raise ParseFailure("LEASE_LOST")
+            if time.monotonic() >= deadline:
+                raise ParseFailure("PARSE_TIMEOUT")
         try:
             status, result = receiver.recv()
         except EOFError as exc:

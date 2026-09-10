@@ -29,6 +29,16 @@ public class InternalController {
     tasks.heartbeat(id, lease);
   }
 
+  public record Checkpoint(@jakarta.validation.constraints.NotBlank String stage) {}
+
+  @PostMapping("/{id}/checkpoint")
+  public void checkpoint(
+      @PathVariable String id,
+      @RequestHeader("X-Lease-Token") String lease,
+      @RequestBody @jakarta.validation.Valid Checkpoint body) {
+    tasks.checkpoint(id, lease, body.stage());
+  }
+
   @GetMapping("/{id}/source")
   @Transactional
   public byte[] source(@PathVariable String id, @RequestHeader("X-Lease-Token") String lease) {

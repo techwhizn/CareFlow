@@ -23,7 +23,17 @@ public class BlobStore {
   private MinioClient client() {
     if (access.isBlank() || secret.isBlank())
       throw new ApiException(503, "STORAGE_NOT_CONFIGURED", "对象存储尚未配置");
-    return MinioClient.builder().endpoint(endpoint).credentials(access, secret).build();
+    return MinioClient.builder()
+        .endpoint(endpoint)
+        .credentials(access, secret)
+        .httpClient(
+            new okhttp3.OkHttpClient.Builder()
+                .connectTimeout(java.time.Duration.ofSeconds(10))
+                .readTimeout(java.time.Duration.ofSeconds(60))
+                .writeTimeout(java.time.Duration.ofSeconds(60))
+                .callTimeout(java.time.Duration.ofSeconds(120))
+                .build())
+        .build();
   }
 
   public void put(String key, byte[] bytes) {
@@ -40,6 +50,14 @@ public class BlobStore {
       throw e;
     } catch (Exception e) {
       throw new ApiException(503, "STORAGE_UNAVAILABLE", "上传存储失败");
+    }
+  }
+
+  public void delete(String key) {
+    try {
+      client().removeObject(RemoveObjectArgs.builder().bucket(bucket).object(key).build());
+    } catch (Exception e) {
+      throw new ApiException(503, "STORAGE_UNAVAILABLE", "暂存文件清理失败");
     }
   }
 

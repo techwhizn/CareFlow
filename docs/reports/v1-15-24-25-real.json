@@ -1,0 +1,30 @@
+{
+  "synthetic_data": true,
+  "real_dependencies": true,
+  "steps": [
+    {
+      "mode": "semantic",
+      "evidence_count": 3
+    },
+    {
+      "mode": "keyword",
+      "evidence_count": 3
+    },
+    {
+      "mode": "hybrid",
+      "evidence_count": 3
+    },
+    {
+      "draft_isolated": true,
+      "stale_content_rejected": true,
+      "publish_switched": true,
+      "rollback_restored": true,
+      "old_chunks_immutable": true
+    },
+    {
+      "real_filter_match": 3,
+      "real_filter_exclusion": true
+    }
+  ],
+  "complete": true
+}

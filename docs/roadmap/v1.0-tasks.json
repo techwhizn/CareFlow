@@ -246,7 +246,7 @@
       "V1-14"
     ],
     "acceptance": "新文件产生新版本；未发布草稿不影响线上；处理就绪不等于发布；并发编辑/发布不静默覆盖，旧版可追溯。",
-    "status": "待验收",
+    "status": "完成",
     "evidence": "docs/reports/v1-15-publication-isolation.md"
   },
   {
@@ -399,7 +399,8 @@
       "V1-21"
     ],
     "acceptance": "语义/关键词/混合模式真实运行；分别记录dense/BM25/RRF/Rerank阶段；同义词及型号/错误码能定位标注证据。",
-    "status": "待完成"
+    "status": "待验收",
+    "evidence": "docs/reports/v1-15-24-25-real.json"
   },
   {
     "id": "V1-25",

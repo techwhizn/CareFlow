@@ -1,0 +1,79 @@
+{
+  "started_at": "2026-09-10T13:07:15Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "initial_index_calculates_three_texts",
+      "passed": true,
+      "job_id": "849a4e09-4cc3-43a2-9da8-1e37c35bb022",
+      "metrics": {
+        "indexed_chunks": 3,
+        "embedded_texts": 3,
+        "reused_chunks": 0,
+        "index_usage": {
+          "model_calls": 1,
+          "known_embedding_tokens": 96,
+          "unknown_usage_calls": 0
+        }
+      }
+    },
+    {
+      "name": "new_draft_ids_reuse_two_unchanged_texts_and_embed_one",
+      "passed": true,
+      "job_id": "74ff561f-9dd0-4107-8119-6523cea2d5fc",
+      "metrics": {
+        "indexed_chunks": 3,
+        "embedded_texts": 1,
+        "reused_chunks": 2,
+        "index_usage": {
+          "model_calls": 1,
+          "known_embedding_tokens": 48,
+          "unknown_usage_calls": 0
+        }
+      }
+    },
+    {
+      "name": "tag_only_change_reuses_all_vectors_without_model_call",
+      "passed": true,
+      "job_id": "a752719d-67a8-4166-88b0-d2c38d8bbb4c",
+      "metrics": {
+        "indexed_chunks": 3,
+        "embedded_texts": 0,
+        "reused_chunks": 3,
+        "index_usage": {
+          "model_calls": 0,
+          "known_embedding_tokens": 0,
+          "unknown_usage_calls": 0
+        }
+      }
+    },
+    {
+      "name": "draft_incremental_index_does_not_replace_published_source",
+      "passed": true
+    },
+    {
+      "name": "actual_dense_and_native_bm25_point_to_the_same_changed_chunk_version",
+      "passed": true
+    },
+    {
+      "name": "other_tenant_cannot_read_job_or_usage",
+      "passed": true
+    },
+    {
+      "name": "milvus_rows_match_enabled_draft_content_and_model_dimensions",
+      "passed": true
+    },
+    {
+      "name": "browser_task_center_matches_incremental_counts_and_usage",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "fixture": {
+    "knowledge_base_id": "13fad4c1-f759-48d3-ba97-a69746565a0e",
+    "document_id": "6711aaee-5aa2-4e92-9674-d6ad09e6dddd",
+    "source_version": "23a079fb-b769-4f6c-8a9b-5ddae2e689f9",
+    "draft_version": "ef7d4195-7f39-40b6-b326-6046ed9c8723",
+    "configuration_id": "342c9149-5139-4e5b-ac4f-42b7e900b3b1"
+  }
+}

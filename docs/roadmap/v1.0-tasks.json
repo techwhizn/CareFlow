@@ -352,7 +352,8 @@
       "V1-20"
     ],
     "acceptance": "仅重算变更内容；向量与BM25指向相同切片版本，查询与文档模型兼容；状态真实且可重试；用量按实际记录。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-21-incremental.md"
   },
   {
     "id": "V1-22",

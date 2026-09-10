@@ -8,7 +8,7 @@ from functools import lru_cache
 
 from pymilvus import DataType, Function, FunctionType, MilvusClient
 
-from careflow import models
+from careflow import embedding_cache, models
 from careflow.model_configuration import value
 
 
@@ -73,7 +73,7 @@ def ensure_collection(tenant):
     return name
 
 
-def index(tenant, version, chunks, chunking=None):
+def index(tenant, version, chunks, chunking=None, record_call=None):
     import tiktoken
 
     if not chunks:
@@ -95,7 +95,9 @@ def index(tenant, version, chunks, chunking=None):
         ):
             raise ValueError("Edited chunk exceeds configured token limit")
     name = ensure_collection(tenant)
-    vectors, usage = models.embed([c["content"] for c in chunks])
+    vectors, metrics = embedding_cache.vectors(
+        client(), tenant, [c["content"] for c in chunks], record_call
+    )
     records = [
         {
             "id": str(uuid.UUID(row["id"])),
@@ -123,7 +125,7 @@ def index(tenant, version, chunks, chunking=None):
     return {
         "verified": True,
         "model_identity": models.identity(),
-        "embedding_tokens": usage,
+        **metrics,
     }
 
 

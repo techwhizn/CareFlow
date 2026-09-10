@@ -61,6 +61,13 @@ def run_job(job_id):
                 base + "/checkpoint", headers=headers, json={"stage": stage}
             ).raise_for_status()
 
+        def record_call(call_id, state, input_count, tokens):
+            client.put(
+                base + "/model-calls/" + call_id,
+                headers=headers,
+                json={"state": state, "input_count": input_count, "tokens": tokens},
+            ).raise_for_status()
+
         try:
             if job["kind"] == "PARSE":
                 source = client.get(base + "/source", headers=headers)
@@ -94,6 +101,7 @@ def run_job(job_id):
                         job["version_id"],
                         chunks.json(),
                         chunking=configuration.chunking if configuration else None,
+                        record_call=record_call,
                     )
                 result = IndexCompletion.model_validate(result).model_dump()
                 checkpoint("INDEX_VERIFIED")

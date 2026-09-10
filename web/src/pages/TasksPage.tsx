@@ -42,6 +42,7 @@ export default function TasksPage() {
                 <th>最近心跳</th>
                 <th>状态</th>
                 <th>尝试次数</th>
+                <th>索引与用量</th>
                 <th>等待原因</th>
                 <th>错误类型</th>
                 <th />
@@ -56,13 +57,67 @@ export default function TasksPage() {
                   <td>
                     {j.kind === "PARSE" ? "文档解析与切片" : "向量化与索引"}
                   </td>
-                  <td>{({QUEUED:"排队",STARTED:"已领取",SOURCE_READY:"原文件已读取",PARSED:"解析完成",INDEXING:"索引处理中",INDEX_VERIFIED:"索引已验证",DONE:"已完成"} as Record<string,string>)[j.checkpoint] || j.checkpoint}</td>
-                  <td>{j.heartbeat_at ? new Date(j.heartbeat_at).toLocaleString() : "—"}</td>
+                  <td>
+                    {(
+                      {
+                        QUEUED: "排队",
+                        STARTED: "已领取",
+                        SOURCE_READY: "原文件已读取",
+                        PARSED: "解析完成",
+                        INDEXING: "索引处理中",
+                        INDEX_VERIFIED: "索引已验证",
+                        DONE: "已完成",
+                      } as Record<string, string>
+                    )[j.checkpoint] || j.checkpoint}
+                  </td>
+                  <td>
+                    {j.heartbeat_at
+                      ? new Date(j.heartbeat_at).toLocaleString()
+                      : "—"}
+                  </td>
                   <td>
                     <Badge value={j.state} />
                   </td>
                   <td>{j.attempts} / 3</td>
-                  <td>{j.state === "QUEUED" ? ({TENANT_NOTIFICATION_PENDING:"等待本企业前序任务领取",ENTITLEMENT_INACTIVE:"套餐未生效或已停用",TASK_QUOTA_OR_CONCURRENCY:"等待处理额度或并发名额",WAITING_FOR_WORKER:"已通知，等待处理器领取"} as Record<string,string>)[j.wait_reason] || "等待公平调度" : "—"}</td>
+                  <td>
+                    {j.indexed_chunks != null && (
+                      <div>
+                        共 {j.indexed_chunks} 片 · 新算 {j.embedded_texts} ·
+                        复用 {j.reused_chunks}
+                      </div>
+                    )}
+                    {j.index_usage &&
+                    (j.index_usage.model_calls > 0 ||
+                      j.indexed_chunks != null) ? (
+                      <>
+                        <div>
+                          已知 Embedding：{j.index_usage.known_embedding_tokens}{" "}
+                          Token
+                        </div>
+                        <small>
+                          {j.index_usage.model_calls} 次调用（含重试）
+                          {j.index_usage.unknown_usage_calls > 0
+                            ? ` · ${j.index_usage.unknown_usage_calls} 次用量未知或待回报`
+                            : ""}
+                        </small>
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    {j.state === "QUEUED"
+                      ? (
+                          {
+                            TENANT_NOTIFICATION_PENDING:
+                              "等待本企业前序任务领取",
+                            ENTITLEMENT_INACTIVE: "套餐未生效或已停用",
+                            TASK_QUOTA_OR_CONCURRENCY: "等待处理额度或并发名额",
+                            WAITING_FOR_WORKER: "已通知，等待处理器领取",
+                          } as Record<string, string>
+                        )[j.wait_reason] || "等待公平调度"
+                      : "—"}
+                  </td>
                   <td>{j.error_code || "—"}</td>
                   <td>
                     {["QUEUED", "RUNNING"].includes(j.state) && (

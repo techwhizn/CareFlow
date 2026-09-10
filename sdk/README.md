@@ -139,3 +139,5 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 通过 `document_versions(document_id)` / `documentVersions(documentId)` 获取版本列表，在核对目标版本内容时保留其 `revision`，发布时作为 `version_revision` 传入；文档 `revision` 来自文档列表或详情。409时重新读取并核对内容，再决定是否发布。READY仅表示处理就绪，不会自动发布。
 
 搜索与问答的 Query.filters 支持类型化元数据条件；Python 使用 MetadataFilter，Java 使用 MetadataFilter/MetadataField/MetadataOperator。字段、值类型和组合规则见 [过滤契约](../docs/metadata-filters.md)。
+
+任务查询返回新增的索引计数及`index_usage`摘要。缺失供应商用量以未知调用数表示，不推断为0；详见 [增量索引与用量](../docs/incremental-indexing.md)。

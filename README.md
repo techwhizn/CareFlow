@@ -100,3 +100,5 @@ npm audit --prefix web
 文档发布需要同时校验文档与内容版本修订，详见 [发布隔离与客户端升级](docs/document-publications.md)。
 
 知识库可独立保存、发布和回滚解析、切片、检索与模型配置，详见 [配置版本与历史索引升级](docs/knowledge-configurations.md)。
+
+增量向量复用、实际模型调用用量与升级顺序见 [增量索引](docs/incremental-indexing.md)。

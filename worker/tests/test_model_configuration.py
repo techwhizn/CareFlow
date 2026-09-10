@@ -191,6 +191,9 @@ def test_consumer_uses_claim_snapshot_without_serializing_secret_as_mask(monkeyp
             "verified": True,
             "model_identity": models.identity(),
             "embedding_tokens": 3,
+            "indexed_chunks": 1,
+            "embedded_texts": 1,
+            "reused_chunks": 0,
         }
 
     monkeypatch.setattr(

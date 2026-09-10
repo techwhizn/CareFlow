@@ -2,6 +2,7 @@
 
 import json
 import math
+import uuid
 
 import httpx
 
@@ -45,7 +46,7 @@ def endpoint(prefix, suffix):
     return base.rstrip("/") + suffix, model, headers
 
 
-def embed(texts):
+def embed(texts, record_call=None):
     url, model, headers = endpoint("EMBEDDING", "/embeddings")
     dim = int(value("EMBEDDING_DIMENSIONS", "1024"))
     vectors = []
@@ -53,11 +54,29 @@ def embed(texts):
     with httpx.Client(timeout=60) as client:
         for start in range(0, len(texts), 32):
             batch = texts[start : start + 32]
-            response = client.post(
-                url, headers=headers, json={"model": model, "input": batch}
-            )
-            response.raise_for_status()
-            payload = response.json()
+            call_id = str(uuid.uuid4())
+            if record_call:
+                record_call(call_id, "STARTED", len(batch), None)
+            try:
+                response = client.post(
+                    url, headers=headers, json={"model": model, "input": batch}
+                )
+                response.raise_for_status()
+                payload = response.json()
+                reported = payload.get("usage")
+                consumed = (
+                    reported.get("total_tokens") if isinstance(reported, dict) else None
+                )
+                if type(consumed) is not int or consumed < 0:
+                    consumed = None
+            except Exception:
+                if record_call:
+                    record_call(call_id, "UNKNOWN", len(batch), None)
+                raise
+            # Record upstream consumption before validating or writing vectors. Malformed
+            # model data and subsequent storage failures must not erase known usage.
+            if record_call:
+                record_call(call_id, "SUCCEEDED", len(batch), consumed)
             rows = sorted(payload["data"], key=lambda row: row["index"])
             if [row["index"] for row in rows] != list(range(len(batch))):
                 raise ModelUnavailable("Embedding response indexes mismatch")
@@ -68,7 +87,9 @@ def embed(texts):
                         "Embedding dimension or numeric value mismatch"
                     )
                 vectors.append(vector)
-            usage += payload.get("usage", {}).get("total_tokens", 0)
+            usage = (
+                usage + consumed if usage is not None and consumed is not None else None
+            )
     return vectors, usage
 
 

@@ -18,6 +18,7 @@ public class Tasks {
   private final EntitlementService entitlements;
   private final KnowledgeConfigurationService configurations;
   private final ParsedContentService parsedContent;
+  private final IndexAccountingService accounting;
 
   public Tasks(
       Db db,
@@ -25,13 +26,15 @@ public class Tasks {
       Identity auth,
       EntitlementService entitlements,
       KnowledgeConfigurationService configurations,
-      ParsedContentService parsedContent) {
+      ParsedContentService parsedContent,
+      IndexAccountingService accounting) {
     this.db = db;
     this.tx = tx;
     this.auth = auth;
     this.entitlements = entitlements;
     this.configurations = configurations;
     this.parsedContent = parsedContent;
+    this.accounting = accounting;
   }
 
   @Bean
@@ -223,6 +226,7 @@ public class Tasks {
                     .modelIdentity(configuration.embedding())
                     .equals(str(body, "model_identity")))
               throw new ApiException(409, "INDEX_MODEL_MISMATCH", "索引模型与任务快照不一致");
+            accounting.complete(j, lease, body);
             db.exec(
                 "UPDATE document_versions SET state='READY',model_identity=? WHERE id=?",
                 str(body, "model_identity"),
@@ -231,6 +235,20 @@ public class Tasks {
           db.exec(
               "UPDATE jobs SET state='DONE',checkpoint='DONE',lease_token=NULL,lease_until=NULL,error_code=NULL WHERE id=?",
               id);
+        });
+  }
+
+  public void recordModelCall(
+      String id, String lease, String callId, IndexAccountingService.Call call) {
+    tx.executeWithoutResult(
+        status -> {
+          var tenant = db.one("SELECT tenant_id FROM jobs WHERE id=?", id);
+          db.one("SELECT id FROM tenants WHERE id=? FOR UPDATE", str(tenant, "tenant_id"));
+          var job =
+              call.state().equals("STARTED")
+                  ? validate(id, lease)
+                  : db.one("SELECT * FROM jobs WHERE id=? FOR UPDATE", id);
+          accounting.record(job, lease, callId, call);
         });
   }
 

@@ -133,7 +133,10 @@ public final class WorkerProtocolV1 {
       @Size(max = 50000) List<@NotNull @Valid ParsedContext> contexts,
       Boolean verified,
       @Size(max = 500) String model_identity,
-      @Min(0) Long embedding_tokens) {}
+      @Min(0) Long embedding_tokens,
+      @Min(1) @Max(50000) Integer indexed_chunks,
+      @Min(0) @Max(50000) Integer embedded_texts,
+      @Min(0) @Max(50000) Integer reused_chunks) {}
 
   public record TaskFailure(
       @NotBlank @Pattern(regexp = "[A-Z0-9_]{1,90}") String code, boolean retryable) {}

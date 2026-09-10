@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 public class JobReadService {
   private final Db db;
   private final Identity auth;
+  private final IndexAccountingService accounting;
 
-  public JobReadService(Db db, Identity auth) {
+  public JobReadService(Db db, Identity auth, IndexAccountingService accounting) {
     this.db = db;
     this.auth = auth;
+    this.accounting = accounting;
   }
 
   public Object jobs(Actor actor) {
@@ -41,6 +43,8 @@ public class JobReadService {
     result.remove("dispatch_token");
     result.remove("request_key");
     result.remove("upload_fingerprint");
+    if (str(job, "kind").equals("INDEX"))
+      result.put("index_usage", accounting.summary(str(job, "tenant_id"), str(job, "id")));
     return result;
   }
 

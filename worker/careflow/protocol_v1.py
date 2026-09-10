@@ -173,3 +173,6 @@ class IndexCompletion(Contract):
     verified: Literal[True]
     model_identity: str = Field(min_length=1, max_length=500)
     embedding_tokens: int | None = Field(default=None, ge=0)
+    indexed_chunks: int = Field(ge=1, le=50000)
+    embedded_texts: int = Field(ge=0, le=50000)
+    reused_chunks: int = Field(ge=0, le=50000)

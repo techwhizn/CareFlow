@@ -76,6 +76,15 @@ public class InternalController {
     tasks.complete(id, lease, payload);
   }
 
+  @PutMapping("/{id}/model-calls/{callId}")
+  public void modelCall(
+      @PathVariable String id,
+      @PathVariable String callId,
+      @RequestHeader("X-Lease-Token") String lease,
+      @RequestBody @jakarta.validation.Valid IndexAccountingService.Call body) {
+    tasks.recordModelCall(id, lease, callId, body);
+  }
+
   @PostMapping("/{id}/failed")
   public void failed(
       @PathVariable String id,

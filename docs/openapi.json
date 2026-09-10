@@ -6,11 +6,60 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://127.0.0.1:8080",
       "description": "Generated server url"
     }
   ],
   "paths": {
+    "/internal/v1/jobs/{id}/model-calls/{callId}": {
+      "put": {
+        "tags": [
+          "internal-controller"
+        ],
+        "operationId": "modelCall",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "callId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Lease-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Call"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/quota": {
       "put": {
         "tags": [
@@ -3087,6 +3136,29 @@
   },
   "components": {
     "schemas": {
+      "Call": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "pattern": "STARTED|SUCCEEDED|UNKNOWN"
+          },
+          "input_count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 32,
+            "minimum": 1
+          },
+          "tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
       "Quota": {
         "type": "object",
         "properties": {
@@ -3783,6 +3855,24 @@
           "embedding_tokens": {
             "type": "integer",
             "format": "int64",
+            "minimum": 0
+          },
+          "indexed_chunks": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 50000,
+            "minimum": 1
+          },
+          "embedded_texts": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 50000,
+            "minimum": 0
+          },
+          "reused_chunks": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 50000,
             "minimum": 0
           }
         }

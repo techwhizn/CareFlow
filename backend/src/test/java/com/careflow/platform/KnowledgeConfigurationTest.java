@@ -408,14 +408,79 @@ class KnowledgeConfigurationTest {
         .isInstanceOfSatisfying(
             ApiException.class, e -> assertThat(e.code).isEqualTo("INDEX_MODEL_MISMATCH"));
     assertThat(Db.str(db.one("SELECT * FROM jobs WHERE id=?", id), "state")).isEqualTo("RUNNING");
-    tasks.complete(
-        id,
-        lease,
-        Map.of(
+    db.exec(
+        "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count) VALUES(?,?,?,0,'synthetic','synthetic','{}',1)",
+        Db.id(),
+        tenant,
+        version);
+    String callId = Db.id();
+    tasks.recordModelCall(id, lease, callId, new IndexAccountingService.Call("STARTED", 1, null));
+    tasks.recordModelCall(id, lease, callId, new IndexAccountingService.Call("SUCCEEDED", 1, 7L));
+    var completion =
+        Map.<String, Object>of(
             "verified",
             true,
             "model_identity",
-            configurations.modelIdentity(configurations.runtime(tenant, first).embedding())));
+            configurations.modelIdentity(configurations.runtime(tenant, first).embedding()),
+            "indexed_chunks",
+            1,
+            "embedded_texts",
+            1,
+            "reused_chunks",
+            0,
+            "embedding_tokens",
+            7);
+    var invalid = new HashMap<>(completion);
+    invalid.put("embedding_tokens", 0);
+    assertThatThrownBy(() -> tasks.complete(id, lease, invalid))
+        .isInstanceOf(IllegalArgumentException.class);
+    tasks.complete(id, lease, completion);
+    tasks.recordModelCall(id, lease, callId, new IndexAccountingService.Call("SUCCEEDED", 1, 7L));
+    assertThat(
+            db.list(
+                "SELECT * FROM usage_events WHERE tenant_id=? AND resource_type='EMBEDDING_TOKENS'",
+                tenant))
+        .hasSize(1);
+    assertThatThrownBy(
+            () ->
+                tasks.recordModelCall(
+                    id, Db.id(), callId, new IndexAccountingService.Call("SUCCEEDED", 1, 7L)))
+        .isInstanceOf(ApiException.class);
     assertThat(Db.str(db.one("SELECT * FROM jobs WHERE id=?", id), "state")).isEqualTo("DONE");
+  }
+
+  @Test
+  void cancelledTasksAcceptOnlyExistingCallOutcomesWithoutRestoringTheLease() throws Exception {
+    String config = configuration("accounting", 120);
+    publish(config, 0);
+    String version = Db.str(upload("calls.txt"), "version_id");
+    db.exec("UPDATE document_versions SET state='PARSED' WHERE id=?", version);
+    @SuppressWarnings("unchecked")
+    var job = (Map<String, Object>) drafts.index(actor, version, Db.id());
+    String jobId = Db.str(job, "job_id"),
+        lease = Db.str(tasks.claim(jobId), "lease_token"),
+        call = Db.id();
+    tasks.recordModelCall(jobId, lease, call, new IndexAccountingService.Call("STARTED", 2, null));
+    tasks.cancel(actor, jobId);
+    tasks.recordModelCall(
+        jobId, lease, call, new IndexAccountingService.Call("SUCCEEDED", 2, null));
+    assertThat(db.list("SELECT * FROM usage_events WHERE tenant_id=?", tenant)).isEmpty();
+    assertThat(Db.str(db.one("SELECT * FROM jobs WHERE id=?", jobId), "state"))
+        .isEqualTo("CANCELLED");
+    assertThatThrownBy(
+            () ->
+                tasks.recordModelCall(
+                    jobId, lease, Db.id(), new IndexAccountingService.Call("STARTED", 1, null)))
+        .isInstanceOf(ApiException.class);
+    assertThatThrownBy(
+            () ->
+                tasks.recordModelCall(
+                    jobId, lease, Db.id(), new IndexAccountingService.Call("SUCCEEDED", 1, 2L)))
+        .isInstanceOf(ApiException.class);
+    assertThatThrownBy(
+            () ->
+                tasks.recordModelCall(
+                    jobId, lease, call, new IndexAccountingService.Call("SUCCEEDED", 2, 3L)))
+        .isInstanceOf(ApiException.class);
   }
 }

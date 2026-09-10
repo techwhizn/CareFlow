@@ -97,3 +97,11 @@ applications 返回当前绑定应用的 id/name/published；还需具备应用�
 公共任务响应增加checkpoint、heartbeat_at，继续隐藏lease_token、request_key和upload_fingerprint。阶段为STARTED、SOURCE_READY、PARSED（解析）或INDEXING、INDEX_VERIFIED（索引），完成为DONE。检查点表示最近已确认阶段，不是进度百分比；失败后从当前任务阶段的安全起点重跑，不承诺恢复解析进程内存或部分模型结果。
 
 内部Worker使用 `POST /internal/v1/jobs/{id}/checkpoint`，X-Lease-Token及 `{stage}`；旧租约/取消/已删除资料拒绝，阶段不能倒退。心跳每20秒，租约90秒。租约过期重投，总计最多3次；INVALID_FILE、PARSE_TIMEOUT、PARSE_RESOURCE_LIMIT、PARSING_FAILED、MODEL_CONFIGURATION_REQUIRED不自动重试。取消即时封锁回调，解析子进程在检测租约丢失后终止；已经发出的模型请求成本不能因此倒退。
+
+## 知识库生命周期（V1-09）
+
+`GET /knowledge-bases/{id}/impact` 需manage，返回当前status/revision、当前可读文档数量、本人依赖答案数量、按应用管理角色过滤的引用应用和scope_notice。计数不是整个企业的完整可见性，操作本身作用于整库，界面必须提示可能影响其他成员。
+
+`PUT /knowledge-bases/{id}/state` 兼容原路径，要求status（ACTIVE/ARCHIVED/DELETED）及revision。归档立即停止新检索与正在运行/排队的任务，封锁旧回调；相关历史答案因证据失活隐藏。恢复仅允许ARCHIVED→ACTIVE，必须有本企业启用的知识管理责任人；保留当前ACL/发布版本/有效期，失败任务不自动复活。相同状态不重复修订，过期revision返回409。
+
+删除在同一事务中设DELETED、取消任务并登记cleanup_requests，返回cleanup_request_id；所有公共资源访问立即404，不提供删除后恢复。这里只登记物理清理请求，执行与保留期由V1-23完成，不能把PENDING请求显示成已清理。

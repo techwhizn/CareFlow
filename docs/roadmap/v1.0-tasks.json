@@ -146,7 +146,8 @@
       "V1-08"
     ],
     "acceptance": "展示文档、应用和历史会话影响；归档停止新检索，恢复复核有效状态；删除立即阻止访问并提交清理任务。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-09-lifecycle.md"
   },
   {
     "id": "V1-10",

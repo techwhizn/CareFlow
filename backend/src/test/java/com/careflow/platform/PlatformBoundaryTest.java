@@ -87,6 +87,115 @@ class PlatformBoundaryTest {
   }
 
   @Test
+  void archiveRestoreAndDeleteKeepAuthorizationAndEnqueueCleanup() throws Exception {
+    var query = new Query("fixture", null, List.of(kb), "keyword", 6, false, null);
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb + "/impact").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.visible_documents").value(1));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ARCHIVED\",\"revision\":0}"))
+        .andExpect(status().isOk());
+    assertThat(retrieval.scope(actor, query).versions()).isEmpty();
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ACTIVE\",\"revision\":0}"))
+        .andExpect(status().isConflict());
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ACTIVE\",\"revision\":1}"))
+        .andExpect(status().isOk());
+    assertThat(retrieval.scope(actor, query).versions()).contains(version);
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"DELETED\",\"revision\":2}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.cleanup_request_id").isNotEmpty());
+    assertThat(
+            db.list(
+                "SELECT id FROM cleanup_requests WHERE tenant_id=? AND resource_id=? AND state='PENDING'",
+                tenant,
+                kb))
+        .hasSize(1);
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb).header("Authorization", token))
+        .andExpect(status().isNotFound());
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ACTIVE\",\"revision\":3}"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void archiveCancelsRunningWorkAndImpactDoesNotCountRestrictedDocuments() throws Exception {
+    String job = Db.id();
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'INDEX',?)",
+        job,
+        tenant,
+        version,
+        Db.id());
+    String lease = Db.str(tasks.claim(job), "lease_token");
+    String hidden = Db.id();
+    db.exec(
+        "INSERT INTO documents(id,tenant_id,kb_id,title,restricted) VALUES(?,?,?,'Hidden',TRUE)",
+        hidden,
+        tenant,
+        kb);
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb + "/impact").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.visible_documents").value(1));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ARCHIVED\",\"revision\":0}"))
+        .andExpect(status().isOk());
+    assertThat(Db.str(db.one("SELECT state FROM jobs WHERE id=?", job), "state"))
+        .isEqualTo("CANCELLED");
+    assertThatThrownBy(
+            () -> tasks.complete(job, lease, Map.of("verified", true, "model_identity", "fixture")))
+        .isInstanceOf(ApiException.class);
+  }
+
+  @Test
+  void lifecycleRejectsUnknownStateAndRestoreWithoutEnabledResponsibleMember() throws Exception {
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"revision\":0}"))
+        .andExpect(status().isBadRequest());
+    String disabled = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role,active) VALUES(?,?,'Disabled','KNOWLEDGE_MANAGER',FALSE)",
+        disabled,
+        tenant);
+    db.exec("UPDATE knowledge_bases SET owner_id=?,status='ARCHIVED' WHERE id=?", disabled, kb);
+    db.exec(
+        "INSERT INTO permissions(tenant_id,resource_id,subject_id,action) VALUES(?,?,?,'manage')",
+        tenant,
+        kb,
+        member);
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/state")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"status\":\"ACTIVE\",\"revision\":0}"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("RESOURCE_OWNER_REQUIRED"));
+  }
+
+  @Test
   void uploadStorageRunsOutsideTransactionAndRevocationPreventsAttachment() throws Exception {
     org.mockito.Mockito.doAnswer(
             invocation -> {
@@ -545,6 +654,7 @@ class PlatformBoundaryTest {
     for (String path :
         List.of(
             "/knowledge-bases/" + kb,
+            "/knowledge-bases/" + kb + "/impact",
             "/documents/" + document + "/versions",
             "/documents/" + document + "/metadata",
             "/documents/" + document + "/metadata-history",

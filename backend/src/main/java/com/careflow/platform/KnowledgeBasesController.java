@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/knowledge-bases")
 public class KnowledgeBasesController {
   private final KnowledgeBaseService service;
+  private final KnowledgeLifecycleService lifecycle;
 
-  public KnowledgeBasesController(KnowledgeBaseService service) {
+  public KnowledgeBasesController(
+      KnowledgeBaseService service, KnowledgeLifecycleService lifecycle) {
     this.service = service;
+    this.lifecycle = lifecycle;
   }
 
   @GetMapping
@@ -45,5 +48,18 @@ public class KnowledgeBasesController {
   @GetMapping("/{id}/overview")
   public Object overview(@RequestAttribute Actor actor, @PathVariable String id) {
     return service.overview(actor, id);
+  }
+
+  @GetMapping("/{id}/impact")
+  public Object impact(@RequestAttribute Actor actor, @PathVariable String id) {
+    return lifecycle.impact(actor, id);
+  }
+
+  @PutMapping("/{id}/state")
+  public Object state(
+      @RequestAttribute Actor actor,
+      @PathVariable String id,
+      @RequestBody @Valid KnowledgeLifecycleService.StateChange input) {
+    return lifecycle.change(actor, id, input);
   }
 }

@@ -27,8 +27,6 @@ public class ManagementController {
   public record Named(
       @NotBlank @Size(max = 200) String name, @Size(max = 2000) String description) {}
 
-  public record State(@Pattern(regexp = "ACTIVE|ARCHIVED|DELETED") String status, long revision) {}
-
   public record Bind(
       @NotNull List<String> knowledge_base_ids, long revision, boolean allow_degraded) {}
 
@@ -71,23 +69,6 @@ public class ManagementController {
         actor.role(),
         "tenant",
         db.one("SELECT name FROM tenants WHERE id=?", actor.tenant()));
-  }
-
-  @PutMapping("/knowledge-bases/{id}/state")
-  @Transactional
-  public Object kbState(
-      @RequestAttribute Actor actor, @PathVariable String id, @RequestBody @Valid State body) {
-    auth.lock(actor);
-    auth.kb(actor, id, "manage");
-    if (db.exec(
-            "UPDATE knowledge_bases SET status=?,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
-            body.status(),
-            actor.tenant(),
-            id,
-            body.revision())
-        != 1) throw ApiException.conflict();
-    auth.audit(actor, "KB_" + body.status(), id, "");
-    return Map.of("status", body.status());
   }
 
   @GetMapping("/applications")

@@ -1,3 +1,4 @@
+import KnowledgeLifecycle from "../components/KnowledgeLifecycle";
 import DocumentMetadata from "../components/DocumentMetadata";
 import KnowledgeOverview from "../components/KnowledgeOverview";
 import AclDialog from "../components/AclDialog";
@@ -189,6 +190,7 @@ function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
         </button>
       </div>
       <KnowledgeOverview id={kb.id} onSaved={back} />
+      <KnowledgeLifecycle id={kb.id} onChanged={back} />
       <div className="tabs">
         <button className="active">文档</button>
         <span>上传 → 解析 → 审核切片 → 索引 → 发布</span>

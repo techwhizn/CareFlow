@@ -209,9 +209,9 @@
     "/api/v1/knowledge-bases/{id}/state": {
       "put": {
         "tags": [
-          "management-controller"
+          "knowledge-bases-controller"
         ],
-        "operationId": "kbState",
+        "operationId": "state",
         "parameters": [
           {
             "name": "id",
@@ -226,7 +226,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/State"
+                "$ref": "#/components/schemas/StateChange"
               }
             }
           },
@@ -1861,6 +1861,36 @@
         }
       }
     },
+    "/api/v1/knowledge-bases/{id}/impact": {
+      "get": {
+        "tags": [
+          "knowledge-bases-controller"
+        ],
+        "operationId": "impact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/authorization": {
       "get": {
         "tags": [
@@ -2428,7 +2458,7 @@
           "tags"
         ]
       },
-      "State": {
+      "StateChange": {
         "type": "object",
         "properties": {
           "status": {
@@ -2437,9 +2467,13 @@
           },
           "revision": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 0
           }
-        }
+        },
+        "required": [
+          "status"
+        ]
       },
       "PermissionChange": {
         "type": "object",

@@ -19,6 +19,7 @@ uv run --project worker ruff check worker scripts
 uv run --project worker ruff format --check worker scripts
 uv run --project worker pytest worker/tests -q
 npm ci --prefix web
+npm test --prefix web
 npm run build --prefix web
 npm audit --prefix web --omit=dev --audit-level=high
 ```

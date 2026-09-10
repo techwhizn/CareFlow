@@ -1,8 +1,9 @@
 import type { Icon } from "@phosphor-icons/react";
 import { Books, CircleNotch, WarningCircle } from "@phosphor-icons/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Row } from "./api";
 import { request } from "./api";
+import { createLoader } from "./dataLoader";
 export const stateNames: Row = {
   ACTIVE: "使用中",
   ARCHIVED: "已归档",
@@ -114,24 +115,17 @@ export function Dialog({
 }
 
 export function useData<T>(path: string, initial: T) {
-  const [data, setData] = useState<T>(initial),
-    [loading, setLoading] = useState(true),
-    [error, setError] = useState("");
-  async function reload() {
-    setLoading(true);
-    setError("");
-    try {
-      setData(await request<T>(path));
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const empty = useRef(initial);
+  const [snapshot, setSnapshot] = useState({ path, data: initial, loading: true, error: "" });
+  const loader = useRef<ReturnType<typeof createLoader<T>> | null>(null);
+  if (!loader.current) loader.current = createLoader<T>((url, signal) => request<T>(url, { signal }), setSnapshot, empty.current);
+  const reload = () => loader.current!.load(path);
   useEffect(() => {
     void reload();
+    return () => loader.current!.cancel();
   }, [path]);
-  return { data, loading, error, reload };
+  const current = snapshot.path === path ? snapshot : { data: empty.current, loading: true, error: "" };
+  return { ...current, reload };
 }
 
 export function DataTable({

@@ -1,7 +1,7 @@
 import { ArrowClockwise, ArrowLeft, ShieldCheck } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import type { Row } from "../../api";
-import { Badge, ErrorNote, stateNames, useData } from "../../ui";
+import { Badge, Empty, ErrorNote, Loading, stateNames, useData } from "../../ui";
 import AclDialog from "../../components/AclDialog";
 import DocumentMetadata from "../../components/DocumentMetadata";
 import PublicationHistory from "./PublicationHistory";
@@ -14,8 +14,8 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
     [busy, setBusy] = useState(false),
     [acl, setAcl] = useState(false);
   useEffect(() => {
-    if (versions.data.length && !active) setActive(versions.data[0]);
-  }, [versions.data]);
+    if (versions.data.length && !versions.data.some(version=>version.id===active?.id)) setActive(versions.data[0]);
+  }, [versions.data, active]);
   async function action(run: () => Promise<unknown>) {
     setBusy(true);
     setError("");
@@ -28,6 +28,7 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
       setBusy(false);
     }
   }
+  const current = versions.data.find(version => version.id === active?.id);
   return (
     <>
       <button className="back" onClick={back}>
@@ -72,32 +73,27 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
             ))}
           </select>
         </label>
-        {active && (
+        {current && (
           <>
-            <Badge
-              value={
-                versions.data.find((v) => v.id === active.id)?.state ||
-                active.state
-              }
-            />
+            <Badge value={current.state} />
             <span className="muted">
-              {active.ever_published
+              {current.ever_published
                 ? "已发布 · 内容不可变"
                 : "草稿 · 不影响线上知识"}
             </span>
           </>
         )}
-        {active && !active.configuration_id && active.state === "READY" && <button disabled={busy} onClick={() => {
+        {current && !current.configuration_id && current.state === "READY" && <button disabled={busy} onClick={() => {
           if (window.confirm("将当前知识库配置绑定到此旧索引。只有Embedding地址、模型、修订和维度完全相同才会成功；原文和切片保持不变。")) void action(async () => {
-            await knowledgeClient.bindConfiguration(active.id, active.revision); setActive(null);
+            await knowledgeClient.bindConfiguration(current.id, current.revision); setActive(null);
           });
         }}>绑定当前兼容配置</button>}
-        {active && <button disabled={busy} onClick={() => {
+        {current && <button disabled={busy} onClick={() => {
           if (window.confirm("将按知识库当前发布配置创建新的处理版本。旧发布和人工修订保留在原版本；新解析不会自动合并修订。是否继续？")) void action(async () => {
-            await knowledgeClient.reprocess(active.id); setActive(null);
+            await knowledgeClient.reprocess(current.id); setActive(null);
           });
         }}>按当前配置重新处理</button>}
-        {active && <span className="muted">处理配置：{active.configuration_id ? active.configuration_id.slice(0, 8) : "历史部署配置"}</span>}
+        {current && <span className="muted">处理配置：{current.configuration_id ? current.configuration_id.slice(0, 8) : "历史部署配置"}</span>}
         <label className="file-button">
           上传新版
           <input
@@ -116,10 +112,10 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
           />
         </label>
       </div>
-      {active && (
+      {versions.loading ? <Loading/> : !versions.error && !current ? <Empty title="暂无可访问的内容版本" detail="请上传资料或检查当前版本权限。"/> : current && (
         <ChunkWorkspace
-          key={active.id}
-          version={versions.data.find((v) => v.id === active.id) || active}
+          key={current.id}
+          version={current}
           doc={doc}
           busy={busy}
           action={action}

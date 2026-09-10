@@ -1532,3 +1532,6 @@ td button {
     min-height: 100dvh;
   }
 }
+/* Selected extracted source remains readable independently of metadata diagnostics. */
+.source-position { padding: 0 18px; font-weight: 600; line-height: 1.7; }
+.source-selected mark { background: #fff0b8; color: #242b29; white-space: pre-wrap; }

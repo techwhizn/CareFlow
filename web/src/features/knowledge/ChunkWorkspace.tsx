@@ -5,6 +5,7 @@ import { Dialog, Empty, ErrorNote, Loading, useData } from "../../ui";
 import { knowledgeClient, knowledgePaths } from "./client";
 import ContextPanel, { FaqForm } from "./ContextPanel";
 import QualityPanel from "./QualityPanel";
+import SourcePreview from "./SourcePreview";
 
 function sourceLocation(raw: unknown): Record<string, unknown> {
   try {
@@ -124,20 +125,14 @@ export default function ChunkWorkspace({
         </div>
       ) : (
         <div className="chunk-workspace">
-          <div className="source-pane">
+          <div className="source-pane" id="chunk-source-preview">
             <header>
               <FileText />
               来源原文<span>选中切片对应内容</span>
             </header>
             {selected && (
               <>
-                {selected.origin==="MANUAL" ? <p className="notice">此内容由人工补充或修订，不对应原文件中的位置。</p> : <pre>{selected.source_text}</pre>}
-                <div className="source-location">
-                  <b>来源定位</b>
-                  <pre>
-                    {JSON.stringify(location, null, 2)}
-                  </pre>
-                </div>
+                <SourcePreview chunk={selected} location={location}/>
               </>
             )}
           </div>
@@ -150,6 +145,8 @@ export default function ChunkWorkspace({
               {chunks.data.map((c, i) => (
                 <button
                   key={c.id}
+                  aria-pressed={selected?.id === c.id}
+                  aria-controls="chunk-source-preview"
                   className={`chunk-card ${selected?.id === c.id ? "selected" : ""}`}
                   onClick={() => {
                     setSelected(c);

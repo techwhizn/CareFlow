@@ -21,6 +21,9 @@ export default function QualityPanel({versionId, select}: {versionId:string;sele
     <ErrorNote error={report.error}/>
     {report.loading ? <Loading/> : report.data && <>
       <p>内容修订 {report.data.revision} · 共 {report.data.chunks} 个切片 · 启用 {report.data.enabled_chunks} 个 · 启用内容 {report.data.tokens} Token</p>
+      <table aria-label="切片长度分布"><thead><tr><th>逻辑Token区间</th><th>切片数量</th></tr></thead><tbody>{Object.entries(report.data.distribution).map(([range,count])=><tr key={range}><td>{range}</td><td>{count}</td></tr>)}</tbody></table>
+      <p>预计完整重建处理 {report.data.enabled_chunks} 个切片、{report.data.tokens} 个逻辑Token。</p>
+      <p className="muted">这是当前启用内容的处理规模估算，包含标题与表头；不代表模型账单、处理耗时或金额。模型原生Token和增量复用数量以执行记录为准。</p>
       <p className="muted">检查不会自动删除或修改内容。重复采用空白归一后的完整文本比较；短片段和表格拆分提示需结合原文判断。</p>
       {!report.data.issue_count ? <Empty icon={Stack} title="未发现规则内的质量问题" detail="仍需人工核对原文、事实和表格含义。"/> : <>
         <p>{Object.entries(report.data.warnings).map(([code,count])=>`${labels[code]??code} ${count}`).join(" · ")}</p>

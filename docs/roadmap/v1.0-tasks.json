@@ -314,7 +314,8 @@
       "V1-18"
     ],
     "acceptance": "点击切片定位原文；展示数量、Token分布、异常和预计处理用量；未就绪不能发布；包含加载、空态、错误态。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-19-preview.md"
   },
   {
     "id": "V1-20",

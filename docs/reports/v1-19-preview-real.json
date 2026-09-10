@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-10",
+  "synthetic_data": true,
+  "version_id": "3a34b5c3-11bd-4133-b659-a8fe59c55d11",
+  "distribution": {
+    "0": 0,
+    "1-19": 0,
+    "20-199": 4,
+    "200-399": 0,
+    "400-600": 0,
+    "601+": 0
+  },
+  "full_rebuild_logical_tokens": 112,
+  "full_rebuild_chunks": 4,
+  "unready_publication_status": 409,
+  "unready_publication_code": "NOT_READY",
+  "browser_verified": [
+    "click_quality_issue_selects_original_row",
+    "highlighted_original_source",
+    "distribution_and_estimate",
+    "publication_disabled_before_index"
+  ],
+  "complete": true
+}

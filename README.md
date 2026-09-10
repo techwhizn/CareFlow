@@ -30,7 +30,7 @@ DeepSeek 生成服务：`GENERATION_BASE_URL=https://api.deepseek.com`，`GENERA
 ### 在主机开发
 
 ```bash
-docker compose up -d mysql rabbitmq redis minio etcd milvus
+docker compose up -d mysql rabbitmq minio etcd milvus
 mvn -f backend/pom.xml package
 uv sync --project worker --frozen
 npm ci --prefix web

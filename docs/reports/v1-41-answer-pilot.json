@@ -1,0 +1,90 @@
+{
+  "schema_version": 2,
+  "complete": true,
+  "label": "pilot-answers",
+  "dataset_version_id": "391ad855-e79d-42a7-bdbf-d87b4253fd13",
+  "dataset_digest": "0b8cd0c15a05c1ff8845ead15cdf49083b4ca0a765202e2b7f228b0817373379",
+  "evidence_mapping_digest": "a0c7910787b3bc3e98c956447a537510892440ec38551d08c2ac26695dd50289",
+  "baseline_status": "PROVISIONAL_UNREVIEWED_LABELS",
+  "mode": "hybrid",
+  "answer_generation_enabled": true,
+  "retrieval_top10_stage": "authorized_rerank_before_evidence_limit_and_threshold",
+  "final_evidence_limit": 6,
+  "summary": {
+    "cases": 120,
+    "failure_rate": 0.041666666666666664,
+    "retrieval_top10_eligible": 101,
+    "recall_at_10": 1.0,
+    "hit_at_10": 1.0,
+    "mrr_at_10": 1.0,
+    "final_evidence_eligible": 101,
+    "recall_at_6": 1.0,
+    "hit_at_6": 1.0,
+    "mrr_at_6": 1.0,
+    "p50_ms": 25641,
+    "p95_ms": 43222,
+    "answer_failure_rate": 0.008620689655172414,
+    "search_p50_ms": 7271,
+    "search_p95_ms": 12984,
+    "answer_p50_ms": 18077,
+    "answer_p95_ms": 29495,
+    "human_review": {
+      "reviewed": 0,
+      "answer_correctness": null,
+      "evidence_support": null,
+      "citation_accuracy": null,
+      "unanswerable_refusal_rate": null,
+      "answerable_false_refusal_rate": null
+    },
+    "known_customer_costs_by_currency": {},
+    "unknown_cost_cases": 120
+  },
+  "limitations": [
+    "Human answer correctness, grounding, citation accuracy and refusal ratings remain pending",
+    "Debug-restricted identities have no Top10 metrics; final six is never relabeled Top10",
+    "Changing source publications requires preserving label meaning; changed evidence mappings require renewed label review",
+    "Generated answer text is private evaluation content; store reports outside Git unless all inputs are synthetic"
+  ],
+  "date": "2026-09-11",
+  "raw_report_sha256": "071c672697f5862d412a31f92ec058c71d340c0aec71b3605d5321fcb72a6022",
+  "failures": [
+    {
+      "case_id": "direct-039",
+      "category": "DIRECT",
+      "status": 503,
+      "latency_ms": 37408,
+      "error_code": "MODEL_OR_RETRIEVAL_UNAVAILABLE"
+    },
+    {
+      "case_id": "para-019-power",
+      "category": "PARAPHRASE",
+      "status": 503,
+      "latency_ms": 48116,
+      "error_code": "MODEL_OR_RETRIEVAL_UNAVAILABLE"
+    },
+    {
+      "case_id": "direct-041",
+      "category": "DIRECT",
+      "status": 503,
+      "latency_ms": 10408,
+      "error_code": "MODEL_OR_RETRIEVAL_UNAVAILABLE"
+    },
+    {
+      "case_id": "para-017-filter",
+      "category": "PARAPHRASE",
+      "status": 503,
+      "latency_ms": 6365,
+      "error_code": "MODEL_OR_RETRIEVAL_UNAVAILABLE"
+    },
+    {
+      "case_id": "unknown-04",
+      "category": "UNANSWERABLE",
+      "status": 503,
+      "answer_attempted": true,
+      "request_id": null,
+      "answer_completed": false,
+      "latency_ms": 17022,
+      "error_code": "STREAM_INTERRUPTED"
+    }
+  ]
+}

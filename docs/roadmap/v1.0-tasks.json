@@ -760,7 +760,8 @@
       "V1-36"
     ],
     "acceptance": "执行企业任务并发、队列公平性、文件及解析资源限制；单租户高负载不无限挤占其他租户；限流可观测、可恢复。",
-    "status": "待完成"
+    "status": "待验收",
+    "evidence": "docs/reports/v1-44-fair-dispatch.md"
   },
   {
     "id": "V1-45",

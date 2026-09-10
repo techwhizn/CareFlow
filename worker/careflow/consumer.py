@@ -26,6 +26,13 @@ def run_job(job_id):
         claimed = client.post(base + "/claim", headers=headers)
         if claimed.status_code in (404, 409):
             return
+        if claimed.status_code in (403, 429) and claimed.json().get("code") in (
+            "ENTITLEMENT_INACTIVE",
+            "QUOTA_EXCEEDED",
+        ):
+            # Java retains QUEUED and retries after the notification reservation expires.
+            # Acknowledge this delivery so a paused tenant cannot block the shared queue.
+            return
         claimed.raise_for_status()
         job = TaskClaim.model_validate(claimed.json()).model_dump()
         headers["X-Lease-Token"] = job["lease_token"]

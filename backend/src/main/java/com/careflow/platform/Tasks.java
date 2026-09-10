@@ -6,59 +6,27 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class Tasks {
   private final Db db;
-  private final RabbitTemplate rabbit;
   private final TransactionTemplate tx;
-  private final boolean enabled;
   private final Identity auth;
   private final EntitlementService entitlements;
 
-  public Tasks(
-      Db db,
-      RabbitTemplate rabbit,
-      TransactionTemplate tx,
-      Identity auth,
-      EntitlementService entitlements,
-      @Value("${careflow.scheduling}") boolean enabled) {
+  public Tasks(Db db, TransactionTemplate tx, Identity auth, EntitlementService entitlements) {
     this.db = db;
-    this.rabbit = rabbit;
     this.tx = tx;
     this.auth = auth;
     this.entitlements = entitlements;
-    this.enabled = enabled;
   }
 
   @Bean
   Queue processingQueue() {
     return new Queue("careflow.processing", true);
-  }
-
-  @Scheduled(fixedDelay = 5000)
-  public void dispatch() {
-    if (!enabled) return;
-    try {
-      recover();
-      for (var row :
-          db.list("SELECT * FROM outbox WHERE sent=FALSE ORDER BY created_at LIMIT 20")) {
-        CorrelationData correlation = new CorrelationData(str(row, "id"));
-        rabbit.convertAndSend("", "careflow.processing", str(row, "job_id"), correlation);
-        var confirm = correlation.getFuture().get(5, java.util.concurrent.TimeUnit.SECONDS);
-        if (confirm.isAck() && correlation.getReturned() == null)
-          db.exec("UPDATE outbox SET sent=TRUE WHERE id=?", str(row, "id"));
-      }
-    } catch (Exception e) {
-      /* Durable outbox remains unsent; next tick retries without logging payloads or credentials. */
-    }
   }
 
   public void recover() {
@@ -82,7 +50,7 @@ public class Tasks {
             String next =
                 !accessible ? "CANCELLED" : num(job, "attempts") >= 3 ? "FAILED" : "QUEUED";
             db.exec(
-                "UPDATE jobs SET state=?,lease_token=NULL,lease_until=NULL,error_code='LEASE_EXPIRED' WHERE id=?",
+                "UPDATE jobs SET state=?,dispatch_until=NULL,dispatch_token=NULL,wait_reason=NULL,lease_token=NULL,lease_until=NULL,error_code='LEASE_EXPIRED' WHERE id=?",
                 next,
                 str(job, "id"));
             db.exec(
@@ -146,7 +114,7 @@ public class Tasks {
           entitlements.claimTask(str(j, "tenant_id"), j);
           String lease = id();
           db.exec(
-              "UPDATE jobs SET state='RUNNING',attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
+              "UPDATE jobs SET state='RUNNING',dispatch_until=NULL,wait_reason=NULL,attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
               lease,
               Timestamp.from(Instant.now().plusSeconds(90)),
               id);
@@ -257,7 +225,7 @@ public class Tasks {
                   .contains(code);
           String next = retryable && !terminal && num(j, "attempts") < 3 ? "QUEUED" : "FAILED";
           db.exec(
-              "UPDATE jobs SET state=?,error_code=?,lease_token=NULL,lease_until=NULL WHERE id=?",
+              "UPDATE jobs SET state=?,dispatch_until=NULL,dispatch_token=NULL,wait_reason=NULL,error_code=?,lease_token=NULL,lease_until=NULL WHERE id=?",
               next,
               code.replaceAll("[^A-Z0-9_]", "")
                   .substring(0, Math.min(code.replaceAll("[^A-Z0-9_]", "").length(), 90)),

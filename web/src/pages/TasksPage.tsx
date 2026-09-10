@@ -42,6 +42,7 @@ export default function TasksPage() {
                 <th>最近心跳</th>
                 <th>状态</th>
                 <th>尝试次数</th>
+                <th>等待原因</th>
                 <th>错误类型</th>
                 <th />
               </tr>
@@ -61,6 +62,7 @@ export default function TasksPage() {
                     <Badge value={j.state} />
                   </td>
                   <td>{j.attempts} / 3</td>
+                  <td>{j.state === "QUEUED" ? ({TENANT_NOTIFICATION_PENDING:"等待本企业前序任务领取",ENTITLEMENT_INACTIVE:"套餐未生效或已停用",TASK_QUOTA_OR_CONCURRENCY:"等待处理额度或并发名额",WAITING_FOR_WORKER:"已通知，等待处理器领取"} as Record<string,string>)[j.wait_reason] || "等待公平调度" : "—"}</td>
                   <td>{j.error_code || "—"}</td>
                   <td>
                     {["QUEUED", "RUNNING"].includes(j.state) && (

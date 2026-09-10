@@ -38,6 +38,7 @@ public class JobReadService {
   private Map<String, Object> publicJob(Map<String, Object> job) {
     var result = new LinkedHashMap<>(job);
     result.remove("lease_token");
+    result.remove("dispatch_token");
     result.remove("request_key");
     result.remove("upload_fingerprint");
     return result;

@@ -142,15 +142,20 @@ public class EntitlementService {
     capacity(num(row, "queries_reserved"), 1, num(row, "query_concurrency_limit"), "查询并发");
   }
 
-  public void claimTask(String tenant, Map<String, Object> job) {
+  public void checkTask(String tenant, Map<String, Object> job) {
     var row = active(tenant);
     capacity(
         count("SELECT COUNT(*) AS n FROM jobs WHERE tenant_id=? AND state='RUNNING'", tenant),
         1,
         num(row, "task_concurrency_limit"),
         "处理并发");
-    if (!bool(job, "quota_counted")) {
+    if (!bool(job, "quota_counted"))
       capacity(num(row, "processing_used"), 1, num(row, "processing_limit"), "处理任务");
+  }
+
+  public void claimTask(String tenant, Map<String, Object> job) {
+    checkTask(tenant, job);
+    if (!bool(job, "quota_counted")) {
       db.exec("UPDATE tenants SET processing_used=processing_used+1 WHERE id=?", tenant);
       db.exec(
           "UPDATE jobs SET quota_counted=TRUE WHERE id=? AND tenant_id=?", str(job, "id"), tenant);

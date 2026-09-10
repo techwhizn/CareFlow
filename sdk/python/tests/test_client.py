@@ -711,3 +711,35 @@ def test_billing_decimal_prices_and_import_revision(tmp_path):
     assert seen[3].url.params["billing_revision"] == "3"
     assert seen[4].url.path.endswith(f"/requests/{ID}/cost")
     assert seen[5].url.path.endswith(f"/jobs/{ID}/cost")
+
+
+def test_document_paging_and_explicit_cancellation_sync_async():
+    seen = []
+
+    def handler(request):
+        seen.append((request.method, request.url.path, request.url.params.get("page")))
+        if request.url.path.endswith("/cancel"):
+            return httpx.Response(200)
+        return httpx.Response(200, json=[])
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.knowledge_base(ID)
+        client.documents(ID, page=2)
+        with pytest.raises(ValueError):
+            client.documents(ID, page=-1)
+        client.cancel_job(ID)
+
+    async def check():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.knowledge_base(ID)
+            await client.documents(ID, page=2)
+            with pytest.raises(ValueError):
+                await client.documents(ID, page=True)
+            await client.cancel_job(ID)
+
+    asyncio.run(check())
+    assert seen[:3] == seen[3:]
+    assert seen[1][2] == "2"
+    assert seen[2][:2] == ("POST", f"/api/v1/jobs/{ID}/cancel")

@@ -59,6 +59,24 @@ class CareFlowClientTest {
   }
 
   @Test
+  void typedViewsKeepUnknownCountsAndTolerateAddedFields() throws Exception {
+    response = "{\"id\":\"" + ID + "\",\"state\":\"RUNNING\",\"future_field\":true}";
+    var job = client.typed().job(ID);
+    assertEquals("RUNNING", job.state());
+    assertNull(job.index_usage());
+    response = "[{\"id\":\"" + ID + "\",\"future_field\":true}]";
+    var documents = client.typed().documents(ID, 0);
+    assertNull(documents.getFirst().revision());
+    assertThrows(UnsupportedOperationException.class, () -> documents.clear());
+    response = "{\"private\":\"sensitive body\"}";
+    var error = assertThrows(IOException.class, () -> client.typed().documents(ID, 0));
+    assertFalse(error.toString().contains("sensitive body"));
+    response = "";
+    client.cancelJob(ID);
+    assertEquals("/api/v1/jobs/" + ID + "/cancel", paths.getLast());
+  }
+
+  @Test
   void applicationPolicyKeepsModelRevisionsAndHistoryLimits() throws Exception {
     var input =
         new ApplicationConfiguration(

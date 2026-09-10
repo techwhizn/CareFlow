@@ -18,6 +18,16 @@ from .content import ChunkRef as ChunkRef
 from .content import ConflictResolution as ConflictResolution
 from .content import FaqInput as FaqInput
 from .content import IndexRebuild as IndexRebuild
+from .responses import (
+    Chunk,
+    Document,
+    DocumentVersion,
+    Job,
+    KnowledgeBase,
+    Me,
+    SearchResult,
+    UploadResult,
+)
 
 
 class ApiError(RuntimeError):
@@ -239,6 +249,20 @@ class Client:
         )
         return self._request("GET", f"{base}/{_id(request_id)}")
 
+    def me(self) -> Me:
+        return self._request("GET", "me")
+
+    def evaluation_datasets(self):
+        return self._request("GET", "evaluation-datasets")
+
+    def evaluation_dataset(self, dataset_id):
+        return self._request("GET", f"evaluation-datasets/{_id(dataset_id)}")
+
+    def evaluation_dataset_version(self, dataset_id, version_id):
+        return self._request(
+            "GET", f"evaluation-datasets/{_id(dataset_id)}/versions/{_id(version_id)}"
+        )
+
     def billing_rules(self):
         return self._request("GET", "billing/rules")
 
@@ -382,10 +406,24 @@ class Client:
     def operations_status(self):
         return self._request("GET", "operations/status")
 
-    def knowledge_bases(self):
+    def knowledge_base(self, knowledge_base_id: str) -> KnowledgeBase:
+        return self._request("GET", f"knowledge-bases/{_id(knowledge_base_id)}")
+
+    def documents(self, knowledge_base_id: str, *, page: int = 0) -> list[Document]:
+        if isinstance(page, bool) or not isinstance(page, int) or page < 0:
+            raise ValueError("page must be a nonnegative integer")
+        return self._request(
+            "GET",
+            f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+            params={"page": page},
+        )
+
+    def knowledge_bases(self) -> list[KnowledgeBase]:
         return self._request("GET", "knowledge-bases")
 
-    def create_knowledge_base(self, name, description="", *, idempotency_key=None):
+    def create_knowledge_base(
+        self, name, description="", *, idempotency_key=None
+    ) -> KnowledgeBase:
         return self._request(
             "POST",
             "knowledge-bases",
@@ -395,7 +433,7 @@ class Client:
 
     def upload(
         self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
-    ):
+    ) -> UploadResult:
         path = Path(file)
         with path.open("rb") as source:
             return self._request(
@@ -473,10 +511,10 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
-    def document_versions(self, document_id):
+    def document_versions(self, document_id) -> list[DocumentVersion]:
         return self._request("GET", f"documents/{_id(document_id)}/versions")
 
-    def document_chunks(self, version_id, *, page=0):
+    def document_chunks(self, version_id, *, page=0) -> list[Chunk]:
         return self._request(
             "GET", f"document-versions/{_id(version_id)}/chunks", params={"page": page}
         )
@@ -594,7 +632,10 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
-    def job(self, job_id):
+    def cancel_job(self, job_id: str) -> None:
+        self._request("POST", f"jobs/{_id(job_id)}/cancel")
+
+    def job(self, job_id) -> Job:
         return self._request("GET", f"jobs/{_id(job_id)}")
 
     def index(self, version_id, *, idempotency_key=None):
@@ -624,7 +665,7 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
-    def search(self, query: Query, *, idempotency_key=None):
+    def search(self, query: Query, *, idempotency_key=None) -> SearchResult:
         return self._request(
             "POST",
             "retrieval/search",
@@ -742,6 +783,20 @@ class AsyncClient:
             else "usage/requests"
         )
         return await self._request("GET", f"{base}/{_id(request_id)}")
+
+    async def me(self) -> Me:
+        return await self._request("GET", "me")
+
+    async def evaluation_datasets(self):
+        return await self._request("GET", "evaluation-datasets")
+
+    async def evaluation_dataset(self, dataset_id):
+        return await self._request("GET", f"evaluation-datasets/{_id(dataset_id)}")
+
+    async def evaluation_dataset_version(self, dataset_id, version_id):
+        return await self._request(
+            "GET", f"evaluation-datasets/{_id(dataset_id)}/versions/{_id(version_id)}"
+        )
 
     async def billing_rules(self):
         return await self._request("GET", "billing/rules")
@@ -886,12 +941,26 @@ class AsyncClient:
     async def operations_status(self):
         return await self._request("GET", "operations/status")
 
-    async def knowledge_bases(self):
+    async def knowledge_base(self, knowledge_base_id: str) -> KnowledgeBase:
+        return await self._request("GET", f"knowledge-bases/{_id(knowledge_base_id)}")
+
+    async def documents(
+        self, knowledge_base_id: str, *, page: int = 0
+    ) -> list[Document]:
+        if isinstance(page, bool) or not isinstance(page, int) or page < 0:
+            raise ValueError("page must be a nonnegative integer")
+        return await self._request(
+            "GET",
+            f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+            params={"page": page},
+        )
+
+    async def knowledge_bases(self) -> list[KnowledgeBase]:
         return await self._request("GET", "knowledge-bases")
 
     async def create_knowledge_base(
         self, name, description="", *, idempotency_key=None
-    ):
+    ) -> KnowledgeBase:
         return await self._request(
             "POST",
             "knowledge-bases",
@@ -901,7 +970,7 @@ class AsyncClient:
 
     async def upload(
         self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
-    ):
+    ) -> UploadResult:
         path = Path(file)
         with path.open("rb") as source:
             return await self._request(
@@ -979,10 +1048,10 @@ class AsyncClient:
             headers=_headers(idempotency_key),
         )
 
-    async def document_versions(self, document_id):
+    async def document_versions(self, document_id) -> list[DocumentVersion]:
         return await self._request("GET", f"documents/{_id(document_id)}/versions")
 
-    async def document_chunks(self, version_id, *, page=0):
+    async def document_chunks(self, version_id, *, page=0) -> list[Chunk]:
         return await self._request(
             "GET", f"document-versions/{_id(version_id)}/chunks", params={"page": page}
         )
@@ -1102,7 +1171,10 @@ class AsyncClient:
             headers=_headers(idempotency_key),
         )
 
-    async def job(self, job_id):
+    async def cancel_job(self, job_id: str) -> None:
+        await self._request("POST", f"jobs/{_id(job_id)}/cancel")
+
+    async def job(self, job_id) -> Job:
         return await self._request("GET", f"jobs/{_id(job_id)}")
 
     async def index(self, version_id, *, idempotency_key=None):
@@ -1132,7 +1204,7 @@ class AsyncClient:
             headers=_headers(idempotency_key),
         )
 
-    async def search(self, query: Query, *, idempotency_key=None):
+    async def search(self, query: Query, *, idempotency_key=None) -> SearchResult:
         return await self._request(
             "POST",
             "retrieval/search",

@@ -16,7 +16,9 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 | 修订与解析冲突 | chunk_changes / content_conflicts / resolve_content_conflict | chunkChanges / contentConflicts / resolveContentConflict |
 | 整组FAQ新增与修订 | save_faq（FaqInput） | saveFaq（FaqInput） |
 | 解除组关联 | detach_context | detachContext |
-| 查询任务 | job | job |
+| 查询/取消任务 | job / cancel_job | job / cancelJob |
+| 知识库详情与文档分页 | knowledge_base / documents | knowledgeBase / documents |
+| 测试集与版本读取 | evaluation_datasets / evaluation_dataset / evaluation_dataset_version | evaluationDatasets / evaluationDataset / evaluationDatasetVersion |
 | 配置版本与可用模型 | knowledge_configurations / configuration_models | knowledgeConfigurations / configurationModels |
 | 保存、影响检查、发布配置 | create_knowledge_configuration / configuration_impact / publish_knowledge_configuration | createKnowledgeConfiguration / configurationImpact / publishKnowledgeConfiguration |
 | 按新配置重处理 | reprocess | reprocess |
@@ -118,7 +120,11 @@ client.answer(query, null, event -> {
 - HTTP 失败：Python ApiError / Java ApiException 暴露 status、code 和请求 ID（Python request_id / Java requestId），异常文本不包含服务端正文。网络异常由底层 HTTP/IO 异常报告。
 - 流式 `error`、非法事件、非 SSE 响应、未收到 `done` 就断流：抛异常，不能把已输出的部分文字记为成功答案。Python 为 StreamError，Java 为 IOException。
 - SDK 不自动重试 HTTP 错误、不跟随重定向。POST 默认生成请求键；可显式传入 idempotency_key（Python）或 key（Java）。查询重复键会返回409，当前服务端不重放旧结果；不要将更换键重试当成无成本恢复。
-- 搜索和问答返回字典/JsonNode；请求 Query 与流事件有类型。完整响应 DTO、更多管理接口封装和包仓库发布仍待后续完善。
+- Python 核心响应提供 `careflow_sdk.responses` 中的 TypedDict 与 PEP 561 标记，运行时仍是保留新增字段的字典。Java `client.typed()` 提供核心只读响应 records，原 JsonNode 方法继续保留；类型化视图忽略新增字段，未知计数为 null。类型声明不替代服务端校验，尚未覆盖的管理响应仍使用字典/JsonNode。
+
+文档列表 `documents` 每页50条，页码从0开始；切片列表每页100条。取消任务是显式操作，SDK 不自动取消、重试或轮询。取消后用 `job` 读取最终状态，不能把请求返回当成所有后台资源已经释放。
+
+Java 类型化示例：`Responses.Job job = client.typed().job(jobId);`；Python 可写 `job: Job = client.job(job_id)`（`from careflow_sdk.responses import Job`）。
 
 ## 验证
 

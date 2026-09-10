@@ -254,6 +254,36 @@ public final class CareFlowClient {
       Map<String, java.math.BigDecimal> customer_rates,
       Map<String, java.math.BigDecimal> provider_rates) {}
 
+  public TypedCareFlowClient typed() {
+    return new TypedCareFlowClient(this);
+  }
+
+  public JsonNode me() throws IOException {
+    return request("GET", "me", null, null);
+  }
+
+  public JsonNode knowledgeBase(String kb) throws IOException {
+    return request("GET", "knowledge-bases/" + id(kb), null, null);
+  }
+
+  public JsonNode documents(String kb, int page) throws IOException {
+    if (page < 0) throw new IllegalArgumentException("Negative page");
+    return request("GET", "knowledge-bases/" + id(kb) + "/documents?page=" + page, null, null);
+  }
+
+  public JsonNode evaluationDatasets() throws IOException {
+    return request("GET", "evaluation-datasets", null, null);
+  }
+
+  public JsonNode evaluationDataset(String dataset) throws IOException {
+    return request("GET", "evaluation-datasets/" + id(dataset), null, null);
+  }
+
+  public JsonNode evaluationDatasetVersion(String dataset, String version) throws IOException {
+    return request(
+        "GET", "evaluation-datasets/" + id(dataset) + "/versions/" + id(version), null, null);
+  }
+
   public JsonNode billingRules() throws IOException {
     return request("GET", "billing/rules", null, null);
   }
@@ -548,6 +578,10 @@ public final class CareFlowClient {
         "document-versions/" + id(versionId) + "/contexts/" + id(contextId) + "/detach",
         Map.of("revision", revision, "reason", reason),
         key);
+  }
+
+  public void cancelJob(String jobId) throws IOException {
+    request("POST", "jobs/" + id(jobId) + "/cancel", null, null);
   }
 
   public JsonNode job(String jobId) throws IOException {

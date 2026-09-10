@@ -17,6 +17,10 @@ jobs:
           cache: maven
       - run: mvn -B -f backend/pom.xml spotless:check verify
       - run: mvn -B -f sdk/java/pom.xml spotless:check verify
+      - run: mvn -B -f backend/pom.xml dependency:list -DincludeScope=runtime -DoutputFile=/tmp/careflow-backend-deps.txt
+      - run: python3 scripts/audit-maven.py /tmp/careflow-backend-deps.txt --output /tmp/careflow-backend-audit.json
+      - run: mvn -B -f sdk/java/pom.xml dependency:list -DincludeScope=runtime -DoutputFile=/tmp/careflow-sdk-deps.txt
+      - run: python3 scripts/audit-maven.py /tmp/careflow-sdk-deps.txt --output /tmp/careflow-sdk-audit.json
   worker:
     runs-on: ubuntu-latest
     steps:

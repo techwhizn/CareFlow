@@ -1,0 +1,783 @@
+{
+  "date": "2026-09-11",
+  "source": "https://api.osv.dev/v1/querybatch",
+  "before_affected_packages": 17,
+  "backend": {
+    "generated_at": "2026-09-10T17:56:32.331611+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "dependencies": [
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-web",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-autoconfigure",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-logging",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "ch.qos.logback:logback-classic",
+          "ecosystem": "Maven"
+        },
+        "version": "1.5.34",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "ch.qos.logback:logback-core",
+          "ecosystem": "Maven"
+        },
+        "version": "1.5.34",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.logging.log4j:log4j-to-slf4j",
+          "ecosystem": "Maven"
+        },
+        "version": "2.25.5",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.logging.log4j:log4j-api",
+          "ecosystem": "Maven"
+        },
+        "version": "2.25.5",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.slf4j:jul-to-slf4j",
+          "ecosystem": "Maven"
+        },
+        "version": "2.0.18",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "jakarta.annotation:jakarta.annotation-api",
+          "ecosystem": "Maven"
+        },
+        "version": "2.1.1",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.yaml:snakeyaml",
+          "ecosystem": "Maven"
+        },
+        "version": "2.4",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-json",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.module:jackson-module-parameter-names",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-tomcat",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.tomcat.embed:tomcat-embed-core",
+          "ecosystem": "Maven"
+        },
+        "version": "10.1.59",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.tomcat.embed:tomcat-embed-websocket",
+          "ecosystem": "Maven"
+        },
+        "version": "10.1.59",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-web",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-beans",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.micrometer:micrometer-observation",
+          "ecosystem": "Maven"
+        },
+        "version": "1.15.12",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.micrometer:micrometer-commons",
+          "ecosystem": "Maven"
+        },
+        "version": "1.15.12",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-webmvc",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-aop",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-context",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-expression",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-jdbc",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.zaxxer:HikariCP",
+          "ecosystem": "Maven"
+        },
+        "version": "6.3.3",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.slf4j:slf4j-api",
+          "ecosystem": "Maven"
+        },
+        "version": "2.0.18",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-jdbc",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-tx",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-amqp",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-messaging",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.amqp:spring-rabbit",
+          "ecosystem": "Maven"
+        },
+        "version": "3.2.12",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.amqp:spring-amqp",
+          "ecosystem": "Maven"
+        },
+        "version": "3.2.12",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.retry:spring-retry",
+          "ecosystem": "Maven"
+        },
+        "version": "2.0.13",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.rabbitmq:amqp-client",
+          "ecosystem": "Maven"
+        },
+        "version": "5.33.1",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-transport",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-common",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-buffer",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-resolver",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-codec",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-handler",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.netty:netty-transport-native-unix-common",
+          "ecosystem": "Maven"
+        },
+        "version": "4.1.138.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework.boot:spring-boot-starter-validation",
+          "ecosystem": "Maven"
+        },
+        "version": "3.5.16",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.tomcat.embed:tomcat-embed-el",
+          "ecosystem": "Maven"
+        },
+        "version": "10.1.59",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.hibernate.validator:hibernate-validator",
+          "ecosystem": "Maven"
+        },
+        "version": "8.0.3.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "jakarta.validation:jakarta.validation-api",
+          "ecosystem": "Maven"
+        },
+        "version": "3.0.2",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jboss.logging:jboss-logging",
+          "ecosystem": "Maven"
+        },
+        "version": "3.6.3.Final",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml:classmate",
+          "ecosystem": "Maven"
+        },
+        "version": "1.7.3",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.flywaydb:flyway-core",
+          "ecosystem": "Maven"
+        },
+        "version": "11.7.2",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.dataformat:jackson-dataformat-toml",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.flywaydb:flyway-mysql",
+          "ecosystem": "Maven"
+        },
+        "version": "11.7.2",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.mysql:mysql-connector-j",
+          "ecosystem": "Maven"
+        },
+        "version": "9.7.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.minio:minio",
+          "ecosystem": "Maven"
+        },
+        "version": "8.6.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.carrotsearch.thirdparty:simple-xml-safe",
+          "ecosystem": "Maven"
+        },
+        "version": "2.7.1",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.google.guava:guava",
+          "ecosystem": "Maven"
+        },
+        "version": "33.4.8-jre",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.google.guava:failureaccess",
+          "ecosystem": "Maven"
+        },
+        "version": "1.0.3",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.google.guava:listenablefuture",
+          "ecosystem": "Maven"
+        },
+        "version": "9999.0-empty-to-avoid-conflict-with-guava",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jspecify:jspecify",
+          "ecosystem": "Maven"
+        },
+        "version": "1.0.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.google.errorprone:error_prone_annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "2.36.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.google.j2objc:j2objc-annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "3.0.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.squareup.okhttp3:okhttp",
+          "ecosystem": "Maven"
+        },
+        "version": "5.1.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jetbrains.kotlin:kotlin-stdlib",
+          "ecosystem": "Maven"
+        },
+        "version": "1.9.25",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jetbrains:annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "13.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.squareup.okio:okio",
+          "ecosystem": "Maven"
+        },
+        "version": "3.15.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.squareup.okio:okio-jvm",
+          "ecosystem": "Maven"
+        },
+        "version": "3.15.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-core",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-databind",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.bouncycastle:bcprov-jdk18on",
+          "ecosystem": "Maven"
+        },
+        "version": "1.84",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.commons:commons-compress",
+          "ecosystem": "Maven"
+        },
+        "version": "1.28.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "commons-io:commons-io",
+          "ecosystem": "Maven"
+        },
+        "version": "2.20.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.apache.commons:commons-lang3",
+          "ecosystem": "Maven"
+        },
+        "version": "3.18.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "commons-codec:commons-codec",
+          "ecosystem": "Maven"
+        },
+        "version": "1.18.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.xerial.snappy:snappy-java",
+          "ecosystem": "Maven"
+        },
+        "version": "1.1.10.7",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springdoc:springdoc-openapi-starter-webmvc-ui",
+          "ecosystem": "Maven"
+        },
+        "version": "2.8.11",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springdoc:springdoc-openapi-starter-webmvc-api",
+          "ecosystem": "Maven"
+        },
+        "version": "2.8.11",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springdoc:springdoc-openapi-starter-common",
+          "ecosystem": "Maven"
+        },
+        "version": "2.8.11",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.swagger.core.v3:swagger-core-jakarta",
+          "ecosystem": "Maven"
+        },
+        "version": "2.2.36",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.swagger.core.v3:swagger-annotations-jakarta",
+          "ecosystem": "Maven"
+        },
+        "version": "2.2.36",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "io.swagger.core.v3:swagger-models-jakarta",
+          "ecosystem": "Maven"
+        },
+        "version": "2.2.36",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.webjars:swagger-ui",
+          "ecosystem": "Maven"
+        },
+        "version": "5.27.1",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.webjars:webjars-locator-lite",
+          "ecosystem": "Maven"
+        },
+        "version": "1.1.3",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "jakarta.xml.bind:jakarta.xml.bind-api",
+          "ecosystem": "Maven"
+        },
+        "version": "4.0.5",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "jakarta.activation:jakarta.activation-api",
+          "ecosystem": "Maven"
+        },
+        "version": "2.1.4",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-core",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.springframework:spring-jcl",
+          "ecosystem": "Maven"
+        },
+        "version": "6.2.19",
+        "advisory_ids": []
+      }
+    ],
+    "affected_packages": 0
+  },
+  "java_sdk": {
+    "generated_at": "2026-09-10T17:54:30.822779+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "dependencies": [
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-databind",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.fasterxml.jackson.core:jackson-core",
+          "ecosystem": "Maven"
+        },
+        "version": "2.21.6",
+        "advisory_ids": []
+      }
+    ],
+    "affected_packages": 0
+  },
+  "tests": {
+    "backend": {
+      "tests": 178,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "sdk/java": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runtime_java": "JBR 25.0.2, compilation release 21",
+  "limitations": [
+    "Point-in-time known advisory lookup; no guarantee of vulnerability absence",
+    "Actual runtime has not yet restarted with these dependencies",
+    "JDK 21 container verification follows separately"
+  ]
+}

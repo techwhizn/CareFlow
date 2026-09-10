@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-11",
+  "default_infrastructure_changed": false,
+  "milvus_2623_scan": {
+    "counts": {
+      "MEDIUM": 96,
+      "LOW": 29,
+      "HIGH": 80,
+      "CRITICAL": 2,
+      "UNKNOWN": 4
+    },
+    "raw_sha256": "b21a2ad29358e78bb818bd39cd7dd68b1e8684afe13f4cd044fb2f73fec32faa"
+  },
+  "binary_analysis": {
+    "milvus": {
+      "findings": 2127,
+      "function_findings": 1744,
+      "unique_function_advisories": 32,
+      "raw_sha256": "5545801503bace772f6ecd1e5ae00fabbed742a63be3d9c33264dea1afe3c957"
+    },
+    "milvus-2623": {
+      "findings": 2127,
+      "function_findings": 1744,
+      "unique_function_advisories": 32,
+      "raw_sha256": "53efdedff0a6a2e81cd70cd74d13c630cb40c4fe0a221d4c21120cc3a1d8546c"
+    }
+  },
+  "persistence_compatibility": {
+    "baseline": "Milvus 2.6.1 / MinIO 2025-07-23 / etcd 3.5.18",
+    "candidate": "Milvus 2.6.23 / Silo 2026-09-03 distroless / etcd 3.5.33",
+    "both_passed": true,
+    "test": "Real Chinese BM25 with tenant/version exclusion after flush, collection release and reload",
+    "synthetic_unique_collection_removed": true,
+    "scope": "Fresh candidate storage; not a legacy Milvus volume upgrade or complete application acceptance"
+  },
+  "readiness": "INCOMPLETE_SECURITY_FINDINGS",
+  "images": {
+    "milvusdb/milvus:v2.6.23": {
+      "id": "sha256:60e96d5abe7ea9199dd8a4d0d0506f9b57a7056cf57683327b8c7ae7f489ed17",
+      "repo_digests": [
+        "milvusdb/milvus@sha256:60e96d5abe7ea9199dd8a4d0d0506f9b57a7056cf57683327b8c7ae7f489ed17"
+      ]
+    },
+    "pgsty/silo:RELEASE.2026-09-03T13-18-01Z-distroless": {
+      "id": "sha256:2711cdc5bce0ada353a4871dcda60f48f46414fdd69a45c36c71f6b7ebe1aead",
+      "repo_digests": [
+        "pgsty/silo@sha256:2711cdc5bce0ada353a4871dcda60f48f46414fdd69a45c36c71f6b7ebe1aead"
+      ]
+    },
+    "quay.io/coreos/etcd:v3.5.33": {
+      "id": "sha256:d367cba7801b29d2f7481bb56802894658ec8a647834509118c81f77f721381b",
+      "repo_digests": [
+        "quay.io/coreos/etcd@sha256:d367cba7801b29d2f7481bb56802894658ec8a647834509118c81f77f721381b"
+      ]
+    }
+  }
+}

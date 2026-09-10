@@ -61,6 +61,9 @@ def test_real_chinese_bm25_with_tenant_and_version_filter():
             consistency_level="Strong",
         )
         c.insert(collection_name=name, data=rows)
+        c.flush(collection_name=name)
+        c.release_collection(collection_name=name)
+        c.load_collection(collection_name=name)
         result = c.search(
             collection_name=name,
             data=["CF-100 E404 连接"],

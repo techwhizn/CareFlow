@@ -25,7 +25,7 @@ git archive --format=tar.gz --prefix=CareFlow/ \
 
 ```bash
 mvn install:install-file -Dfile=careflow-sdk-0.1.0.jar \
-  -DgroupId=com.careflow -DartifactId=careflow-sdk -Dversion=0.1.0 -Dpackaging=jar
+  -DpomFile=careflow-sdk-0.1.0.pom
 ```
 
 后端JAR通过`java -jar knowledge-platform-0.1.0.jar`运行，先按[配置](../.env.example)在进程环境中设置数据库、队列、对象存储和Worker连接。Web静态文件需要[同源API代理](../web/nginx.conf)，不能直接用文件协议替代服务器。导出的Docker镜像可用`docker load -i careflow-images.tar`导入，再用附带的Compose镜像覆盖文件启动；模型权重和基础设施镜像需按文档另行准备。镜像包不包含数据卷、运行凭证或BGE权重，不是全离线环境备份。

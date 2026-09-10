@@ -286,6 +286,12 @@ public class RetrievalService {
         selection.evidence().stream().mapToLong(c -> num(c, "token_count")).sum());
     response.put("evidence_token_limit", 6000);
     response.put("evidence_tokenizer", "cl100k_base");
+    response.put(
+        "evidence_status",
+        EvidenceSelection.status(
+            selection,
+            Boolean.TRUE.equals(recall.get("degraded"))
+                || Boolean.TRUE.equals(ranked.get("degraded"))));
     response.put("minimum_rerank_score", minimumScore);
     response.put(
         "configuration_id", queryConfiguration == null ? "" : queryConfiguration.runtime().id());

@@ -21,6 +21,32 @@ class EvidenceSelectionTest {
   }
 
   @Test
+  void publicStatusDistinguishesInsufficientRelevanceFromUnavailableScoring() {
+    var candidates = Map.of("a", candidate("a", "d", "a"));
+    List<Map<String, Object>> ranked = List.of(Map.of("id", "a", "score", .4));
+    assertThat(
+            EvidenceSelection.status(
+                EvidenceSelection.select(candidates, ranked, 6, .5, false, false), false))
+        .isEqualTo("BELOW_THRESHOLD");
+    assertThat(
+            EvidenceSelection.status(
+                EvidenceSelection.select(candidates, ranked, 6, .5, true, false), true))
+        .isEqualTo("SCORE_UNAVAILABLE");
+    assertThat(
+            EvidenceSelection.status(
+                EvidenceSelection.select(candidates, ranked, 6, null, true, false), true))
+        .isEqualTo("DEGRADED");
+    assertThat(
+            EvidenceSelection.status(
+                EvidenceSelection.select(candidates, ranked, 6, .4, false, false), false))
+        .isEqualTo("AVAILABLE");
+    assertThat(
+            EvidenceSelection.status(
+                EvidenceSelection.select(candidates, List.of(), 6, null, false, false), false))
+        .isEqualTo("NO_MATCH");
+  }
+
+  @Test
   void thresholdIsInclusiveAndUnknownCandidatesAreNeverDisclosed() {
     var candidates = Map.of("a", candidate("a", "d", "a"), "b", candidate("b", "d", "b"));
     var result =

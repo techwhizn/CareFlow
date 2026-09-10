@@ -1396,7 +1396,8 @@ class PlatformBoundaryTest {
                             0.5))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.evidence").isEmpty())
-        .andExpect(jsonPath("$.excluded[0].reason").value("BELOW_MINIMUM_SCORE"));
+        .andExpect(jsonPath("$.excluded[0].reason").value("BELOW_MINIMUM_SCORE"))
+        .andExpect(jsonPath("$.evidence_status").value("BELOW_THRESHOLD"));
     var query = new Query("test", null, List.of(), "hybrid", 6, false, null);
     assertThat(
             (List<?>)

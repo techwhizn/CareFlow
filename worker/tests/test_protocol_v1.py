@@ -153,3 +153,25 @@ def test_evidence_budget_uses_real_tokens_not_characters_and_blocks_generation(
     )
     assert response.status_code == 422
     assert response.json() == {"detail": "EVIDENCE_TOKEN_LIMIT"}
+
+
+def test_rerank_timeout_obeys_explicit_degradation_policy(monkeypatch):
+    import httpx
+
+    import careflow.api as api
+
+    def timeout(*args):
+        raise httpx.ReadTimeout("synthetic private endpoint must not be disclosed")
+
+    monkeypatch.setattr(api.models, "rerank", timeout)
+    c = client(monkeypatch)
+    body = {"query": "fixture", "candidates": [{"id": "a", "content": "source"}]}
+    denied = c.post("/internal/v1/rerank", json=body)
+    assert denied.status_code == 503
+    assert denied.json()["detail"] == "RERANK_UNAVAILABLE"
+    body["allow_degraded"] = True
+    allowed = c.post("/internal/v1/rerank", json=body)
+    assert allowed.status_code == 200
+    assert allowed.json()["degraded"] is True
+    assert allowed.json()["results"] == [{"id": "a", "score": None}]
+    assert "private endpoint" not in allowed.text

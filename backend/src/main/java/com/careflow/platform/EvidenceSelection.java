@@ -12,6 +12,15 @@ public final class EvidenceSelection {
 
   public record Selection(List<Map<String, Object>> evidence, List<Exclusion> excluded) {}
 
+  public static String status(Selection selection, boolean degraded) {
+    if (!selection.evidence().isEmpty()) return degraded ? "DEGRADED" : "AVAILABLE";
+    if (selection.excluded().stream().anyMatch(item -> item.reason().equals("SCORE_UNAVAILABLE")))
+      return "SCORE_UNAVAILABLE";
+    if (selection.excluded().stream().anyMatch(item -> item.reason().equals("BELOW_MINIMUM_SCORE")))
+      return "BELOW_THRESHOLD";
+    return degraded ? "SCORE_UNAVAILABLE" : "NO_MATCH";
+  }
+
   public static Selection select(
       Map<String, Map<String, Object>> authorized,
       List<Map<String, Object>> ranked,

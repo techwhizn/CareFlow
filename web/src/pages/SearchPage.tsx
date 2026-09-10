@@ -146,7 +146,13 @@ export default function SearchPage() {
             <Empty
               icon={MagnifyingGlass}
               title="没有找到可用证据"
-              detail="检查资料是否已发布、是否有访问权限，或调整问题表达。"
+              detail={
+                result.evidence_status === "BELOW_THRESHOLD"
+                  ? "已找到候选资料，但相关性未达到已配置的门槛。请补充问题信息。"
+                  : result.evidence_status === "SCORE_UNAVAILABLE"
+                    ? "评分服务不可用，无法确认资料相关性。请稍后重试或联系管理员。"
+                    : "检查资料是否已发布、是否有访问权限，或调整问题表达。"
+              }
             />
           ) : (
             result.evidence.map((c: Row, i: number) => (

@@ -1,0 +1,776 @@
+{
+  "synthetic": true,
+  "human_reviewed": false,
+  "complete": true,
+  "knowledge_base_id": "0fa3958f-47e3-44e7-aa8e-e8c9fcdfc545",
+  "queries": [
+    {
+      "id": "error-code",
+      "query": "CF-100 E404 网络故障如何处理",
+      "expected_document": "offline",
+      "pairs": [
+        {
+          "score": 0.9997207522392273,
+          "relevant": true,
+          "query_id": "error-code",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 0.9654935598373413,
+          "relevant": false,
+          "query_id": "error-code",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 0.019256463274359703,
+          "relevant": false,
+          "query_id": "error-code",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 0.0027263641823083162,
+          "relevant": false,
+          "query_id": "error-code",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "offline-synonym",
+      "query": "设备连不上网，该先排查哪里？",
+      "expected_document": "offline",
+      "pairs": [
+        {
+          "score": 0.07569491118192673,
+          "relevant": true,
+          "query_id": "offline-synonym",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 0.022161277011036873,
+          "relevant": false,
+          "query_id": "offline-synonym",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 0.0002162494056392461,
+          "relevant": false,
+          "query_id": "offline-synonym",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.755624493351206e-05,
+          "relevant": false,
+          "query_id": "offline-synonym",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "reset-synonym",
+      "query": "怎样把设备还原成刚买来时的设置？",
+      "expected_document": "reset",
+      "pairs": [
+        {
+          "score": 0.12510108947753906,
+          "relevant": true,
+          "query_id": "reset-synonym",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 0.005673355422914028,
+          "relevant": false,
+          "query_id": "reset-synonym",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 0.0009688432910479605,
+          "relevant": false,
+          "query_id": "reset-synonym",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        },
+        {
+          "score": 0.0007940423674881458,
+          "relevant": false,
+          "query_id": "reset-synonym",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        }
+      ]
+    },
+    {
+      "id": "consumable-code",
+      "query": "CF-200 E207 滤芯告警",
+      "expected_document": "filter",
+      "pairs": [
+        {
+          "score": 0.9996708631515503,
+          "relevant": true,
+          "query_id": "consumable-code",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 0.35794663429260254,
+          "relevant": false,
+          "query_id": "consumable-code",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        },
+        {
+          "score": 0.005940545350313187,
+          "relevant": false,
+          "query_id": "consumable-code",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 0.00151225202716887,
+          "relevant": false,
+          "query_id": "consumable-code",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        }
+      ]
+    },
+    {
+      "id": "warranty-synonym",
+      "query": "购买多久之内可以凭发票免费维修？",
+      "expected_document": "warranty",
+      "pairs": [
+        {
+          "score": 0.10729073733091354,
+          "relevant": true,
+          "query_id": "warranty-synonym",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        },
+        {
+          "score": 3.867607665597461e-05,
+          "relevant": false,
+          "query_id": "warranty-synonym",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.7446738133439794e-05,
+          "relevant": false,
+          "query_id": "warranty-synonym",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.733872654265724e-05,
+          "relevant": false,
+          "query_id": "warranty-synonym",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        }
+      ]
+    },
+    {
+      "id": "negative-0",
+      "query": "番茄炒蛋怎么做？",
+      "expected_document": null,
+      "pairs": [
+        {
+          "score": 3.7426460039569065e-05,
+          "relevant": false,
+          "query_id": "negative-0",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.742249828064814e-05,
+          "relevant": false,
+          "query_id": "negative-0",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.741015098057687e-05,
+          "relevant": false,
+          "query_id": "negative-0",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 3.74038027075585e-05,
+          "relevant": false,
+          "query_id": "negative-0",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "negative-1",
+      "query": "法国的首都是哪里？",
+      "expected_document": null,
+      "pairs": [
+        {
+          "score": 3.742927947314456e-05,
+          "relevant": false,
+          "query_id": "negative-1",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 3.740765532711521e-05,
+          "relevant": false,
+          "query_id": "negative-1",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.740651300176978e-05,
+          "relevant": false,
+          "query_id": "negative-1",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.734570782398805e-05,
+          "relevant": false,
+          "query_id": "negative-1",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "negative-2",
+      "query": "怎样学习钢琴？",
+      "expected_document": null,
+      "pairs": [
+        {
+          "score": 3.7445272027980536e-05,
+          "relevant": false,
+          "query_id": "negative-2",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 3.7428850191645324e-05,
+          "relevant": false,
+          "query_id": "negative-2",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.742028638953343e-05,
+          "relevant": false,
+          "query_id": "negative-2",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.7399378925329074e-05,
+          "relevant": false,
+          "query_id": "negative-2",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "negative-3",
+      "query": "月球表面温度是多少？",
+      "expected_document": null,
+      "pairs": [
+        {
+          "score": 3.744248897419311e-05,
+          "relevant": false,
+          "query_id": "negative-3",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 3.742785338545218e-05,
+          "relevant": false,
+          "query_id": "negative-3",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.741586260730401e-05,
+          "relevant": false,
+          "query_id": "negative-3",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.7358673580456525e-05,
+          "relevant": false,
+          "query_id": "negative-3",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    },
+    {
+      "id": "negative-4",
+      "query": "如何计算三角形面积？",
+      "expected_document": null,
+      "pairs": [
+        {
+          "score": 3.743467095773667e-05,
+          "relevant": false,
+          "query_id": "negative-4",
+          "chunk_id": "d6de2214-abbe-48f3-be49-44d45a534ed5"
+        },
+        {
+          "score": 3.742827902897261e-05,
+          "relevant": false,
+          "query_id": "negative-4",
+          "chunk_id": "8c441ab6-cbb3-4be6-b7bc-79c22d636e12"
+        },
+        {
+          "score": 3.742778062587604e-05,
+          "relevant": false,
+          "query_id": "negative-4",
+          "chunk_id": "fa85a447-7ef0-4b22-b643-c419a1d49395"
+        },
+        {
+          "score": 3.734706115210429e-05,
+          "relevant": false,
+          "query_id": "negative-4",
+          "chunk_id": "0f626861-fbee-45a0-9d49-cebeb2b11244"
+        }
+      ]
+    }
+  ],
+  "calibration": {
+    "samples": 40,
+    "positives": 5,
+    "minimum_precision": 1.0,
+    "selected": {
+      "threshold": 0.9996708631515503,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 3,
+      "true_negative": 35,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714285714285715
+    },
+    "curve": [
+      {
+        "threshold": 3.733872654265724e-05,
+        "true_positive": 5,
+        "false_positive": 35,
+        "false_negative": 0,
+        "true_negative": 0,
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222222222222222
+      },
+      {
+        "threshold": 3.734570782398805e-05,
+        "true_positive": 5,
+        "false_positive": 34,
+        "false_negative": 0,
+        "true_negative": 1,
+        "precision": 0.1282051282051282,
+        "recall": 1.0,
+        "f1": 0.22727272727272727
+      },
+      {
+        "threshold": 3.734706115210429e-05,
+        "true_positive": 5,
+        "false_positive": 33,
+        "false_negative": 0,
+        "true_negative": 2,
+        "precision": 0.13157894736842105,
+        "recall": 1.0,
+        "f1": 0.23255813953488372
+      },
+      {
+        "threshold": 3.7358673580456525e-05,
+        "true_positive": 5,
+        "false_positive": 32,
+        "false_negative": 0,
+        "true_negative": 3,
+        "precision": 0.13513513513513514,
+        "recall": 1.0,
+        "f1": 0.2380952380952381
+      },
+      {
+        "threshold": 3.7399378925329074e-05,
+        "true_positive": 5,
+        "false_positive": 31,
+        "false_negative": 0,
+        "true_negative": 4,
+        "precision": 0.1388888888888889,
+        "recall": 1.0,
+        "f1": 0.24390243902439027
+      },
+      {
+        "threshold": 3.74038027075585e-05,
+        "true_positive": 5,
+        "false_positive": 30,
+        "false_negative": 0,
+        "true_negative": 5,
+        "precision": 0.14285714285714285,
+        "recall": 1.0,
+        "f1": 0.25
+      },
+      {
+        "threshold": 3.740651300176978e-05,
+        "true_positive": 5,
+        "false_positive": 29,
+        "false_negative": 0,
+        "true_negative": 6,
+        "precision": 0.14705882352941177,
+        "recall": 1.0,
+        "f1": 0.25641025641025644
+      },
+      {
+        "threshold": 3.740765532711521e-05,
+        "true_positive": 5,
+        "false_positive": 28,
+        "false_negative": 0,
+        "true_negative": 7,
+        "precision": 0.15151515151515152,
+        "recall": 1.0,
+        "f1": 0.2631578947368421
+      },
+      {
+        "threshold": 3.741015098057687e-05,
+        "true_positive": 5,
+        "false_positive": 27,
+        "false_negative": 0,
+        "true_negative": 8,
+        "precision": 0.15625,
+        "recall": 1.0,
+        "f1": 0.2702702702702703
+      },
+      {
+        "threshold": 3.741586260730401e-05,
+        "true_positive": 5,
+        "false_positive": 26,
+        "false_negative": 0,
+        "true_negative": 9,
+        "precision": 0.16129032258064516,
+        "recall": 1.0,
+        "f1": 0.27777777777777773
+      },
+      {
+        "threshold": 3.742028638953343e-05,
+        "true_positive": 5,
+        "false_positive": 25,
+        "false_negative": 0,
+        "true_negative": 10,
+        "precision": 0.16666666666666666,
+        "recall": 1.0,
+        "f1": 0.2857142857142857
+      },
+      {
+        "threshold": 3.742249828064814e-05,
+        "true_positive": 5,
+        "false_positive": 24,
+        "false_negative": 0,
+        "true_negative": 11,
+        "precision": 0.1724137931034483,
+        "recall": 1.0,
+        "f1": 0.29411764705882354
+      },
+      {
+        "threshold": 3.7426460039569065e-05,
+        "true_positive": 5,
+        "false_positive": 23,
+        "false_negative": 0,
+        "true_negative": 12,
+        "precision": 0.17857142857142858,
+        "recall": 1.0,
+        "f1": 0.30303030303030304
+      },
+      {
+        "threshold": 3.742778062587604e-05,
+        "true_positive": 5,
+        "false_positive": 22,
+        "false_negative": 0,
+        "true_negative": 13,
+        "precision": 0.18518518518518517,
+        "recall": 1.0,
+        "f1": 0.3125
+      },
+      {
+        "threshold": 3.742785338545218e-05,
+        "true_positive": 5,
+        "false_positive": 21,
+        "false_negative": 0,
+        "true_negative": 14,
+        "precision": 0.19230769230769232,
+        "recall": 1.0,
+        "f1": 0.32258064516129037
+      },
+      {
+        "threshold": 3.742827902897261e-05,
+        "true_positive": 5,
+        "false_positive": 20,
+        "false_negative": 0,
+        "true_negative": 15,
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.33333333333333337
+      },
+      {
+        "threshold": 3.7428850191645324e-05,
+        "true_positive": 5,
+        "false_positive": 19,
+        "false_negative": 0,
+        "true_negative": 16,
+        "precision": 0.20833333333333334,
+        "recall": 1.0,
+        "f1": 0.3448275862068966
+      },
+      {
+        "threshold": 3.742927947314456e-05,
+        "true_positive": 5,
+        "false_positive": 18,
+        "false_negative": 0,
+        "true_negative": 17,
+        "precision": 0.21739130434782608,
+        "recall": 1.0,
+        "f1": 0.3571428571428571
+      },
+      {
+        "threshold": 3.743467095773667e-05,
+        "true_positive": 5,
+        "false_positive": 17,
+        "false_negative": 0,
+        "true_negative": 18,
+        "precision": 0.22727272727272727,
+        "recall": 1.0,
+        "f1": 0.37037037037037035
+      },
+      {
+        "threshold": 3.744248897419311e-05,
+        "true_positive": 5,
+        "false_positive": 16,
+        "false_negative": 0,
+        "true_negative": 19,
+        "precision": 0.23809523809523808,
+        "recall": 1.0,
+        "f1": 0.3846153846153846
+      },
+      {
+        "threshold": 3.7445272027980536e-05,
+        "true_positive": 5,
+        "false_positive": 15,
+        "false_negative": 0,
+        "true_negative": 20,
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4
+      },
+      {
+        "threshold": 3.7446738133439794e-05,
+        "true_positive": 5,
+        "false_positive": 14,
+        "false_negative": 0,
+        "true_negative": 21,
+        "precision": 0.2631578947368421,
+        "recall": 1.0,
+        "f1": 0.4166666666666667
+      },
+      {
+        "threshold": 3.755624493351206e-05,
+        "true_positive": 5,
+        "false_positive": 13,
+        "false_negative": 0,
+        "true_negative": 22,
+        "precision": 0.2777777777777778,
+        "recall": 1.0,
+        "f1": 0.4347826086956522
+      },
+      {
+        "threshold": 3.867607665597461e-05,
+        "true_positive": 5,
+        "false_positive": 12,
+        "false_negative": 0,
+        "true_negative": 23,
+        "precision": 0.29411764705882354,
+        "recall": 1.0,
+        "f1": 0.45454545454545453
+      },
+      {
+        "threshold": 0.0002162494056392461,
+        "true_positive": 5,
+        "false_positive": 11,
+        "false_negative": 0,
+        "true_negative": 24,
+        "precision": 0.3125,
+        "recall": 1.0,
+        "f1": 0.47619047619047616
+      },
+      {
+        "threshold": 0.0007940423674881458,
+        "true_positive": 5,
+        "false_positive": 10,
+        "false_negative": 0,
+        "true_negative": 25,
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5
+      },
+      {
+        "threshold": 0.0009688432910479605,
+        "true_positive": 5,
+        "false_positive": 9,
+        "false_negative": 0,
+        "true_negative": 26,
+        "precision": 0.35714285714285715,
+        "recall": 1.0,
+        "f1": 0.5263157894736842
+      },
+      {
+        "threshold": 0.00151225202716887,
+        "true_positive": 5,
+        "false_positive": 8,
+        "false_negative": 0,
+        "true_negative": 27,
+        "precision": 0.38461538461538464,
+        "recall": 1.0,
+        "f1": 0.5555555555555556
+      },
+      {
+        "threshold": 0.0027263641823083162,
+        "true_positive": 5,
+        "false_positive": 7,
+        "false_negative": 0,
+        "true_negative": 28,
+        "precision": 0.4166666666666667,
+        "recall": 1.0,
+        "f1": 0.5882352941176471
+      },
+      {
+        "threshold": 0.005673355422914028,
+        "true_positive": 5,
+        "false_positive": 6,
+        "false_negative": 0,
+        "true_negative": 29,
+        "precision": 0.45454545454545453,
+        "recall": 1.0,
+        "f1": 0.625
+      },
+      {
+        "threshold": 0.005940545350313187,
+        "true_positive": 5,
+        "false_positive": 5,
+        "false_negative": 0,
+        "true_negative": 30,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666
+      },
+      {
+        "threshold": 0.019256463274359703,
+        "true_positive": 5,
+        "false_positive": 4,
+        "false_negative": 0,
+        "true_negative": 31,
+        "precision": 0.5555555555555556,
+        "recall": 1.0,
+        "f1": 0.7142857142857143
+      },
+      {
+        "threshold": 0.022161277011036873,
+        "true_positive": 5,
+        "false_positive": 3,
+        "false_negative": 0,
+        "true_negative": 32,
+        "precision": 0.625,
+        "recall": 1.0,
+        "f1": 0.7692307692307693
+      },
+      {
+        "threshold": 0.07569491118192673,
+        "true_positive": 5,
+        "false_positive": 2,
+        "false_negative": 0,
+        "true_negative": 33,
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "f1": 0.8333333333333333
+      },
+      {
+        "threshold": 0.10729073733091354,
+        "true_positive": 4,
+        "false_positive": 2,
+        "false_negative": 1,
+        "true_negative": 33,
+        "precision": 0.6666666666666666,
+        "recall": 0.8,
+        "f1": 0.7272727272727272
+      },
+      {
+        "threshold": 0.12510108947753906,
+        "true_positive": 3,
+        "false_positive": 2,
+        "false_negative": 2,
+        "true_negative": 33,
+        "precision": 0.6,
+        "recall": 0.6,
+        "f1": 0.6
+      },
+      {
+        "threshold": 0.35794663429260254,
+        "true_positive": 2,
+        "false_positive": 2,
+        "false_negative": 3,
+        "true_negative": 33,
+        "precision": 0.5,
+        "recall": 0.4,
+        "f1": 0.4444444444444445
+      },
+      {
+        "threshold": 0.9654935598373413,
+        "true_positive": 2,
+        "false_positive": 1,
+        "false_negative": 3,
+        "true_negative": 34,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "f1": 0.5
+      },
+      {
+        "threshold": 0.9996708631515503,
+        "true_positive": 2,
+        "false_positive": 0,
+        "false_negative": 3,
+        "true_negative": 35,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285715
+      },
+      {
+        "threshold": 0.9997207522392273,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 4,
+        "true_negative": 35,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337
+      }
+    ]
+  },
+  "configuration_id": "3db0807e-d775-4d3d-9706-bbe38bc752a9",
+  "reindex_required": false,
+  "verification": [
+    {
+      "id": "error-code",
+      "evidence_status": "AVAILABLE",
+      "evidence_count": 1,
+      "minimum_rerank_score": 0.9996708631515503
+    },
+    {
+      "id": "offline-synonym",
+      "evidence_status": "BELOW_THRESHOLD",
+      "evidence_count": 0,
+      "minimum_rerank_score": 0.9996708631515503
+    },
+    {
+      "id": "reset-synonym",
+      "evidence_status": "BELOW_THRESHOLD",
+      "evidence_count": 0,
+      "minimum_rerank_score": 0.9996708631515503
+    },
+    {
+      "id": "consumable-code",
+      "evidence_status": "AVAILABLE",
+      "evidence_count": 1,
+      "minimum_rerank_score": 0.9996708631515503
+    },
+    {
+      "id": "warranty-synonym",
+      "evidence_status": "BELOW_THRESHOLD",
+      "evidence_count": 0,
+      "minimum_rerank_score": 0.9996708631515503
+    },
+    {
+      "id": "negative",
+      "evidence_status": "BELOW_THRESHOLD",
+      "evidence_count": 0,
+      "minimum_rerank_score": 0.9996708631515503
+    }
+  ],
+  "caller_can_only_tighten": true
+}

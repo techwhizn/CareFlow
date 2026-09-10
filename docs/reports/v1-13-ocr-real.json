@@ -1,0 +1,22 @@
+{
+  "synthetic_data": true,
+  "real_dependencies": true,
+  "steps": [
+    {
+      "file": "synthetic-chinese.png",
+      "job_done": true,
+      "ocr_warning_retained_after_edit": true,
+      "document_id": "2aae25fc-bccb-46fa-918c-619678bbe9e5",
+      "version_id": "d0c207f5-051d-40ec-b80b-397c1a573771"
+    },
+    {
+      "file": "synthetic-scan.pdf",
+      "job_done": true,
+      "ocr_warning_retained_after_edit": true,
+      "document_id": "3f7a5d45-a9e6-4499-9e9e-fb04814ad528",
+      "version_id": "b0183f8c-8f5e-420d-a3ec-d26e03b1239e"
+    }
+  ],
+  "complete": true,
+  "knowledge_base_id": "503235dc-259e-4529-b12e-b3c8647ebc48"
+}

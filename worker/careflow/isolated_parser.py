@@ -15,19 +15,23 @@ class ParseFailure(InvalidFile):
         self.code = code
 
 
+def _limit_process():
+    if sys.platform == "linux":
+        import resource
+
+        memory = bounded("PARSE_MEMORY_MIB", 2048) * 1024 * 1024
+        resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+        seconds = Limits.environment().parse_seconds
+        resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
+
+
 def _child(connection, data, filename, pdf_page_limit):
     try:
         if pdf_page_limit is not None:
             os.environ["PARSE_MAX_PDF_PAGES"] = str(
                 min(Limits.environment().pdf_pages, pdf_page_limit)
             )
-        if sys.platform == "linux":
-            import resource
-
-            memory = bounded("PARSE_MEMORY_MIB", 2048) * 1024 * 1024
-            resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
-            seconds = Limits.environment().parse_seconds
-            resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
+        _limit_process()
         from careflow.parsing import chunk, parse
 
         connection.send(("OK", chunk(parse(data, filename))))

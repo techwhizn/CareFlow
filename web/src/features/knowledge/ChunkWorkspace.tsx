@@ -3,6 +3,19 @@ import { useEffect, useState } from "react";
 import type { Row } from "../../api";
 import { Dialog, Empty, ErrorNote, Loading, useData } from "../../ui";
 import { knowledgeClient, knowledgePaths } from "./client";
+
+function sourceLocation(raw: unknown): Record<string, unknown> {
+  try {
+    const location: unknown = JSON.parse(String(raw));
+    if (location && typeof location === "object" && !Array.isArray(location)) {
+      return location as Record<string, unknown>;
+    }
+  } catch {
+    // Invalid location must remain visibly unavailable.
+  }
+  return { warning: "来源位置格式异常，请联系知识库管理员核对。" };
+}
+
 export default function ChunkWorkspace({
   version,
   doc,
@@ -28,6 +41,7 @@ export default function ChunkWorkspace({
   useEffect(() => {
     setSelected(chunks.data[0] || null);
   }, [chunks.data]);
+  const location = selected ? sourceLocation(selected.location) : {};
   return (
     <>
       <div className="section-title">
@@ -84,6 +98,11 @@ export default function ChunkWorkspace({
         </div>
       </div>
       <ErrorNote error={chunks.error} />
+      {typeof location.warning === "string" && location.warning && (
+        <div className="notice" role="note">
+          解析质量提示：{location.warning}
+        </div>
+      )}
       {chunks.loading ? (
         <Loading />
       ) : !chunks.data.length ? (
@@ -107,7 +126,7 @@ export default function ChunkWorkspace({
                 <div className="source-location">
                   <b>来源定位</b>
                   <pre>
-                    {JSON.stringify(JSON.parse(selected.location), null, 2)}
+                    {JSON.stringify(location, null, 2)}
                   </pre>
                 </div>
               </>

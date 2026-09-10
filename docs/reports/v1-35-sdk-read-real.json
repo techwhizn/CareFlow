@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-11",
+  "synthetic_fixture_only": true,
+  "python_sync": {
+    "source_bytes": 245,
+    "source_sha256": "b2d3241a6799d6b1cae38efe27fd6dafe7e3460358b3cb3a4f1f7448adec68b5",
+    "cross_tenant_status": 404
+  },
+  "python_async": {
+    "source_bytes": 245,
+    "source_sha256": "b2d3241a6799d6b1cae38efe27fd6dafe7e3460358b3cb3a4f1f7448adec68b5",
+    "cross_tenant_status": 404
+  },
+  "java": {
+    "language": "java",
+    "source_bytes": 245,
+    "source_sha256": "b2d3241a6799d6b1cae38efe27fd6dafe7e3460358b3cb3a4f1f7448adec68b5",
+    "cross_tenant_status": 404,
+    "java_version": "25.0.2+10-b329.72"
+  },
+  "matching_content_and_permissions": true,
+  "limitations": [
+    "Read-only source and permission integration; upload, cancellation and SSE are separate checks",
+    "Backend runtime remains the pre-upgrade instance during the fixed evaluation experiment"
+  ]
+}

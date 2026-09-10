@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-11",
+  "environment": "careflow-v1-clean; separate empty MySQL/S3/Milvus volumes; in-app Chromium",
+  "java": "Temurin 21.0.12",
+  "migrations": 36,
+  "generation": "deepseek-v4-flash",
+  "bootstrap": "Public API from zero tenants; synthetic browser credential seeded separately",
+  "workflow": {
+    "create_knowledge_base": "browser passed",
+    "upload": "browser product-guide.md; 717 bytes; quote before upload",
+    "parse": "5 chunks; succeeded",
+    "index": "real BGE/Milvus; READY",
+    "publish": "explicit browser action; published",
+    "search": {
+      "trace_id": "17b378f5-1b1d-4a1d-b233-4568a7d688e5",
+      "evidence_count": 2,
+      "dense_candidates": 5,
+      "bm25_candidates": 5,
+      "fused_candidates": 5,
+      "rerank_candidates": 5,
+      "worker_elapsed_ms": 2280.2
+    },
+    "answer": {
+      "status": "completed",
+      "input_tokens": 682,
+      "output_tokens": 415,
+      "citation_click": "expanded matching version and source snapshot",
+      "source_offsets": [
+        51,
+        134
+      ],
+      "document_version": "aadec2e5-6824-45f6-b695-237044fc4a28"
+    }
+  },
+  "limitations": [
+    "Single synthetic document, not performance or quality baseline",
+    "Model profiles configured via API; bootstrap form not exercised",
+    "Keyboard and narrow-screen regression pending",
+    "Existing authorized host model service; weights not downloaded afresh"
+  ]
+}

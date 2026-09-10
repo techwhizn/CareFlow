@@ -1,0 +1,111 @@
+{
+  "date": "2026-09-11",
+  "tool": "pip-audit 2.10.1",
+  "scope": "worker locked runtime dependencies",
+  "before": [
+    {
+      "name": "pillow",
+      "version": "11.3.0",
+      "advisory_ids": [
+        "PYSEC-2026-165",
+        "PYSEC-2026-2249",
+        "PYSEC-2026-2250",
+        "PYSEC-2026-2251",
+        "PYSEC-2026-2252",
+        "PYSEC-2026-2253",
+        "PYSEC-2026-2254",
+        "PYSEC-2026-2255",
+        "PYSEC-2026-2256",
+        "PYSEC-2026-2257",
+        "PYSEC-2026-2874",
+        "PYSEC-2026-3451",
+        "PYSEC-2026-3453",
+        "PYSEC-2026-3454",
+        "PYSEC-2026-3493",
+        "PYSEC-2026-3494",
+        "PYSEC-2026-3495",
+        "PYSEC-2026-3496"
+      ]
+    },
+    {
+      "name": "pypdf",
+      "version": "6.0.0",
+      "advisory_ids": [
+        "CVE-2026-57204",
+        "PYSEC-2026-1827",
+        "PYSEC-2026-1828",
+        "PYSEC-2026-1829",
+        "PYSEC-2026-1831",
+        "PYSEC-2026-1832",
+        "PYSEC-2026-1833",
+        "PYSEC-2026-3004",
+        "PYSEC-2026-3005",
+        "PYSEC-2026-3006",
+        "PYSEC-2026-3007",
+        "PYSEC-2026-3009",
+        "PYSEC-2026-3010",
+        "PYSEC-2026-3011",
+        "PYSEC-2026-3012",
+        "PYSEC-2026-3013",
+        "PYSEC-2026-3014",
+        "PYSEC-2026-3015",
+        "PYSEC-2026-3016",
+        "PYSEC-2026-3017",
+        "PYSEC-2026-3018",
+        "PYSEC-2026-3019",
+        "PYSEC-2026-3020",
+        "PYSEC-2026-3021",
+        "PYSEC-2026-3022",
+        "PYSEC-2026-3023",
+        "PYSEC-2026-3024",
+        "PYSEC-2026-3025",
+        "PYSEC-2026-3026",
+        "PYSEC-2026-3027",
+        "PYSEC-2026-3610",
+        "PYSEC-2026-3611",
+        "PYSEC-2026-3612",
+        "PYSEC-2026-3613",
+        "PYSEC-2026-3655",
+        "PYSEC-2026-3656",
+        "PYSEC-2026-3910",
+        "PYSEC-2026-3911",
+        "PYSEC-2026-3912",
+        "PYSEC-2026-3913"
+      ]
+    },
+    {
+      "name": "starlette",
+      "version": "0.47.3",
+      "advisory_ids": [
+        "PYSEC-2026-161",
+        "PYSEC-2026-1942",
+        "PYSEC-2026-2280",
+        "PYSEC-2026-2281",
+        "PYSEC-2026-248",
+        "PYSEC-2026-249"
+      ]
+    }
+  ],
+  "after": {
+    "dependencies_checked": 44,
+    "known_vulnerabilities": 0
+  },
+  "tests": {
+    "passed": 133,
+    "skipped": 1,
+    "skip": "optional live Milvus integration"
+  },
+  "web_runtime_audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "limitations": [
+    "Point-in-time database result; not a proof of absence of vulnerabilities",
+    "Java, container images and optional local-model service are audited separately",
+    "Running evaluation service has not yet been restarted with upgraded dependencies"
+  ]
+}

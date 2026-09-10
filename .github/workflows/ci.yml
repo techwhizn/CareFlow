@@ -32,6 +32,8 @@ jobs:
       - run: PYTHONPATH=tools/local-models uv run --project worker pytest tools/local-models/tests -q
       - run: PYTHONPATH=sdk/python uv run --project worker pytest sdk/python/tests -q
       - run: uv build --project sdk/python --out-dir sdk/python/dist
+      - run: uv export --project worker --frozen --no-dev --no-hashes --no-emit-project --output-file /tmp/careflow-runtime.txt
+      - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r /tmp/careflow-runtime.txt
   web:
     runs-on: ubuntu-latest
     steps:

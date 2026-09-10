@@ -572,8 +572,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": {}
+                "$ref": "#/components/schemas/TaskFailure"
               }
             }
           },
@@ -614,8 +613,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": {}
+                "$ref": "#/components/schemas/TaskCompletion"
               }
             }
           },
@@ -650,7 +648,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/TaskClaim"
                 }
               }
             }
@@ -1732,7 +1730,10 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IndexChunk"
+                  }
                 }
               }
             }
@@ -2605,6 +2606,103 @@
           "knowledge_base_ids"
         ]
       },
+      "TaskFailure": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Z0-9_]{1,90}"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "ParsedChunk": {
+        "type": "object",
+        "properties": {
+          "source_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 0
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "token_count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 600,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "content",
+          "location",
+          "source_text",
+          "token_count"
+        ]
+      },
+      "TaskCompletion": {
+        "type": "object",
+        "properties": {
+          "chunks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedChunk"
+            },
+            "maxItems": 50000,
+            "minItems": 0
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "model_identity": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "embedding_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "TaskClaim": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lease_token": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "version_id": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      },
       "Checkpoint": {
         "type": "object",
         "properties": {
@@ -2764,6 +2862,17 @@
           "timeout": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "IndexChunk": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
           }
         }
       }

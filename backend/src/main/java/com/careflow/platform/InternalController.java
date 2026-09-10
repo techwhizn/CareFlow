@@ -12,16 +12,19 @@ public class InternalController {
   private final Db db;
   private final Tasks tasks;
   private final BlobStore blobs;
+  private final com.fasterxml.jackson.databind.ObjectMapper mapper;
 
-  public InternalController(Db db, Tasks tasks, BlobStore blobs) {
+  public InternalController(
+      Db db, Tasks tasks, BlobStore blobs, com.fasterxml.jackson.databind.ObjectMapper mapper) {
     this.db = db;
     this.tasks = tasks;
     this.blobs = blobs;
+    this.mapper = mapper;
   }
 
   @PostMapping("/{id}/claim")
-  public Object claim(@PathVariable String id) {
-    return tasks.claim(id);
+  public WorkerProtocolV1.TaskClaim claim(@PathVariable String id) {
+    return mapper.convertValue(tasks.claim(id), WorkerProtocolV1.TaskClaim.class);
   }
 
   @PostMapping("/{id}/heartbeat")
@@ -49,27 +52,35 @@ public class InternalController {
 
   @GetMapping("/{id}/chunks")
   @Transactional
-  public Object chunks(@PathVariable String id, @RequestHeader("X-Lease-Token") String lease) {
+  public List<WorkerProtocolV1.IndexChunk> chunks(
+      @PathVariable String id, @RequestHeader("X-Lease-Token") String lease) {
     var j = tasks.validate(id, lease);
-    return db.list(
-        "SELECT * FROM chunks WHERE tenant_id=? AND version_id=? AND enabled=TRUE ORDER BY ordinal_no",
-        str(j, "tenant_id"),
-        str(j, "version_id"));
+    return db
+        .list(
+            "SELECT * FROM chunks WHERE tenant_id=? AND version_id=? AND enabled=TRUE ORDER BY ordinal_no",
+            str(j, "tenant_id"),
+            str(j, "version_id"))
+        .stream()
+        .map(c -> new WorkerProtocolV1.IndexChunk(str(c, "id"), str(c, "content")))
+        .toList();
   }
 
   @PostMapping("/{id}/complete")
   public void complete(
       @PathVariable String id,
       @RequestHeader("X-Lease-Token") String lease,
-      @RequestBody Map<String, Object> body) {
-    tasks.complete(id, lease, body);
+      @RequestBody @jakarta.validation.Valid WorkerProtocolV1.TaskCompletion body) {
+    Map<String, Object> payload =
+        mapper.convertValue(
+            body, new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+    tasks.complete(id, lease, payload);
   }
 
   @PostMapping("/{id}/failed")
   public void failed(
       @PathVariable String id,
       @RequestHeader("X-Lease-Token") String lease,
-      @RequestBody Map<String, Object> body) {
-    tasks.failed(id, lease, str(body, "code"), Boolean.TRUE.equals(body.get("retryable")));
+      @RequestBody @jakarta.validation.Valid WorkerProtocolV1.TaskFailure body) {
+    tasks.failed(id, lease, body.code(), body.retryable());
   }
 }

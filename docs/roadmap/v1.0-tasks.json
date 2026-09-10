@@ -814,7 +814,8 @@
     "requirements": [],
     "dependencies": [],
     "acceptance": "拆分知识库大页面及数据访问逻辑，复用请求/错误组件；Java-Python请求响应明确类型和版本；契约测试覆盖超时、空响应、断流及错误映射。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-48-modules-contracts.md"
   },
   {
     "id": "V1-49",

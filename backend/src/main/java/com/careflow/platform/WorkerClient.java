@@ -1,8 +1,13 @@
 package com.careflow.platform;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
+import java.io.*;
 import java.net.http.HttpClient;
+import java.nio.charset.*;
 import java.time.Duration;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -11,60 +16,131 @@ import org.springframework.web.client.RestClient;
 @Service
 public class WorkerClient {
   private final RestClient client;
+  private final ObjectMapper mapper;
+  private final Validator validator;
 
+  @Autowired
   public WorkerClient(
       @Value("${careflow.worker-url}") String url,
-      @Value("${careflow.internal-token}") String token) {
-    var f =
+      @Value("${careflow.internal-token}") String token,
+      ObjectMapper mapper,
+      Validator validator) {
+    this(url, token, mapper, validator, Duration.ofSeconds(90));
+  }
+
+  WorkerClient(
+      String url, String token, ObjectMapper mapper, Validator validator, Duration timeout) {
+    this.mapper = mapper;
+    this.validator = validator;
+    var factory =
         new JdkClientHttpRequestFactory(
-            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
-    f.setReadTimeout(Duration.ofSeconds(90));
+            HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .build());
+    factory.setReadTimeout(timeout);
     client =
         RestClient.builder()
             .baseUrl(url)
             .defaultHeader("X-Internal-Token", token)
-            .requestFactory(f)
+            .requestFactory(factory)
             .build();
+  }
+
+  private <T> T checked(Object value, Class<T> type) {
+    if (value == null) throw new IllegalArgumentException("Empty worker response");
+    T typed = type.isInstance(value) ? type.cast(value) : mapper.convertValue(value, type);
+    if (!validator.validate(typed).isEmpty())
+      throw new IllegalArgumentException("Invalid worker contract");
+    return typed;
   }
 
   @SuppressWarnings("unchecked")
   public Map<String, Object> call(String path, Object body) {
     try {
-      var response = client.post().uri(path).body(body).retrieve().body(Map.class);
-      if (response == null) throw new IllegalStateException();
-      return response;
+      Object request;
+      Class<?> response;
+      switch (path) {
+        case "/internal/v1/recall" -> {
+          request = checked(body, WorkerProtocolV1.RecallRequest.class);
+          response = WorkerProtocolV1.RecallResponse.class;
+        }
+        case "/internal/v1/rerank" -> {
+          request = checked(body, WorkerProtocolV1.RerankRequest.class);
+          response = WorkerProtocolV1.RerankResponse.class;
+        }
+        case "/internal/v1/tokenize" -> {
+          request = checked(body, WorkerProtocolV1.TokenizeRequest.class);
+          response = WorkerProtocolV1.TokenizeResponse.class;
+        }
+        default -> throw new IllegalArgumentException("Unknown worker operation");
+      }
+      var result = client.post().uri(path).body(request).retrieve().body(response);
+      return mapper.convertValue(checked(result, response), Map.class);
     } catch (Exception e) {
-      throw new ApiException(503, "MODEL_OR_RETRIEVAL_UNAVAILABLE", "模型或检索服务不可用，请检查连接配置与任务日志");
+      throw unavailable();
     }
   }
 
+  private static ApiException unavailable() {
+    return new ApiException(503, "MODEL_OR_RETRIEVAL_UNAVAILABLE", "模型或检索服务不可用，请检查连接配置与任务日志");
+  }
+
   public void stream(Object body, java.util.function.Consumer<String> consumer) {
-    client
-        .post()
-        .uri("/internal/v1/generate/stream")
-        .body(body)
-        .exchange(
-            (request, response) -> {
-              if (!response.getStatusCode().is2xxSuccessful())
-                throw new ApiException(503, "GENERATION_UNAVAILABLE", "生成模型不可用");
-              try (var reader =
-                  new java.io.BufferedReader(
-                      new java.io.InputStreamReader(
-                          response.getBody(), java.nio.charset.StandardCharsets.UTF_8))) {
-                String line;
-                boolean done = false;
-                var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                while ((line = reader.readLine()) != null) {
-                  if (line.isBlank()) continue;
-                  var item = mapper.readTree(line);
-                  if (item.has("error"))
-                    throw new ApiException(503, "GENERATION_UNAVAILABLE", "生成模型中断");
-                  if (item.has("text")) consumer.accept(item.get("text").asText());
-                  if (item.path("done").asBoolean()) done = true;
+    final WorkerProtocolV1.GenerateRequest request;
+    try {
+      request = checked(body, WorkerProtocolV1.GenerateRequest.class);
+    } catch (Exception e) {
+      throw unavailable();
+    }
+    try {
+      client
+          .post()
+          .uri("/internal/v1/generate/stream")
+          .body(request)
+          .exchange(
+              (sent, response) -> {
+                if (!response.getStatusCode().is2xxSuccessful())
+                  throw new ApiException(503, "GENERATION_UNAVAILABLE", "生成模型不可用");
+                var decoder =
+                    StandardCharsets.UTF_8
+                        .newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
+                try (var reader =
+                    new BufferedReader(new InputStreamReader(response.getBody(), decoder))) {
+                  String line;
+                  while ((line = boundedLine(reader)) != null) {
+                    if (line.isBlank()) continue;
+                    var event = mapper.readTree(line);
+                    if (!event.isObject() || event.has("error"))
+                      throw new ApiException(503, "GENERATION_UNAVAILABLE", "生成模型中断");
+                    if (event.has("done") && event.has("text"))
+                      throw new ApiException(503, "STREAM_INTERRUPTED", "生成事件类型冲突");
+                    if (event.path("done").isBoolean() && event.path("done").booleanValue())
+                      return null;
+                    if (!event.has("text") || !event.get("text").isTextual())
+                      throw new ApiException(503, "STREAM_INTERRUPTED", "生成协议不完整");
+                    consumer.accept(event.get("text").textValue());
+                  }
+                  throw new ApiException(503, "STREAM_INTERRUPTED", "生成未完成");
                 }
-                if (!done) throw new ApiException(503, "STREAM_INTERRUPTED", "生成未完成");
-              }
-              return null;
-            });
+              });
+    } catch (ApiException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ApiException(503, "STREAM_INTERRUPTED", "生成连接中断");
+    }
+  }
+
+  private static String boundedLine(Reader reader) throws IOException {
+    StringBuilder line = new StringBuilder();
+    int character;
+    while ((character = reader.read()) != -1) {
+      if (character == '\n') return line.toString();
+      if (line.length() >= 65536) throw new IOException("Worker event exceeds line limit");
+      line.append((char) character);
+    }
+    return line.isEmpty() ? null : line.toString();
   }
 }

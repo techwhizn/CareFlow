@@ -10,6 +10,7 @@ import pika
 
 from careflow import models, parsing, retrieval
 from careflow.isolated_parser import ParseFailure, parse_document
+from careflow.protocol_v1 import IndexCompletion, ParseCompletion, TaskClaim
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def run_job(job_id):
         if claimed.status_code in (404, 409):
             return
         claimed.raise_for_status()
-        job = claimed.json()
+        job = TaskClaim.model_validate(claimed.json()).model_dump()
         headers["X-Lease-Token"] = job["lease_token"]
         stop = threading.Event()
         lease_lost = threading.Event()
@@ -60,6 +61,7 @@ def run_job(job_id):
                         source.content, job["filename"], cancelled=lease_lost.is_set
                     )
                 }
+                result = ParseCompletion.model_validate(result).model_dump()
                 checkpoint("PARSED")
             else:
                 chunks = client.get(base + "/chunks", headers=headers)
@@ -68,6 +70,7 @@ def run_job(job_id):
                 result = retrieval.index(
                     job["tenant_id"], job["version_id"], chunks.json()
                 )
+                result = IndexCompletion.model_validate(result).model_dump()
                 checkpoint("INDEX_VERIFIED")
             if not lease_lost.is_set():
                 client.post(

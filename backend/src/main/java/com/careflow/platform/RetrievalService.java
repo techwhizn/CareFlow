@@ -266,18 +266,6 @@ public class RetrievalService {
     }
   }
 
-  public Map<String, Object> generate(String question, List<Map<String, Object>> evidence) {
-    return worker.call(
-        "/internal/v1/generate",
-        Map.of(
-            "query",
-            question,
-            "evidence",
-            evidence.stream()
-                .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
-                .toList()));
-  }
-
   public String saveAnswer(
       Actor actor, Query q, String content, List<Map<String, Object>> evidence) {
     return tx.execute(

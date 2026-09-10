@@ -4,9 +4,18 @@ import os
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
 
 from careflow import models, retrieval
+from careflow.protocol_v1 import (
+    Generate,
+    GenerationEvent,
+    Recall,
+    RecallResponse,
+    Rerank,
+    RerankResponse,
+    Tokenize,
+    TokenizeResponse,
+)
 
 
 def internal(x_internal_token: str = Header(default="")):
@@ -18,48 +27,39 @@ def internal(x_internal_token: str = Header(default="")):
 app = FastAPI(title="CareFlow Internal Worker", dependencies=[Depends(internal)])
 
 
-class Recall(BaseModel):
-    tenant_id: str
-    version_ids: list[str] = Field(max_length=10000)
-    query: str = Field(min_length=1, max_length=4000)
-    mode: str = "hybrid"
-    allow_degraded: bool = False
-
-
-class Rerank(BaseModel):
-    query: str = Field(min_length=1, max_length=4000)
-    candidates: list[dict] = Field(max_length=40)
-    allow_degraded: bool = False
-
-
-class Generate(BaseModel):
-    query: str = Field(min_length=1, max_length=4000)
-    evidence: list[dict] = Field(min_length=1, max_length=6)
-
-
-@app.post("/internal/v1/recall")
+@app.post("/internal/v1/recall", response_model=RecallResponse)
 def recall(body: Recall):
     try:
-        return retrieval.recall(
-            body.tenant_id, body.version_ids, body.query, body.mode, body.allow_degraded
+        return RecallResponse.model_validate(
+            retrieval.recall(
+                body.tenant_id,
+                body.version_ids,
+                body.query,
+                body.mode,
+                body.allow_degraded,
+            )
         )
     except Exception as exc:
         raise HTTPException(503, "RETRIEVAL_UNAVAILABLE") from exc
 
 
-@app.post("/internal/v1/rerank")
+@app.post("/internal/v1/rerank", response_model=RerankResponse)
 def rerank(body: Rerank):
     if not body.candidates:
         return {"results": [], "degraded": False}
     try:
-        return {
-            "results": models.rerank(body.query, body.candidates),
-            "degraded": False,
-        }
+        return RerankResponse.model_validate(
+            {
+                "results": models.rerank(
+                    body.query, [c.model_dump() for c in body.candidates]
+                ),
+                "degraded": False,
+            }
+        )
     except Exception as exc:
         if body.allow_degraded:
             return {
-                "results": [{"id": c["id"], "score": None} for c in body.candidates],
+                "results": [{"id": c.id, "score": None} for c in body.candidates],
                 "degraded": True,
                 "warning": "RERANK_UNAVAILABLE",
             }
@@ -70,18 +70,20 @@ def rerank(body: Rerank):
 def stream(body: Generate):
     def generate():
         try:
-            yield from models.generate_stream(body.query, body.evidence)
+            for line in models.generate_stream(
+                body.query, [c.model_dump() for c in body.evidence]
+            ):
+                event = GenerationEvent.model_validate_json(line)
+                yield event.model_dump_json(exclude_none=True) + "\n"
+                if event.done:
+                    return
         except Exception:
             yield json.dumps({"error": "GENERATION_UNAVAILABLE"}) + "\n"
 
     return StreamingResponse(generate(), media_type="application/x-ndjson")
 
 
-class Tokenize(BaseModel):
-    text: str = Field(min_length=1, max_length=10000)
-
-
-@app.post("/internal/v1/tokenize")
+@app.post("/internal/v1/tokenize", response_model=TokenizeResponse)
 def tokenize(body: Tokenize):
     import tiktoken
 

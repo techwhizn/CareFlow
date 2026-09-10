@@ -581,3 +581,25 @@ def test_citation_source_requires_explicit_answer_and_evidence_identity():
     with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
         assert client.citation_source(ID, ID)["source_snapshot"]
     assert seen == [f"/api/v1/answers/{ID}/citations/{ID}"]
+
+
+def test_feedback_improvement_requests_preserve_revision_and_source():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"id": ID})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.submit_feedback(
+            ID, "incorrect", reason="WRONG_SOURCE", comment="合成说明", revision=2
+        )
+        client.create_improvement("ANSWER", ID, ID)
+        client.improvements()
+        client.improvement(ID)
+        client.improvement_assignees(ID)
+        client.update_improvement(ID, revision=4, state="RESOLVED", resolution="已修订")
+    assert json.loads(seen[0].content)["revision"] == 2
+    assert json.loads(seen[1].content)["source_id"] == ID
+    assert seen[4].url.path.endswith("/assignees")
+    assert json.loads(seen[5].content)["revision"] == 4

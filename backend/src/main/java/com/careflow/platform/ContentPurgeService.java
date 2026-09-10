@@ -65,6 +65,10 @@ public class ContentPurgeService {
   }
 
   public void document(String tenant, String document) {
+    db.exec(
+        "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM query_record_evidence WHERE document_id=?)",
+        tenant,
+        document);
     for (var answer :
         db.list(
             "SELECT DISTINCT a.id FROM answers a JOIN answer_evidence e ON e.answer_id=a.id WHERE a.tenant_id=? AND e.document_id=?",
@@ -87,6 +91,16 @@ public class ContentPurgeService {
   }
 
   public void knowledgeBase(String tenant, String kb) {
+    db.exec(
+        "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM improvement_tasks WHERE tenant_id=? AND kb_id=?)",
+        tenant,
+        tenant,
+        kb);
+    db.exec(
+        "DELETE FROM query_records WHERE tenant_id=? AND knowledge_base_ids LIKE ?",
+        tenant,
+        "%\"" + kb + "\"%");
+    db.exec("DELETE FROM improvement_tasks WHERE tenant_id=? AND kb_id=?", tenant, kb);
     db.exec("DELETE FROM permissions WHERE tenant_id=? AND resource_id=?", tenant, kb);
     db.exec("DELETE FROM application_bindings WHERE tenant_id=? AND kb_id=?", tenant, kb);
     db.exec(

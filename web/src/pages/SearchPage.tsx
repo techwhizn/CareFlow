@@ -1,3 +1,4 @@
+import ImprovementRequest from "../features/retrieval/ImprovementRequest";
 import { sourceLabels } from "../features/knowledge/sourceLabels";
 import MetadataFilterEditor, {
   serializeFilters,
@@ -196,6 +197,15 @@ export default function SearchPage() {
           detail="检索仅返回知识证据，不调用生成模型。"
         />
       )}
+      {result?.query_record_id &&
+        ["NO_MATCH", "BELOW_THRESHOLD"].includes(result.evidence_status) && (
+          <ImprovementRequest
+            key={result.query_record_id}
+            sourceKind="NO_RESULT"
+            sourceId={result.query_record_id}
+            defaultKb={kb}
+          />
+        )}
     </>
   );
 }

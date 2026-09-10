@@ -8,7 +8,7 @@ Java、Python、Web 的部署边界已存在，Java仍集中于 `com.careflow.pl
 
 后续按业务需求继续收敛边界：
 
-1. V1-30已将问答历史与会话规则移入服务/Repository；检索仍有通用Map，反馈控制器SQL随V1-32完善；不以拆文件数量宣称全部领域隔离。
+1. V1-30已将问答历史与会话规则移入服务/Repository；V1-32新增SearchService、FeedbackService、ImprovementService并移除AnswersController的SQL；检索内部仍有通用Map；不以拆文件数量宣称全部领域隔离。
 2. V1-14上传已移出长事务，暂存补偿与模型/发布清理各自有边界；保持授权与事务回归。
 3. V1-48已拆分知识库列表、详情与切片工作台，数据访问集中到功能模块；后续补更多浏览器场景与更精确的领域响应类型。
 4. 逐步替换跨模块Map，下载边界已使用SourceFile记录；V1-48模型调用协议已补超时、空响应和断流契约测试；真实模型验收仍按对应工作包执行。

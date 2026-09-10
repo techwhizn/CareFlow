@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "synthetic_input": true,
+  "real_deepseek": true,
+  "answer_id": "91dfa7f8-6c67-4d22-8d54-7f709609507a",
+  "query_record_id": "3d6a7108-bed8-46ec-8cce-3ff99014f860",
+  "feedback_task_id": "7d95f4da-3b9b-41bc-932f-4ec538990b34",
+  "no_result_task_id": "d3f55e3d-0815-40e3-8028-8c0ba0e4a020",
+  "duplicate_returns_same_task": true,
+  "revision_conflict_rejected": true,
+  "cross_tenant_hidden": true,
+  "reader_cannot_resolve": true,
+  "query_evidence_configuration_traceable": true,
+  "mysql_cascade_rollback_verified": true
+}

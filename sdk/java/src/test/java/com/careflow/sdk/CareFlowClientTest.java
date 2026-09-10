@@ -59,6 +59,19 @@ class CareFlowClientTest {
   }
 
   @Test
+  void feedbackAndImprovementRequestsPreserveObservedRevision() throws Exception {
+    client.submitFeedback(ID, new CareFlowClient.Feedback("incorrect", "WRONG_SOURCE", "合成说明", 2));
+    client.createImprovement(new CareFlowClient.ImprovementInput("ANSWER", ID, ID, ""));
+    client.improvements();
+    client.improvement(ID);
+    client.improvementAssignees(ID);
+    client.updateImprovement(ID, new CareFlowClient.ImprovementUpdate(4, "RESOLVED", null, "已修订"));
+    assertTrue(bodies.get(0).contains("\"revision\":2"));
+    assertEquals("/api/v1/improvements/" + ID + "/assignees", paths.get(4));
+    assertTrue(bodies.get(5).contains("\"revision\":4"));
+  }
+
+  @Test
   void citationSourceUsesBothAuthorizedIdentities() throws Exception {
     client.citationSource(ID, ID);
     assertEquals("/api/v1/answers/" + ID + "/citations/" + ID, paths.getFirst());

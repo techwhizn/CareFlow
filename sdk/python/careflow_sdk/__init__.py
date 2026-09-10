@@ -194,6 +194,54 @@ class Client:
         params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
         return self._request("GET", "answers", params=params)
 
+    def submit_feedback(
+        self, answer_id, feedback, *, reason=None, comment="", revision=0
+    ):
+        return self._request(
+            "POST",
+            f"answers/{_id(answer_id)}/feedback",
+            json=dict(
+                feedback=feedback, reason=reason, comment=comment, revision=revision
+            ),
+        )
+
+    def create_improvement(
+        self, source_kind, source_id, knowledge_base_id, *, description=""
+    ):
+        return self._request(
+            "POST",
+            "improvements",
+            json=dict(
+                source_kind=source_kind,
+                source_id=_id(source_id),
+                knowledge_base_id=_id(knowledge_base_id),
+                description=description,
+            ),
+        )
+
+    def improvements(self):
+        return self._request("GET", "improvements")
+
+    def improvement(self, task_id):
+        return self._request("GET", f"improvements/{_id(task_id)}")
+
+    def improvement_assignees(self, task_id):
+        return self._request("GET", f"improvements/{_id(task_id)}/assignees")
+
+    def update_improvement(
+        self, task_id, *, revision, state, assignee_id=None, resolution=""
+    ):
+        return self._request(
+            "PUT",
+            f"improvements/{_id(task_id)}",
+            json=dict(
+                revision=revision,
+                state=state,
+                assignee_id=_id(assignee_id) if assignee_id else None,
+                resolution=resolution,
+            ),
+        )
+
     def citation_source(self, answer_id, citation_id):
         return self._request(
             "GET", f"answers/{_id(answer_id)}/citations/{_id(citation_id)}"
@@ -514,6 +562,54 @@ class AsyncClient:
     async def answer_history(self, *, conversation_id=None):
         params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
         return await self._request("GET", "answers", params=params)
+
+    async def submit_feedback(
+        self, answer_id, feedback, *, reason=None, comment="", revision=0
+    ):
+        return await self._request(
+            "POST",
+            f"answers/{_id(answer_id)}/feedback",
+            json=dict(
+                feedback=feedback, reason=reason, comment=comment, revision=revision
+            ),
+        )
+
+    async def create_improvement(
+        self, source_kind, source_id, knowledge_base_id, *, description=""
+    ):
+        return await self._request(
+            "POST",
+            "improvements",
+            json=dict(
+                source_kind=source_kind,
+                source_id=_id(source_id),
+                knowledge_base_id=_id(knowledge_base_id),
+                description=description,
+            ),
+        )
+
+    async def improvements(self):
+        return await self._request("GET", "improvements")
+
+    async def improvement(self, task_id):
+        return await self._request("GET", f"improvements/{_id(task_id)}")
+
+    async def improvement_assignees(self, task_id):
+        return await self._request("GET", f"improvements/{_id(task_id)}/assignees")
+
+    async def update_improvement(
+        self, task_id, *, revision, state, assignee_id=None, resolution=""
+    ):
+        return await self._request(
+            "PUT",
+            f"improvements/{_id(task_id)}",
+            json=dict(
+                revision=revision,
+                state=state,
+                assignee_id=_id(assignee_id) if assignee_id else None,
+                resolution=resolution,
+            ),
+        )
 
     async def citation_source(self, answer_id, citation_id):
         return await self._request(

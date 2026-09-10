@@ -158,3 +158,7 @@ Python `create_conversation(knowledge_base_ids=(kb_id,))` / Java `createConversa
 Python `conversations()`、`conversation(id)`、`answer_history(conversation_id=id)`、`saved_answer(id)` 提供列表、会话历史和带引用的答案；异步客户端同样支持。Java 对应 `conversations()`、`conversation(id)`、`answerHistory(id)`、`savedAnswer(id)`。所有历史读取均重新授权，撤权后可能隐藏或返回 404。详见[会话协议](../docs/conversations.md)。
 
 引用原文：Python `citation_source(answer_id, citation_id)` / Java `citationSource(answerId, citationId)`。返回经重新授权的原文快照和位置；下载权限单独校验，见[引用文档](../docs/citations.md)。
+
+## 反馈与改进任务
+
+Python 使用 `submit_feedback`、`create_improvement`、`improvements`、`improvement`、`improvement_assignees`、`update_improvement`，同步/异步一致。Java 使用对应驼峰方法及 `Feedback`、`ImprovementInput`、`ImprovementUpdate`。更新须传最新修订；重复创建按来源去重。详见[反馈与改进协议](../docs/feedback-improvements.md)。

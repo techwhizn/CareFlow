@@ -547,7 +547,8 @@
       "V1-31"
     ],
     "acceptance": "复核已有反馈入口，补点赞/点踩/原因/说明；无结果和差评可转改进任务并回溯问题、证据和配置；避免重复任务及越权访问。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-32-improvements.md"
   },
   {
     "id": "V1-33",

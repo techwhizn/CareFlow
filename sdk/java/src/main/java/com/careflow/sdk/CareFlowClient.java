@@ -216,6 +216,38 @@ public final class CareFlowClient {
         null);
   }
 
+  public record Feedback(String feedback, String reason, String comment, long revision) {}
+
+  public record ImprovementInput(
+      String source_kind, String source_id, String knowledge_base_id, String description) {}
+
+  public record ImprovementUpdate(
+      long revision, String state, String assignee_id, String resolution) {}
+
+  public JsonNode submitFeedback(String answerId, Feedback input) throws IOException {
+    return request("POST", "answers/" + id(answerId) + "/feedback", input, null);
+  }
+
+  public JsonNode createImprovement(ImprovementInput input) throws IOException {
+    return request("POST", "improvements", input, null);
+  }
+
+  public JsonNode improvements() throws IOException {
+    return request("GET", "improvements", null, null);
+  }
+
+  public JsonNode improvement(String taskId) throws IOException {
+    return request("GET", "improvements/" + id(taskId), null, null);
+  }
+
+  public JsonNode improvementAssignees(String taskId) throws IOException {
+    return request("GET", "improvements/" + id(taskId) + "/assignees", null, null);
+  }
+
+  public JsonNode updateImprovement(String taskId, ImprovementUpdate input) throws IOException {
+    return request("PUT", "improvements/" + id(taskId), input, null);
+  }
+
   public JsonNode citationSource(String answerId, String citationId) throws IOException {
     return request("GET", "answers/" + id(answerId) + "/citations/" + id(citationId), null, null);
   }

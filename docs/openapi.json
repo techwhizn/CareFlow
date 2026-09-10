@@ -358,12 +358,82 @@
         }
       }
     },
+    "/api/v1/improvements/{id}": {
+      "get": {
+        "tags": [
+          "improvements-controller"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "improvements-controller"
+        ],
+        "operationId": "update_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/entitlement": {
       "get": {
         "tags": [
           "entitlements-controller"
         ],
-        "operationId": "get_1",
+        "operationId": "get_2",
         "responses": {
           "200": {
             "description": "OK",
@@ -381,7 +451,7 @@
         "tags": [
           "entitlements-controller"
         ],
-        "operationId": "update_2",
+        "operationId": "update_3",
         "requestBody": {
           "content": {
             "application/json": {
@@ -474,7 +544,7 @@
         "tags": [
           "document-metadata-controller"
         ],
-        "operationId": "get_2",
+        "operationId": "get_3",
         "parameters": [
           {
             "name": "id",
@@ -502,7 +572,7 @@
         "tags": [
           "document-metadata-controller"
         ],
-        "operationId": "update_3",
+        "operationId": "update_4",
         "parameters": [
           {
             "name": "id",
@@ -542,7 +612,7 @@
         "tags": [
           "document-context-controller"
         ],
-        "operationId": "update_4",
+        "operationId": "update_5",
         "parameters": [
           {
             "name": "Authorization",
@@ -1318,12 +1388,60 @@
         }
       }
     },
+    "/api/v1/improvements": {
+      "get": {
+        "tags": [
+          "improvements-controller"
+        ],
+        "operationId": "list_4",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "improvements-controller"
+        ],
+        "operationId": "create_4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/enterprises": {
       "post": {
         "tags": [
           "enterprises-controller"
         ],
-        "operationId": "create_4",
+        "operationId": "create_5",
         "parameters": [
           {
             "name": "X-Bootstrap-Token",
@@ -1538,7 +1656,7 @@
         "tags": [
           "document-context-controller"
         ],
-        "operationId": "create_5",
+        "operationId": "create_6",
         "parameters": [
           {
             "name": "Authorization",
@@ -1978,7 +2096,7 @@
         "tags": [
           "conversations-controller"
         ],
-        "operationId": "list_4",
+        "operationId": "list_5",
         "responses": {
           "200": {
             "description": "OK",
@@ -1996,7 +2114,7 @@
         "tags": [
           "conversations-controller"
         ],
-        "operationId": "create_6",
+        "operationId": "create_7",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2148,7 +2266,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "list_5",
+        "operationId": "list_6",
         "parameters": [
           {
             "name": "id",
@@ -2177,7 +2295,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "create_7",
+        "operationId": "create_8",
         "parameters": [
           {
             "name": "id",
@@ -2401,7 +2519,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -2409,10 +2528,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
+                "$ref": "#/components/schemas/Feedback"
               }
             }
           },
@@ -2420,7 +2536,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
@@ -2825,6 +2948,37 @@
         }
       }
     },
+    "/api/v1/improvements/{id}/assignees": {
+      "get": {
+        "tags": [
+          "improvements-controller"
+        ],
+        "operationId": "assignees",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/documents/{id}/metadata-history": {
       "get": {
         "tags": [
@@ -2943,7 +3097,7 @@
         "tags": [
           "content-conflict-controller"
         ],
-        "operationId": "list_6",
+        "operationId": "list_7",
         "parameters": [
           {
             "name": "version",
@@ -3227,7 +3381,7 @@
         "tags": [
           "conversations-controller"
         ],
-        "operationId": "get_3",
+        "operationId": "get_4",
         "parameters": [
           {
             "name": "id",
@@ -3258,7 +3412,7 @@
         "tags": [
           "cleanup-controller"
         ],
-        "operationId": "list_7",
+        "operationId": "list_8",
         "responses": {
           "200": {
             "description": "OK",
@@ -3728,6 +3882,32 @@
         },
         "required": [
           "grants"
+        ]
+      },
+      "Update": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "state": {
+            "type": "string",
+            "pattern": "OPEN|IN_PROGRESS|RESOLVED|DISMISSED"
+          },
+          "assignee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolution": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "state"
         ]
       },
       "PackageChange": {
@@ -4869,6 +5049,32 @@
             "format": "int64"
           }
         }
+      },
+      "Feedback": {
+        "type": "object",
+        "properties": {
+          "feedback": {
+            "type": "string",
+            "pattern": "helpful|incorrect"
+          },
+          "reason": {
+            "type": "string",
+            "pattern": "WRONG_ANSWER|WRONG_SOURCE|MISSING_KNOWLEDGE|OUTDATED|OTHER"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "feedback"
+        ]
       },
       "IndexChunk": {
         "type": "object",

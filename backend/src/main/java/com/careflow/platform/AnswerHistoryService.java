@@ -180,6 +180,12 @@ public class AnswerHistoryService {
               content,
               context == null ? null : context.id(),
               turn);
+          if (request != null)
+            db.exec(
+                "UPDATE answers SET query_record_id=? WHERE tenant_id=? AND id=?",
+                request,
+                actor.tenant(),
+                answer);
           for (var source : all.values()) {
             try {
               db.exec(

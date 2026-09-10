@@ -1,3 +1,4 @@
+import ImprovementsPage from "./pages/ImprovementsPage";
 import { Books, CaretRight, ShieldCheck, SignOut } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -127,6 +128,8 @@ function App() {
           <ErrorNote error={connectionError} />
           {!me ? (
             <Loading />
+          ) : effectivePage === "improvements" ? (
+            <ImprovementsPage />
           ) : effectivePage === "operations" ? (
             <OperationsPage />
           ) : page === "models" ? (

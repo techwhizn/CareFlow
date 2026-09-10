@@ -14,18 +14,21 @@ public class AnswerStreamService {
   private final GenerationAccounting accounting;
   private final ConversationService conversations;
   private final AnswerHistoryService history;
+  private final QueryRecordService records;
 
   public AnswerStreamService(
       RetrievalService retrieval,
       WorkerClient worker,
       GenerationAccounting accounting,
       ConversationService conversations,
-      AnswerHistoryService history) {
+      AnswerHistoryService history,
+      QueryRecordService records) {
     this.retrieval = retrieval;
     this.worker = worker;
     this.accounting = accounting;
     this.conversations = conversations;
     this.history = history;
+    this.records = records;
   }
 
   public SseEmitter answer(Actor actor, String authorization, String key, Query q) {
@@ -88,6 +91,8 @@ public class AnswerStreamService {
                     authorization,
                     QueryProcessing.conversation(q.query(), context.previousQuestion()));
             cancellation.check();
+            retrieval.reauthenticate(actor, authorization);
+            records.save(actor, q, scope, result, event);
             if ("SCORE_UNAVAILABLE".equals(result.get("evidence_status")))
               throw new ApiException(503, "RERANK_UNAVAILABLE", "评分服务不可用，无法确认答案依据");
             @SuppressWarnings("unchecked")
@@ -167,6 +172,8 @@ public class AnswerStreamService {
                         Map.of(
                             "answer_id",
                             id,
+                            "query_record_id",
+                            event,
                             "degraded",
                             result.get("degraded"),
                             "conversation_id",

@@ -1,3 +1,4 @@
+import FeedbackPanel from "../features/retrieval/FeedbackPanel";
 import { citationSegments } from "../features/retrieval/citationSegments";
 import AnswerCitations from "../features/retrieval/AnswerCitations";
 import MetadataFilterEditor, {
@@ -8,7 +9,7 @@ import RelevanceThreshold from "../components/RelevanceThreshold";
 import { ChatCircleText, PaperPlaneTilt, Stop } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type { Row } from "../api";
-import { post, request, streamAnswer } from "../api";
+import { request, streamAnswer } from "../api";
 import { Empty, ErrorNote, useData } from "../ui";
 export default function AnswerPage() {
   const [query, setQuery] = useState(""),
@@ -235,28 +236,7 @@ export default function AnswerPage() {
                 <AnswerCitations answerId={answerId} evidence={evidence} />
               )}
               {answerId && (
-                <div className="button-row">
-                  {[
-                    ["helpful", "有帮助"],
-                    ["incorrect", "答案有误"],
-                  ].map(([feedback, label]) => (
-                    <button
-                      key={feedback}
-                      onClick={async () => {
-                        try {
-                          await post(`/answers/${answerId}/feedback`, {
-                            feedback,
-                          });
-                          setStage("反馈已记录");
-                        } catch (e) {
-                          setError((e as Error).message);
-                        }
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                <FeedbackPanel key={answerId} answerId={answerId} kb={kb} />
               )}
             </div>
           ) : (

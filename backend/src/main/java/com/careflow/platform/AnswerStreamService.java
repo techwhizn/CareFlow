@@ -93,7 +93,8 @@ public class AnswerStreamService {
                     q,
                     scope,
                     authorization,
-                    QueryProcessing.conversation(q.query(), context.previousQuestion()));
+                    QueryProcessing.conversation(q.query(), context.previousQuestion()),
+                    event);
             cancellation.check();
             retrieval.reauthenticate(actor, authorization);
             records.save(actor, q, scope, result, event);

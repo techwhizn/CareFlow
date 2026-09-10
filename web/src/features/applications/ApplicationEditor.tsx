@@ -1,3 +1,4 @@
+import ModelUsagePanel from "../usage/ModelUsagePanel";
 import ApplicationLimits from "./ApplicationLimits";
 import { useEffect, useState } from "react";
 import { post, put, request } from "../../api";
@@ -351,6 +352,7 @@ export default function ApplicationEditor({
           </p>
         ))}
       </details>
+      <ModelUsagePanel applicationId={app.id} />
       <ApplicationLimits applicationId={app.id} />
       <AppCredentials applicationId={app.id} onIssued={setSecret} />
       {secret && (

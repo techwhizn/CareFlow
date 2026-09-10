@@ -9,6 +9,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class RetrievalService {
+  private final RetrievalAccounting accounting;
   private final ApplicationAdmissionService admission;
   private final Db db;
   private final Identity auth;
@@ -23,6 +24,7 @@ public class RetrievalService {
   private final AnswerHistoryService history;
 
   public RetrievalService(
+      RetrievalAccounting accounting,
       ApplicationAdmissionService admission,
       Db db,
       Identity auth,
@@ -35,6 +37,7 @@ public class RetrievalService {
       EvidenceContextService contexts,
       EvidenceAuthorization evidenceAuthorization,
       AnswerHistoryService history) {
+    this.accounting = accounting;
     this.admission = admission;
     this.db = db;
     this.auth = auth;
@@ -272,6 +275,17 @@ public class RetrievalService {
       Scope scope,
       String authorization,
       QueryProcessing.Processed processed) {
+    return search(actor, q, scope, authorization, processed, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> search(
+      Actor actor,
+      Query q,
+      Scope scope,
+      String authorization,
+      QueryProcessing.Processed processed,
+      String requestId) {
     long started = System.nanoTime();
     var queryConfiguration = scope.configuration();
     boolean allowDegraded =
@@ -309,7 +323,8 @@ public class RetrievalService {
                     Map.of("document_id", str(row, "document_id"), "version_id", version),
                     scope);
               }
-            });
+            },
+            requestId);
     long recallFinished = System.nanoTime();
     List<Map<String, Object>> evidence = new ArrayList<>();
     var fused = (List<Map<String, Object>>) recall.getOrDefault("fused", List.of());
@@ -349,9 +364,16 @@ public class RetrievalService {
       rerankRequest.put("model_configuration", queryConfiguration.runtime().rerank());
     long rerankStarted = System.nanoTime();
     Map<String, Object> ranked =
-        evidence.isEmpty()
-            ? Map.of("results", List.of(), "degraded", false)
-            : worker.call("/internal/v1/rerank", rerankRequest);
+        accounting.call(
+            actor.tenant(),
+            requestId,
+            "RERANK",
+            queryConfiguration == null ? null : queryConfiguration.runtime().id(),
+            evidence.size(),
+            () ->
+                evidence.isEmpty()
+                    ? Map.of("results", List.of(), "degraded", false)
+                    : worker.call("/internal/v1/rerank", rerankRequest));
     long rerankFinished = System.nanoTime();
     var byId =
         contexts.prepare(

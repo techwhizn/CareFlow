@@ -221,6 +221,12 @@ class Client:
     def application_publications(self, application_id):
         return self._request("GET", f"applications/{_id(application_id)}/publications")
 
+    def model_usage(self):
+        return self._request("GET", "usage/models")
+
+    def application_usage(self, application_id):
+        return self._request("GET", f"applications/{_id(application_id)}/usage")
+
     def application_limits(self, application_id):
         return self._request("GET", f"applications/{_id(application_id)}/limits")
 
@@ -653,6 +659,12 @@ class AsyncClient:
         return await self._request(
             "GET", f"applications/{_id(application_id)}/publications"
         )
+
+    async def model_usage(self):
+        return await self._request("GET", "usage/models")
+
+    async def application_usage(self, application_id):
+        return await self._request("GET", f"applications/{_id(application_id)}/usage")
 
     async def application_limits(self, application_id):
         return await self._request("GET", f"applications/{_id(application_id)}/limits")

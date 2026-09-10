@@ -2716,6 +2716,26 @@
         }
       }
     },
+    "/api/v1/usage/models": {
+      "get": {
+        "tags": [
+          "model-usage-controller"
+        ],
+        "operationId": "tenant",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/operations/status": {
       "get": {
         "tags": [
@@ -3501,6 +3521,36 @@
           "identity-administration-controller"
         ],
         "operationId": "audit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/applications/{id}/usage": {
+      "get": {
+        "tags": [
+          "model-usage-controller"
+        ],
+        "operationId": "application",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",

@@ -1,0 +1,67 @@
+{
+  "synthetic_input": true,
+  "request_id": "bc9bcd69-655d-4605-a454-bb83347ffd30",
+  "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+  "real_mysql_rows": [
+    [
+      "EMBEDDING",
+      "1",
+      "SUCCEEDED",
+      "REPORTED",
+      "10"
+    ],
+    [
+      "EMBEDDING",
+      "1",
+      "SUCCEEDED",
+      "REPORTED",
+      "10"
+    ],
+    [
+      "RERANK",
+      "6",
+      "SUCCEEDED",
+      "REPORTED",
+      "354"
+    ]
+  ],
+  "usage": {
+    "retrieval": [
+      {
+        "stage": "RERANK",
+        "calls": 1,
+        "known_tokens": 354,
+        "unknown_usage_calls": 0,
+        "not_called": 0
+      },
+      {
+        "stage": "EMBEDDING",
+        "calls": 2,
+        "known_tokens": 20,
+        "unknown_usage_calls": 0,
+        "not_called": 0
+      }
+    ],
+    "generation": {
+      "requests": 1,
+      "known_tokens": 1150,
+      "known_input_tokens": 726,
+      "known_output_tokens": 424,
+      "unknown_usage_calls": 0
+    },
+    "requests": [
+      {
+        "state": "SETTLED",
+        "requests": 4
+      }
+    ],
+    "scope": "APPLICATION",
+    "coverage": {
+      "retrieval": "SINCE_V29",
+      "generation": "SINCE_V24",
+      "indexing": "SINCE_V21"
+    }
+  },
+  "app_cannot_read_tenant_or_other_app": true,
+  "browser_usage_verified": true
+}

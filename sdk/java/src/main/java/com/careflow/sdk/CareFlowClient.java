@@ -235,6 +235,14 @@ public final class CareFlowClient {
     return request("GET", "applications/" + id(app) + "/publications", null, null);
   }
 
+  public JsonNode modelUsage() throws IOException {
+    return request("GET", "usage/models", null, null);
+  }
+
+  public JsonNode applicationUsage(String app) throws IOException {
+    return request("GET", "applications/" + id(app) + "/usage", null, null);
+  }
+
   public JsonNode applicationLimits(String app) throws IOException {
     return request("GET", "applications/" + id(app) + "/limits", null, null);
   }

@@ -8,12 +8,17 @@ import org.springframework.stereotype.Service;
 /** Resolves only Java-authorized version IDs to their immutable processing configuration. */
 @Service
 public class ConfiguredModelRouting {
+  private final RetrievalAccounting accounting;
   private final Db db;
   private final KnowledgeConfigurationService configurations;
   private final WorkerClient worker;
 
   public ConfiguredModelRouting(
-      Db db, KnowledgeConfigurationService configurations, WorkerClient worker) {
+      Db db,
+      KnowledgeConfigurationService configurations,
+      WorkerClient worker,
+      RetrievalAccounting accounting) {
+    this.accounting = accounting;
     this.db = db;
     this.configurations = configurations;
     this.worker = worker;
@@ -76,6 +81,18 @@ public class ConfiguredModelRouting {
       String mode,
       boolean degraded,
       Runnable revalidate) {
+    return recall(tenant, versions, query, mode, degraded, revalidate, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> recall(
+      String tenant,
+      List<String> versions,
+      String query,
+      String mode,
+      boolean degraded,
+      Runnable revalidate,
+      String requestId) {
     if (versions.isEmpty())
       return Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false);
     Map<Group, List<String>> groups = new LinkedHashMap<>();
@@ -123,7 +140,14 @@ public class ConfiguredModelRouting {
       if (configuration != null) request.put("model_configuration", configuration.embedding());
       if (group.getKey().generations())
         request.put("generation_ids", group.getValue().stream().map(generations::get).toList());
-      var response = worker.call("/internal/v1/recall", request);
+      var response =
+          accounting.call(
+              tenant,
+              requestId,
+              "EMBEDDING",
+              group.getKey().configuration(),
+              "keyword".equals(mode) ? 0 : 1,
+              () -> worker.call("/internal/v1/recall", request));
       usage.add(
           Map.of(
               "configuration_id",

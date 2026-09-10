@@ -20,7 +20,9 @@ public class SearchService {
     var scope = retrieval.scope(actor, query);
     String event = retrieval.reserve(actor, key, scope.application());
     try {
-      var result = retrieval.search(actor, query, scope, authorization);
+      var result =
+          retrieval.search(
+              actor, query, scope, authorization, QueryProcessing.process(query.query()), event);
       retrieval.reauthenticate(actor, authorization);
       records.save(actor, query, scope, result, event);
       retrieval.settle(actor, event, true);

@@ -647,14 +647,18 @@ def test_application_limits_keep_revision_and_numeric_contract():
         return httpx.Response(200, json={"revision": 5})
 
     with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.model_usage()
+        client.application_usage(ID)
         client.application_limits(ID)
         result = client.update_application_limits(
             ID, requests_per_minute=60, concurrent_requests=4, revision=4
         )
-    assert seen[0].method == "GET"
-    assert seen[1].method == "PUT"
-    assert seen[1].url.path.endswith("/limits")
-    assert json.loads(seen[1].content) == dict(
+    assert seen[0].url.path.endswith("/usage/models")
+    assert seen[1].url.path.endswith("/usage")
+    assert seen[2].method == "GET"
+    assert seen[3].method == "PUT"
+    assert seen[3].url.path.endswith("/limits")
+    assert json.loads(seen[3].content) == dict(
         requests_per_minute=60, concurrent_requests=4, revision=4
     )
     assert result["revision"] == 5

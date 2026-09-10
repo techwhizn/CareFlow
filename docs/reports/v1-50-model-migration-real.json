@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-11",
+  "synthetic_inputs_only": true,
+  "old_transformers": "4.57.6",
+  "new_transformers": "5.17.0",
+  "fixed_weight_revisions_unchanged": true,
+  "token_counts_old": [
+    16,
+    13
+  ],
+  "token_counts_new": [
+    16,
+    13
+  ],
+  "dimensions": 512,
+  "embedding_cosine": 1.0,
+  "embedding_max_absolute_difference": 0.0,
+  "rerank_max_absolute_difference": 0.0,
+  "rerank_order_equal": true,
+  "passed": true
+}

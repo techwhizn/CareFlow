@@ -4,8 +4,8 @@ name = "careflow-local-models"
 version = "0.1.0"
 requires-python = ">=3.12,<3.14"
 dependencies = [
-  "fastapi==0.116.1", "uvicorn==0.35.0", "httpx==0.28.1",
-  "torch>=2.6,<3", "transformers>=4.56,<5", "safetensors>=0.5,<1",
+  "fastapi==0.141.1", "uvicorn==0.35.0", "httpx==0.28.1",
+  "torch>=2.6,<3", "transformers==5.17.0", "safetensors>=0.5,<1",
 ]
 [dependency-groups]
 dev = ["pytest==8.4.1", "ruff==0.12.12"]

@@ -39,3 +39,29 @@ def test_audit_follows_pagination_and_does_not_treat_partial_results_as_clean():
         audit.audit(queries, lambda _: [])
     with pytest.raises(ValueError):
         audit.audit(queries, lambda _: [{"error": "service unavailable"}])
+
+
+def test_python_audit_rejects_empty_coverage_and_unapproved_skips():
+    path = Path(__file__).resolve().parents[2] / "scripts/check-python-audit.py"
+    module_spec = importlib.util.spec_from_file_location("python_audit", path)
+    checker = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(checker)
+    with pytest.raises(ValueError):
+        checker.check({"dependencies": []})
+    skipped = {
+        "dependencies": [
+            {"name": "torch", "version": "2.14.0+cpu", "skip_reason": "not on PyPI"}
+        ]
+    }
+    with pytest.raises(ValueError):
+        checker.check(skipped)
+    result = checker.check(
+        skipped,
+        torch_cpu_version="2.14.0+cpu",
+        lookup=lambda version: [] if version == "2.14.0" else ["BAD"],
+    )
+    assert result["supplemental_checks"][0]["upstream_version"] == "2.14.0"
+    with pytest.raises(ValueError):
+        checker.check(
+            skipped, torch_cpu_version="2.14.0+cpu", lookup=lambda _: ["TEST-ADVISORY"]
+        )

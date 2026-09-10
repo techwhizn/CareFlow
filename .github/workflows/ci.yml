@@ -37,7 +37,11 @@ jobs:
       - run: PYTHONPATH=sdk/python uv run --project worker pytest sdk/python/tests -q
       - run: uv build --project sdk/python --out-dir sdk/python/dist
       - run: uv export --project worker --frozen --no-dev --no-hashes --no-emit-project --output-file /tmp/careflow-runtime.txt
-      - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r /tmp/careflow-runtime.txt
+      - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r /tmp/careflow-runtime.txt --format json --output /tmp/careflow-python-audit.json
+      - run: python scripts/check-python-audit.py /tmp/careflow-python-audit.json
+      - run: uv export --project tools/local-models --frozen --no-dev --no-hashes --no-emit-project --output-file /tmp/careflow-model-runtime.txt
+      - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r /tmp/careflow-model-runtime.txt --format json --output /tmp/careflow-model-audit.json
+      - run: python scripts/check-python-audit.py /tmp/careflow-model-audit.json --torch-cpu-requirements /tmp/careflow-model-runtime.txt
   web:
     runs-on: ubuntu-latest
     steps:

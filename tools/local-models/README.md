@@ -61,3 +61,9 @@ docker run -d --name careflow-local-models --cpus=2 --memory=4g --pids-limit=128
 现提供认证后的 `POST /v1/tokenize`：请求与Embedding一致，返回固定模型修订、每条完整输入的原生Token数及512窗口，包含特殊Token且不截断。知识库切片配置选择 `model_tokenizer=provider`，可在索引前自动细分长文，详见[切片契约](../../docs/chunking.md)。重排窗口包含问题与候选，仍独立校验。
 
 接口单元测试使用明确的FixtureEngine，运行`PYTHONPATH=tools/local-models uv run --project worker pytest tools/local-models/tests -q`；这些测试不代表模型已下载或真实推理通过。
+
+## 依赖升级验证
+
+当前固定Transformers5.17.0、FastAPI0.141.1，实际传递依赖见uv.lock。升级后用相同本地固定权重完成Tokenizer、Embedding与Rerank对照；两条中英文合成输入的计数、向量和分数一致，见[真实记录](../../docs/reports/v1-50-model-migration-real.json)。这不是完整质量评估。
+
+本工具锁文件限定Linux。其他操作系统审计时必须显式评估Linux标记，不能接受“0个包”作为通过；CI在Linux导出并检查覆盖。`torch` CPU构建不在PyPI版本索引中，审计脚本显式查询其对应上游版本的OSV公告，保留这个覆盖限制；其他跳过包或空报告都会失败。详见[依赖记录](../../docs/reports/v1-50-model-dependencies.json)。

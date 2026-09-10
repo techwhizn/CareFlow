@@ -1,0 +1,97 @@
+{
+  "date": "2026-09-11",
+  "source_project": "careflow-v1-clean",
+  "target_project": "careflow-v1-finalrestore",
+  "synthetic_fixture_only": true,
+  "backup_start": "2026-09-10T19:20:18.400899+00:00",
+  "backup_finish": "2026-09-10T19:20:39.662923+00:00",
+  "restore_start": "2026-09-10T19:20:53.276259+00:00",
+  "service_verified_at": "2026-09-10T19:22:47.033965+00:00",
+  "observed_rto_seconds": 113.757706,
+  "observed_rpo_seconds": 0,
+  "rpo_scope": "Source stopped before snapshot and remained stopped through verification; planned cold recovery only, not unplanned disaster or continuous-log SLA",
+  "security_check": {
+    "migrations": 36,
+    "deleted_document": "DELETED",
+    "revoked_key_active_count": 0,
+    "retained_document": "ACTIVE",
+    "source_stopped_after_capture": true,
+    "network": "none; no published ports"
+  },
+  "protocol": {
+    "started_at": "2026-09-10T19:22:27.232820+00:00",
+    "source_sha256": "21b9612251cd027cdc89e382feb2c10967b73aa17a26801e6b5c31ff481daac0",
+    "before_index_check": {
+      "report": {
+        "consistent": true,
+        "expected_count": 1,
+        "actual_count": 1,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "19b265daf7b062fbb50434590a56848958d8e604c1dd1d17947ae2326ae25ee5",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      },
+      "id": "abf75987-d4d0-4f02-b3a9-2e11abe0b8a4"
+    },
+    "search_before": true,
+    "rebuild_job_id": "d0170b6f-27fd-490a-b3ee-7621c70258b5",
+    "after_index_check": {
+      "report": {
+        "consistent": true,
+        "expected_count": 1,
+        "actual_count": 1,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "19b265daf7b062fbb50434590a56848958d8e604c1dd1d17947ae2326ae25ee5",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      },
+      "id": "48b1b659-e0cc-4e7b-828f-17ab4fd0136a"
+    },
+    "index_generation_changed": true,
+    "search_after": true,
+    "answer_events": [
+      "citations",
+      "delta",
+      "done",
+      "start",
+      "status",
+      "usage"
+    ],
+    "deleted_document_status": 404,
+    "finished_at": "2026-09-10T19:22:47.033965+00:00"
+  },
+  "upgrade_scope": "Application runtime images upgraded; MySQL8.4.6 and Milvus2.6.1 binary formats unchanged; all36existing migrations valid",
+  "limitations": [
+    "One retained source document and deleted-document case; not a large backup benchmark",
+    "Current base includes previously replay-tested deletion and credential revocation; source never reopened after capture",
+    "External fixed-revision model server was retained, not restored from this archive",
+    "Separate prior binlog replay experiment verifies changes newer than a base; general object-storage incremental backup is not implemented"
+  ],
+  "revoked_credential_public_api": 401,
+  "schema_upgrade": {
+    "database": "isolated careflow_upgrade_v35",
+    "from": 35,
+    "to": 36,
+    "migrations_after": 36,
+    "existing_synthetic_tenant_preserved": true,
+    "revision_before_after": [
+      7,
+      7
+    ],
+    "queries_used_before_after": [
+      3,
+      3
+    ],
+    "new_evaluation_tables": 4
+  }
+}

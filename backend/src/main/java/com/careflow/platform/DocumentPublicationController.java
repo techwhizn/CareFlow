@@ -13,6 +13,12 @@ public class DocumentPublicationController {
     this.service = service;
   }
 
+  @GetMapping("/documents/{id}/publications")
+  public java.util.List<java.util.Map<String, Object>> history(
+      @RequestAttribute Actor actor, @PathVariable String id) {
+    return service.history(actor, id);
+  }
+
   @PostMapping("/documents/{id}/publications")
   public Object publish(
       @RequestAttribute Actor actor,

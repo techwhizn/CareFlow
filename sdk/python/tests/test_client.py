@@ -26,7 +26,7 @@ def test_request_contracts_and_upload(tmp_path):
         client.upload(ID, file, idempotency_key="upload")
         client.job(ID)
         client.index(ID, idempotency_key="index")
-        client.publish(ID, ID, 3, idempotency_key="publish")
+        client.publish(ID, ID, 3, 2, idempotency_key="publish")
         client.search(Query("问题", minimum_rerank_score=0.5), idempotency_key="search")
     assert [r.url.path for r in requests] == [
         "/api/v1/knowledge-bases",
@@ -42,6 +42,7 @@ def test_request_contracts_and_upload(tmp_path):
     assert "合成资料".encode() in requests[2].content
     assert json.loads(requests[-1].content)["minimum_rerank_score"] == 0.5
     assert json.loads(requests[-2].content)["revision"] == 3
+    assert json.loads(requests[-2].content)["version_revision"] == 2
 
 
 @pytest.mark.parametrize("status", [401, 409, 429, 503, 302])
@@ -165,7 +166,7 @@ def test_async_management_routes(tmp_path):
             await client.upload(ID, file)
             await client.job(ID)
             await client.index(ID)
-            await client.publish(ID, ID, 0)
+            await client.publish(ID, ID, 0, 0)
 
     asyncio.run(run())
     assert len(calls) == 6
@@ -220,3 +221,20 @@ def test_routes_and_query_fields_exist_in_openapi():
     assert set(Query.__dataclass_fields__) <= set(
         schema["components"]["schemas"]["Query"]["properties"]
     )
+
+
+def test_document_versions_preserves_revision_in_sync_and_async_clients():
+    def handler(request):
+        assert request.url.path == f"/api/v1/documents/{ID}/versions"
+        return httpx.Response(200, json=[{"id": ID, "revision": 7}])
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        assert client.document_versions(ID)[0]["revision"] == 7
+
+    async def check():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            assert (await client.document_versions(ID))[0]["revision"] == 7
+
+    asyncio.run(check())

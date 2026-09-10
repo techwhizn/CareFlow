@@ -73,6 +73,7 @@ export default function ChunkWorkspace({
                 await knowledgeClient.publish(doc.id, {
                   version_id: version.id,
                   revision: doc.revision,
+                  version_revision: version.revision,
                 });
                 afterPublish();
               })

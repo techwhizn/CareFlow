@@ -13,6 +13,6 @@ export const knowledgeClient = {
   download: downloadSource,
   draft: (id: string) => post(`/document-versions/${id}/draft`),
   index: (id: string) => post(`/document-versions/${id}/index`),
-  publish: (id: string, input: { version_id: string; revision: number }) => post(`/documents/${id}/publications`, input),
+  publish: (id: string, input: { version_id: string; revision: number; version_revision: number }) => post(`/documents/${id}/publications`, input),
   editChunk: (id: string, input: { content: string; enabled: boolean; revision: number; reason: string }) => put(`/chunks/${id}`, input),
 };

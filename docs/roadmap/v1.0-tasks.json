@@ -245,7 +245,8 @@
       "V1-14"
     ],
     "acceptance": "新文件产生新版本；未发布草稿不影响线上；处理就绪不等于发布；并发编辑/发布不静默覆盖，旧版可追溯。",
-    "status": "待完成"
+    "status": "待验收",
+    "evidence": "docs/reports/v1-15-publication-isolation.md"
   },
   {
     "id": "V1-16",

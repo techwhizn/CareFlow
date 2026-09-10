@@ -59,6 +59,13 @@ class CareFlowClientTest {
   }
 
   @Test
+  void documentVersionsPreservesContentRevision() throws Exception {
+    response = "[{\"id\":\"" + ID + "\",\"revision\":7}]";
+    assertEquals(7, client.documentVersions(ID).get(0).get("revision").asInt());
+    assertEquals(List.of("/api/v1/documents/" + ID + "/versions"), paths);
+  }
+
+  @Test
   void publicApiRoutesAndMultipart() throws Exception {
     client.knowledgeBases();
     client.createKnowledgeBase("test", "description", "create");
@@ -71,7 +78,7 @@ class CareFlowClientTest {
     }
     client.job(ID);
     client.index(ID, "index");
-    client.publish(ID, ID, 3, "publish");
+    client.publish(ID, ID, 3, 2, "publish");
     client.search(
         new CareFlowClient.Query("问题", null, List.of(), "hybrid", 6, false, .5), "search");
     assertEquals(
@@ -84,6 +91,7 @@ class CareFlowClientTest {
             "/api/v1/documents/" + ID + "/publications",
             "/api/v1/retrieval/search"),
         paths);
+    assertTrue(bodies.get(5).contains("\"version_revision\":2"));
     assertEquals("upload", keys.get(2));
     assertTrue(bodies.get(2).contains("name=\"file\""));
     assertTrue(bodies.get(2).contains("合成资料"));

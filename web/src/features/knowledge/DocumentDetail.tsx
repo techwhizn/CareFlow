@@ -4,6 +4,7 @@ import type { Row } from "../../api";
 import { Badge, ErrorNote, stateNames, useData } from "../../ui";
 import AclDialog from "../../components/AclDialog";
 import DocumentMetadata from "../../components/DocumentMetadata";
+import PublicationHistory from "./PublicationHistory";
 import ChunkWorkspace from "./ChunkWorkspace";
 import { knowledgeClient, knowledgePaths } from "./client";
 export default function DocumentDetail({ doc, back }: { doc: Row; back: () => void }) {
@@ -114,6 +115,7 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
           afterPublish={back}
         />
       )}
+      <PublicationHistory documentId={doc.id} />
       <div className="danger-area">
         <div>
           <b>删除文档</b>

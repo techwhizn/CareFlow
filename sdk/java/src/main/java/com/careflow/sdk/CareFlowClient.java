@@ -140,6 +140,10 @@ public final class CareFlowClient {
         "POST", "knowledge-bases", Map.of("name", name, "description", description), key);
   }
 
+  public JsonNode documentVersions(String documentId) throws IOException {
+    return request("GET", "documents/" + id(documentId) + "/versions", null, null);
+  }
+
   public JsonNode job(String jobId) throws IOException {
     return request("GET", "jobs/" + id(jobId), null, null);
   }
@@ -148,12 +152,14 @@ public final class CareFlowClient {
     return request("POST", "document-versions/" + id(versionId) + "/index", null, key);
   }
 
-  public JsonNode publish(String documentId, String versionId, long revision, String key)
+  public JsonNode publish(
+      String documentId, String versionId, long revision, long versionRevision, String key)
       throws IOException {
     return request(
         "POST",
         "documents/" + id(documentId) + "/publications",
-        Map.of("version_id", id(versionId), "revision", revision),
+        Map.of(
+            "version_id", id(versionId), "revision", revision, "version_revision", versionRevision),
         key);
   }
 

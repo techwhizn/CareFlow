@@ -68,6 +68,13 @@ public class DocumentDraftService {
   public Object draft(Actor actor, String id) {
     auth.lock(actor);
     var v = auth.version(actor, id, "edit");
+    if (!Set.of("PARSED", "READY", "FAILED").contains(str(v, "state"))
+        || db.list(
+                "SELECT id FROM chunks WHERE tenant_id=? AND version_id=? LIMIT 1",
+                actor.tenant(),
+                id)
+            .isEmpty())
+      throw new ApiException(409, "DRAFT_SOURCE_NOT_READY", "源版本尚未完成解析，请等待任务完成后复制草稿");
     String next = id();
     db.exec(
         "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,state,size_bytes) VALUES(?,?,?,?,?,?,'PARSED',?)",

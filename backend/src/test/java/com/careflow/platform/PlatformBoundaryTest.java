@@ -89,6 +89,141 @@ class PlatformBoundaryTest {
   @Autowired EntitlementService entitlements;
 
   @Test
+  void publicationRejectsUnseenContentRevisionEvenAfterReindexing() throws Exception {
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/tokenize"),
+                org.mockito.ArgumentMatchers.anyMap()))
+        .thenReturn(Map.of("token_count", 3));
+    var result =
+        mvc.perform(
+                post("/api/v1/document-versions/" + version + "/draft")
+                    .header("Authorization", token))
+            .andReturn();
+    String draft = json.readTree(result.getResponse().getContentAsString()).get("id").asText();
+    String copied = Db.str(db.one("SELECT id FROM chunks WHERE version_id=?", draft), "id");
+    mvc.perform(
+            put("/api/v1/chunks/" + copied)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsBytes(
+                        Map.of(
+                            "content",
+                            "Revised synthetic knowledge",
+                            "enabled",
+                            true,
+                            "revision",
+                            0,
+                            "reason",
+                            "Synthetic revision test"))))
+        .andExpect(status().isOk());
+    // This component test stands in for successful real indexing; it is not RAG acceptance.
+    db.exec("UPDATE document_versions SET state='READY' WHERE id=?", draft);
+    String endpoint = "/api/v1/documents/" + document + "/publications";
+    mvc.perform(
+            post(endpoint)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsBytes(
+                        Map.of("version_id", draft, "revision", 0, "version_revision", 0))))
+        .andExpect(status().isConflict());
+    assertThat(
+            Db.str(
+                db.one("SELECT published_version FROM documents WHERE id=?", document),
+                "published_version"))
+        .isEqualTo(version);
+    mvc.perform(
+            post(endpoint)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsBytes(
+                        Map.of("version_id", draft, "revision", 0, "version_revision", 1))))
+        .andExpect(status().isOk());
+    mvc.perform(get(endpoint).header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].previous_version").value(version))
+        .andExpect(jsonPath("$[0].version_revision").value(1))
+        .andExpect(jsonPath("$[0].document_revision").value(1));
+    mvc.perform(
+            post(endpoint)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsBytes(
+                        Map.of("version_id", version, "revision", 1, "version_revision", 0))))
+        .andExpect(status().isOk());
+    assertThat(Db.str(db.one("SELECT content FROM chunks WHERE id=?", chunk), "content"))
+        .isEqualTo("测试知识");
+    assertThat(db.list("SELECT id FROM publications WHERE document_id=?", document)).hasSize(2);
+  }
+
+  @Test
+  void missingContentRevisionAndProcessingDraftSourceAreRejected() throws Exception {
+    mvc.perform(
+            post("/api/v1/documents/" + document + "/publications")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(Map.of("version_id", version, "revision", 0))))
+        .andExpect(status().isBadRequest());
+    db.exec("UPDATE document_versions SET state='PARSING' WHERE id=?", version);
+    mvc.perform(
+            post("/api/v1/document-versions/" + version + "/draft").header("Authorization", token))
+        .andExpect(status().isConflict());
+    assertThat(db.list("SELECT id FROM document_versions WHERE document_id=?", document))
+        .hasSize(1);
+  }
+
+  @Test
+  void simultaneousPublicationsCannotSilentlyOverwriteEachOther() throws Exception {
+    String endpoint = "/api/v1/documents/" + document + "/publications";
+    byte[] input =
+        json.writeValueAsBytes(Map.of("version_id", version, "revision", 0, "version_revision", 0));
+    try (var pool = Executors.newFixedThreadPool(2)) {
+      Callable<Integer> publish =
+          () ->
+              mvc.perform(
+                      post(endpoint)
+                          .header("Authorization", token)
+                          .contentType("application/json")
+                          .content(input))
+                  .andReturn()
+                  .getResponse()
+                  .getStatus();
+      var first = pool.submit(publish);
+      var second = pool.submit(publish);
+      assertThat(List.of(first.get(), second.get())).containsExactlyInAnyOrder(200, 409);
+    }
+    assertThat(db.list("SELECT id FROM publications WHERE document_id=?", document)).hasSize(1);
+  }
+
+  @Test
+  void replacementUploadKeepsOldPublicationAndItsImmutableChunks() throws Exception {
+    mvc.perform(
+            multipart("/api/v1/documents/" + document + "/versions")
+                .file(
+                    new MockMultipartFile(
+                        "file",
+                        "replacement.txt",
+                        "text/plain",
+                        "Synthetic replacement".getBytes(java.nio.charset.StandardCharsets.UTF_8)))
+                .header("Authorization", token)
+                .header("Idempotency-Key", Db.id()))
+        .andExpect(status().isOk());
+    assertThat(db.list("SELECT id FROM document_versions WHERE document_id=?", document))
+        .hasSize(2);
+    assertThat(
+            Db.str(
+                db.one("SELECT published_version FROM documents WHERE id=?", document),
+                "published_version"))
+        .isEqualTo(version);
+    assertThat(Db.str(db.one("SELECT content FROM chunks WHERE id=?", chunk), "content"))
+        .isEqualTo("测试知识");
+  }
+
+  @Test
   void entitlementUpdatesValidatePeriodRevisionAndWarnWithoutResettingUsage() throws Exception {
     var snapshot = entitlements.snapshot(actor);
     assertThat(snapshot.unknown_source_objects()).isEqualTo(1);
@@ -848,14 +983,18 @@ class PlatformBoundaryTest {
             post("/api/v1/documents/" + document + "/publications")
                 .header("Authorization", token)
                 .contentType("application/json")
-                .content(json.writeValueAsString(Map.of("version_id", version, "revision", 5))))
+                .content(
+                    json.writeValueAsString(
+                        Map.of("version_id", version, "revision", 5, "version_revision", 0))))
         .andExpect(status().isConflict());
     db.exec("UPDATE document_versions SET state='PARSED' WHERE id=?", version);
     mvc.perform(
             post("/api/v1/documents/" + document + "/publications")
                 .header("Authorization", token)
                 .contentType("application/json")
-                .content(json.writeValueAsString(Map.of("version_id", version, "revision", 0))))
+                .content(
+                    json.writeValueAsString(
+                        Map.of("version_id", version, "revision", 0, "version_revision", 0))))
         .andExpect(status().isConflict());
   }
 

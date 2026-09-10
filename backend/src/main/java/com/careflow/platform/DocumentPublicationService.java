@@ -18,14 +18,38 @@ public class DocumentPublicationService {
     this.auth = auth;
   }
 
-  public record Publish(@NotBlank String version_id, long revision) {}
+  public record Publish(
+      @NotBlank String version_id, @Min(0) long revision, @NotNull @Min(0) Long version_revision) {}
+
+  @Transactional(readOnly = true)
+  public List<Map<String, Object>> history(Actor actor, String id) {
+    auth.document(actor, id, "read");
+    return db
+        .list(
+            "SELECT * FROM publications WHERE tenant_id=? AND document_id=? ORDER BY created_at DESC,document_revision DESC,id DESC LIMIT 100",
+            actor.tenant(),
+            id)
+        .stream()
+        .filter(
+            row -> {
+              try {
+                auth.version(actor, str(row, "version_id"), "read");
+                return true;
+              } catch (ApiException denied) {
+                return false;
+              }
+            })
+        .toList();
+  }
 
   @Transactional
   public Object publish(Actor actor, String id, Publish body) {
     auth.lock(actor);
-    auth.document(actor, id, "publish");
+    var document = auth.document(actor, id, "publish");
     var v = auth.version(actor, body.version_id(), "publish");
     if (!str(v, "document_id").equals(id)) throw ApiException.hidden();
+    if (body.version_revision() == null || num(v, "revision") != body.version_revision())
+      throw ApiException.conflict();
     if (!str(v, "state").equals("READY")) throw new ApiException(409, "NOT_READY", "真实索引校验完成后才能发布");
     if (db.exec(
             "UPDATE documents SET published_version=?,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
@@ -40,12 +64,15 @@ public class DocumentPublicationService {
         body.version_id());
     String pub = id();
     db.exec(
-        "INSERT INTO publications(id,tenant_id,document_id,version_id,actor_id) VALUES(?,?,?,?,?)",
+        "INSERT INTO publications(id,tenant_id,document_id,version_id,actor_id,document_revision,version_revision,previous_version) VALUES(?,?,?,?,?,?,?,?)",
         pub,
         actor.tenant(),
         id,
         body.version_id(),
-        actor.subject());
+        actor.subject(),
+        body.revision() + 1,
+        body.version_revision(),
+        document.get("published_version"));
     auth.audit(actor, "DOCUMENT_PUBLISH", id, body.version_id());
     return Map.of("publication_id", pub);
   }

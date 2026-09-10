@@ -170,6 +170,9 @@ class Client:
                 headers=_headers(idempotency_key),
             )
 
+    def document_versions(self, document_id):
+        return self._request("GET", f"documents/{_id(document_id)}/versions")
+
     def job(self, job_id):
         return self._request("GET", f"jobs/{_id(job_id)}")
 
@@ -180,11 +183,23 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
-    def publish(self, document_id, version_id, revision, *, idempotency_key=None):
+    def publish(
+        self,
+        document_id,
+        version_id,
+        revision,
+        version_revision,
+        *,
+        idempotency_key=None,
+    ):
         return self._request(
             "POST",
             f"documents/{_id(document_id)}/publications",
-            json=dict(version_id=_id(version_id), revision=revision),
+            json=dict(
+                version_id=_id(version_id),
+                revision=revision,
+                version_revision=version_revision,
+            ),
             headers=_headers(idempotency_key),
         )
 
@@ -264,6 +279,9 @@ class AsyncClient:
                 headers=_headers(idempotency_key),
             )
 
+    async def document_versions(self, document_id):
+        return await self._request("GET", f"documents/{_id(document_id)}/versions")
+
     async def job(self, job_id):
         return await self._request("GET", f"jobs/{_id(job_id)}")
 
@@ -274,11 +292,23 @@ class AsyncClient:
             headers=_headers(idempotency_key),
         )
 
-    async def publish(self, document_id, version_id, revision, *, idempotency_key=None):
+    async def publish(
+        self,
+        document_id,
+        version_id,
+        revision,
+        version_revision,
+        *,
+        idempotency_key=None,
+    ):
         return await self._request(
             "POST",
             f"documents/{_id(document_id)}/publications",
-            json=dict(version_id=_id(version_id), revision=revision),
+            json=dict(
+                version_id=_id(version_id),
+                revision=revision,
+                version_revision=version_revision,
+            ),
             headers=_headers(idempotency_key),
         )
 

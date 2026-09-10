@@ -8,13 +8,14 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 | --- | --- | --- |
 | 列出、创建知识库 | knowledge_bases / create_knowledge_base | knowledgeBases / createKnowledgeBase |
 | 上传文件 | upload | upload |
+| 查询文档版本与内容修订 | document_versions | documentVersions |
 | 查询任务 | job | job |
 | 建立索引 | index | index |
 | 发布版本 | publish | publish |
 | 搜索 | search | search |
 | 流式问答 | answer 上下文与事件迭代 | answer 事件回调 |
 
-创建、上传、索引与发布需具备相应权限的个人凭证；应用 API Key 主要用于已授权知识库的搜索和问答。SDK 不提升权限。发布需传当前文档 revision，版本必须 READY；SDK 不自动发布、不自动轮询任务，也不绕过失败状态。
+创建、上传、索引与发布需具备相应权限的个人凭证；应用 API Key 主要用于已授权知识库的搜索和问答。SDK 不提升权限。发布需传当前文档 revision 及用户核对过的内容版本 version_revision，版本必须 READY；SDK 不自动发布、不自动轮询任务，也不绕过失败状态。
 
 base_url 是服务根地址，例如 `http://localhost:8080`，不含 `/api/v1`。令牌从环境变量或密钥管理服务注入；不要把令牌写进示例源码。生产接入使用 HTTPS。
 
@@ -115,3 +116,9 @@ uv build --project sdk/python --out-dir sdk/python/dist
 ```
 
 Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；测试路由、认证头、multipart、请求键、HTTP错误、SSE中文/分帧/终止和提前退出。另检查公开 OpenAPI 中的路径与请求字段。它们是客户端协议验证，不替代真实模型和完整业务联调。
+
+## 发布参数升级（V1-15）
+
+本次仓库预览版将 `version_revision` 设为必填，旧请求缺少此字段返回400。Python同步/异步 `publish(document_id, version_id, revision, version_revision, ...)`；Java `publish(documentId, versionId, revision, versionRevision, key)`。这是预览SDK的签名变更，调用方需要同步升级，不能自动填入最新修订号绕过预览冲突检查。
+
+通过 `document_versions(document_id)` / `documentVersions(documentId)` 获取版本列表，在核对目标版本内容时保留其 `revision`，发布时作为 `version_revision` 传入；文档 `revision` 来自文档列表或详情。409时重新读取并核对内容，再决定是否发布。READY仅表示处理就绪，不会自动发布。

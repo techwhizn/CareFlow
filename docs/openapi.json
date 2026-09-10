@@ -1241,6 +1241,38 @@
       }
     },
     "/api/v1/documents/{id}/publications": {
+      "get": {
+        "tags": [
+          "document-publication-controller"
+        ],
+        "operationId": "history",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "document-publication-controller"
@@ -1612,7 +1644,7 @@
         "tags": [
           "answers-controller"
         ],
-        "operationId": "history",
+        "operationId": "history_1",
         "responses": {
           "200": {
             "description": "OK",
@@ -2026,7 +2058,7 @@
         "tags": [
           "document-metadata-controller"
         ],
-        "operationId": "history_1",
+        "operationId": "history_2",
         "parameters": [
           {
             "name": "id",
@@ -3020,11 +3052,18 @@
           },
           "revision": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 0
+          },
+          "version_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         },
         "required": [
-          "version_id"
+          "version_id",
+          "version_revision"
         ]
       },
       "Named": {

@@ -72,7 +72,11 @@ try:
             client,
             "POST",
             "/documents/" + upload["document_id"] + "/publications",
-            json={"version_id": upload["version_id"], "revision": 0},
+            json={
+                "version_id": upload["version_id"],
+                "revision": 0,
+                "version_revision": 0,
+            },
         )
         result = call(
             client,

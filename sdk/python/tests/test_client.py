@@ -662,3 +662,19 @@ def test_application_limits_keep_revision_and_numeric_contract():
         requests_per_minute=60, concurrent_requests=4, revision=4
     )
     assert result["revision"] == 5
+
+
+def test_request_log_scope_and_cursor_are_explicit():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"items": [], "next_cursor": ""})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.request_logs(application_id=ID, before=ID)
+        client.request_log(ID, application_id=ID)
+        client.request_logs()
+    assert seen[0].url.params["before"] == ID
+    assert seen[1].url.path.endswith(f"/applications/{ID}/requests/{ID}")
+    assert seen[2].url.path.endswith("/usage/requests")

@@ -323,4 +323,14 @@ class CareFlowClientTest {
     assertTrue(bodies.get(1).contains("\"revision\":3"));
     assertTrue(bodies.get(1).contains("\"concurrent_requests\":4"));
   }
+
+  @Test
+  void requestLogsUseExplicitApplicationAndTenantRoutes() throws Exception {
+    client.requestLogs(ID, ID);
+    client.requestLog(ID, ID);
+    client.requestLogs(null, null);
+    assertEquals("/api/v1/applications/" + ID + "/requests", paths.get(0));
+    assertEquals("/api/v1/applications/" + ID + "/requests/" + ID, paths.get(1));
+    assertEquals("/api/v1/usage/requests", paths.get(2));
+  }
 }

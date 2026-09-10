@@ -1,3 +1,4 @@
+import RequestLogsPanel from "../usage/RequestLogsPanel";
 import ModelUsagePanel from "../usage/ModelUsagePanel";
 import ApplicationLimits from "./ApplicationLimits";
 import { useEffect, useState } from "react";
@@ -353,6 +354,7 @@ export default function ApplicationEditor({
         ))}
       </details>
       <ModelUsagePanel applicationId={app.id} />
+      <RequestLogsPanel applicationId={app.id} />
       <ApplicationLimits applicationId={app.id} />
       <AppCredentials applicationId={app.id} onIssued={setSecret} />
       {secret && (

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 class ApplicationAdmissionTest extends ContentTestSupport {
   @Autowired ApplicationAdmissionService admission;
   @Autowired RetrievalService retrieval;
@@ -24,6 +23,7 @@ class ApplicationAdmissionTest extends ContentTestSupport {
   }
 
   @Test
+  @Transactional
   void rejectsWithoutReservingAndSettlementReleasesConcurrencyButNotRate() {
     String app = app(2, 1);
     String first = retrieval.reserve(actor, "first", app);
@@ -52,6 +52,7 @@ class ApplicationAdmissionTest extends ContentTestSupport {
   }
 
   @Test
+  @Transactional
   void oldSettledCallsExpireFromWindowAndConfigurationUsesRevision() {
     String app = app(1, 1);
     String first = retrieval.reserve(actor, "first", app);
@@ -65,5 +66,34 @@ class ApplicationAdmissionTest extends ContentTestSupport {
             () -> admission.update(actor, app, new ApplicationAdmissionService.Limits(30, 3, 0)))
         .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.status).isEqualTo(409));
     assertThatThrownBy(() -> admission.limits(actor, id())).isInstanceOf(ApiException.class);
+  }
+
+  @Test
+  void concurrentAdmissionsShareDatabaseSlot() throws Exception {
+    String app = app(60, 1);
+    var gate = new java.util.concurrent.CountDownLatch(1);
+    try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+      var calls = new java.util.ArrayList<java.util.concurrent.Future<String>>();
+      for (int i = 0; i < 8; i++)
+        calls.add(
+            executor.submit(
+                () -> {
+                  gate.await();
+                  try {
+                    return retrieval.reserve(actor, id(), app);
+                  } catch (ApiException e) {
+                    assertThat(e.code).isEqualTo("APPLICATION_CONCURRENCY_LIMIT");
+                    return null;
+                  }
+                }));
+      gate.countDown();
+      var accepted = new java.util.ArrayList<String>();
+      for (var call : calls) {
+        String result = call.get(10, java.util.concurrent.TimeUnit.SECONDS);
+        if (result != null) accepted.add(result);
+      }
+      assertThat(accepted).hasSize(1);
+      retrieval.settle(actor, accepted.getFirst(), false);
+    }
   }
 }

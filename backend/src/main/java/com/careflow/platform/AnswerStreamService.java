@@ -33,7 +33,7 @@ public class AnswerStreamService {
 
   public SseEmitter answer(Actor actor, String authorization, String key, Query q) {
     Scope scope = retrieval.scope(actor, q);
-    String event = retrieval.reserve(actor, key, scope.application());
+    String event = retrieval.reserve(actor, key, scope, "ANSWER");
     final ConversationService.Context context;
     try {
       context = conversations.prepare(actor, q, scope, event, authorization);
@@ -43,7 +43,12 @@ public class AnswerStreamService {
           scope.configuration() == null ? null : scope.configuration().runtime().id());
     } catch (Exception error) {
       conversations.release(actor, event);
-      retrieval.settle(actor, event, false);
+      retrieval.settle(
+          actor,
+          event,
+          false,
+          false,
+          error instanceof ApiException a ? a.code : "ANSWER_INITIALIZATION_FAILED");
       throw error;
     }
     SseEmitter emitter = new SseEmitter(120000L);
@@ -65,6 +70,7 @@ public class AnswerStreamService {
     Thread.startVirtualThread(
         () -> {
           boolean charged = false;
+          String failureCode = null;
           try {
             cancellation.bindThread();
             emitter.send(
@@ -188,6 +194,7 @@ public class AnswerStreamService {
             cancellation.finish();
             emitter.complete();
           } catch (Exception e) {
+            failureCode = e instanceof ApiException a ? a.code : "STREAM_INTERRUPTED";
             cancellation.finish();
             try {
               emitter.send(
@@ -212,7 +219,7 @@ public class AnswerStreamService {
               try {
                 conversations.release(actor, event);
               } finally {
-                retrieval.settle(actor, event, charged);
+                retrieval.settle(actor, event, charged, cancellation.cancelled(), failureCode);
               }
             }
           }

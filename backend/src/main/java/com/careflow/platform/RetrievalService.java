@@ -213,6 +213,16 @@ public class RetrievalService {
   }
 
   public String reserve(Actor actor, String key, String app) {
+    return reserve(actor, key, app, null, "UNKNOWN");
+  }
+
+  public String reserve(Actor actor, String key, Scope scope, String operation) {
+    return reserve(actor, key, scope.application(), scope, operation);
+  }
+
+  private String reserve(Actor actor, String key, String app, Scope scope, String operation) {
+    if (!Set.of("SEARCH", "ANSWER", "UNKNOWN").contains(operation))
+      throw new IllegalArgumentException();
     return tx.execute(
         status -> {
           auth.lock(actor);
@@ -240,17 +250,35 @@ public class RetrievalService {
               app,
               actor.subject(),
               key);
+          db.exec(
+              "UPDATE usage_events SET operation=?,outcome='RUNNING',application_revision=?,configuration_id=?,application_configuration_id=? WHERE id=?",
+              operation,
+              scope == null ? null : scope.applicationRevision(),
+              scope == null || scope.configuration() == null
+                  ? null
+                  : scope.configuration().runtime().id(),
+              scope == null || scope.applicationPolicy() == null
+                  ? null
+                  : scope.applicationPolicy().id(),
+              event);
           return event;
         });
   }
 
   public void settle(Actor actor, String event, boolean success) {
+    settle(actor, event, success, false, null);
+  }
+
+  public void settle(Actor actor, String event, boolean success, boolean cancelled, String error) {
+    String code = error != null && error.matches("[A-Z][A-Z0-9_]{0,99}") ? error : null;
     tx.executeWithoutResult(
         status -> {
           auth.lock(actor);
           if (db.exec(
-                  "UPDATE usage_events SET state=? WHERE id=? AND tenant_id=? AND state='RESERVED'",
+                  "UPDATE usage_events SET state=?,outcome=?,error_code=?,completed_at=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND state='RESERVED'",
                   success ? "SETTLED" : "RELEASED",
+                  success ? "SUCCEEDED" : cancelled ? "CANCELLED" : "FAILED",
+                  success ? null : code,
                   event,
                   actor.tenant())
               == 1)

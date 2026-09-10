@@ -18,5 +18,10 @@
   "real_mysql": true,
   "real_linux_tesseract": true,
   "browser_summary_verified": true,
-  "task_detail_matches_summary": true
+  "task_detail_matches_summary": true,
+  "quota_adjustment_audit_verified": {
+    "actor_matches_authenticated_owner": true,
+    "before_after_equal": true,
+    "reason_recorded": true
+  }
 }

@@ -1,3 +1,4 @@
+import RequestLogsPanel from "../features/usage/RequestLogsPanel";
 import ModelUsagePanel from "../features/usage/ModelUsagePanel";
 import EntitlementPanel from "../features/entitlements/EntitlementPanel";
 import { Plus } from "@phosphor-icons/react";
@@ -59,6 +60,7 @@ export default function AdminPage({ page }: { page: Page }) {
             </div>
           </div>
           <ModelUsagePanel />
+          <RequestLogsPanel />
           <EntitlementPanel changed={data.reload} />
           <DataTable
             rows={data.data.events}

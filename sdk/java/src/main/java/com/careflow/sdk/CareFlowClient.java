@@ -235,6 +235,19 @@ public final class CareFlowClient {
     return request("GET", "applications/" + id(app) + "/publications", null, null);
   }
 
+  public JsonNode requestLogs(String application, String before) throws IOException {
+    String path =
+        application == null ? "usage/requests" : "applications/" + id(application) + "/requests";
+    if (before != null) path += "?before=" + id(before);
+    return request("GET", path, null, null);
+  }
+
+  public JsonNode requestLog(String application, String requestId) throws IOException {
+    String path =
+        application == null ? "usage/requests" : "applications/" + id(application) + "/requests";
+    return request("GET", path + "/" + id(requestId), null, null);
+  }
+
   public JsonNode modelUsage() throws IOException {
     return request("GET", "usage/models", null, null);
   }

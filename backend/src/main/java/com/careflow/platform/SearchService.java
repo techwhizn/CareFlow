@@ -18,7 +18,7 @@ public class SearchService {
     if (query.conversation_id() != null && !query.conversation_id().isBlank())
       throw new IllegalArgumentException("Conversation context is supported by answers only");
     var scope = retrieval.scope(actor, query);
-    String event = retrieval.reserve(actor, key, scope.application());
+    String event = retrieval.reserve(actor, key, scope, "SEARCH");
     try {
       var result =
           retrieval.search(
@@ -28,7 +28,12 @@ public class SearchService {
       retrieval.settle(actor, event, true);
       return result;
     } catch (Exception error) {
-      retrieval.settle(actor, event, false);
+      retrieval.settle(
+          actor,
+          event,
+          false,
+          false,
+          error instanceof ApiException a ? a.code : "RETRIEVAL_FAILED");
       throw error;
     }
   }

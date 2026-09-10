@@ -221,6 +221,24 @@ class Client:
     def application_publications(self, application_id):
         return self._request("GET", f"applications/{_id(application_id)}/publications")
 
+    def request_logs(self, *, application_id=None, before=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return self._request(
+            "GET", base, params={"before": _id(before)} if before else {}
+        )
+
+    def request_log(self, request_id, *, application_id=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return self._request("GET", f"{base}/{_id(request_id)}")
+
     def model_usage(self):
         return self._request("GET", "usage/models")
 
@@ -659,6 +677,24 @@ class AsyncClient:
         return await self._request(
             "GET", f"applications/{_id(application_id)}/publications"
         )
+
+    async def request_logs(self, *, application_id=None, before=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return await self._request(
+            "GET", base, params={"before": _id(before)} if before else {}
+        )
+
+    async def request_log(self, request_id, *, application_id=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return await self._request("GET", f"{base}/{_id(request_id)}")
 
     async def model_usage(self):
         return await self._request("GET", "usage/models")

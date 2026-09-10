@@ -1,0 +1,114 @@
+{
+  "synthetic_input": true,
+  "search": {
+    "request_id": "bf40486d-a217-4dd5-a71c-0068af6b6d02",
+    "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+    "operation": "SEARCH",
+    "state": "SETTLED",
+    "outcome": "SUCCEEDED",
+    "error_code": null,
+    "created_at": "2026-09-10T16:15:47.000+00:00",
+    "completed_at": "2026-09-10T16:15:49.000+00:00",
+    "application_revision": 3,
+    "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "application_configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "retrieval_calls": [
+      {
+        "id": "c125a87a-a277-46c3-8b02-ececc874a48f",
+        "stage": "EMBEDDING",
+        "configuration_id": "63836e71-2507-44ea-8f7e-cba81cc0164a",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:15:47.000+00:00",
+        "completed_at": "2026-09-10T16:15:47.000+00:00"
+      },
+      {
+        "id": "cee1a87d-7070-4462-9c28-8a2e707b0332",
+        "stage": "EMBEDDING",
+        "configuration_id": "3da34780-efa3-4300-9373-1daed00a2efe",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:15:47.000+00:00",
+        "completed_at": "2026-09-10T16:15:47.000+00:00"
+      },
+      {
+        "id": "b09847ca-eeb2-4b5d-93b2-c8f8146ed1c2",
+        "stage": "RERANK",
+        "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+        "input_count": 6,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 372,
+        "created_at": "2026-09-10T16:15:48.000+00:00",
+        "completed_at": "2026-09-10T16:15:48.000+00:00"
+      }
+    ],
+    "generation": []
+  },
+  "answer": {
+    "request_id": "551f65d1-bff1-49b7-a445-5835b5fa6694",
+    "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+    "operation": "ANSWER",
+    "state": "SETTLED",
+    "outcome": "SUCCEEDED",
+    "error_code": null,
+    "created_at": "2026-09-10T16:15:49.000+00:00",
+    "completed_at": "2026-09-10T16:16:01.000+00:00",
+    "application_revision": 3,
+    "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "application_configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "retrieval_calls": [
+      {
+        "id": "49d83873-9ac0-4002-8c8c-8724ae1ba2a5",
+        "stage": "EMBEDDING",
+        "configuration_id": "63836e71-2507-44ea-8f7e-cba81cc0164a",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:15:49.000+00:00",
+        "completed_at": "2026-09-10T16:15:49.000+00:00"
+      },
+      {
+        "id": "5943f23f-cb68-4f7b-8052-f1567f8aff95",
+        "stage": "RERANK",
+        "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+        "input_count": 6,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 372,
+        "created_at": "2026-09-10T16:15:49.000+00:00",
+        "completed_at": "2026-09-10T16:15:50.000+00:00"
+      },
+      {
+        "id": "931e8deb-53f3-4af3-9675-8a17116dddf7",
+        "stage": "EMBEDDING",
+        "configuration_id": "3da34780-efa3-4300-9373-1daed00a2efe",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:15:49.000+00:00",
+        "completed_at": "2026-09-10T16:15:49.000+00:00"
+      }
+    ],
+    "generation": [
+      {
+        "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+        "request_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "input_tokens": 725,
+        "output_tokens": 554,
+        "total_tokens": 1279,
+        "created_at": "2026-09-10T16:15:49.000+00:00",
+        "completed_at": "2026-09-10T16:16:01.000+00:00"
+      }
+    ]
+  },
+  "application_scoped_page_contains_request": true,
+  "browser_detail_verified": true
+}

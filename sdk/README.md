@@ -170,3 +170,5 @@ Python 的 `ApplicationConfiguration`、`ApplicationModels`、`AnswerPolicy` 位
 应用限流：Python `application_limits(id)`、`update_application_limits(id, requests_per_minute=60, concurrent_requests=4, revision=0)`；Java `applicationLimits(id)`、`updateApplicationLimits(id, new CareFlowClient.ApplicationLimits(60, 4, 0))`。仅管理身份可配置；429和409保持公共API原始错误码。
 
 模型用量：Python `model_usage()` / `application_usage(id)`；Java `modelUsage()` / `applicationUsage(id)`。返回已知Token小计和未知调用数，覆盖范围见[模型用量](../docs/model-usage.md)。
+
+调用日志：Python `request_logs(application_id=app_id, before=cursor)`、`request_log(request_id, application_id=app_id)`；Java `requestLogs(appId, cursor)`、`requestLog(appId, requestId)`。省略应用（Java传null）查询企业管理范围。列表含items与next_cursor，详见[调用日志](../docs/request-logs.md)。

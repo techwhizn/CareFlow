@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 /** Aggregates known provider counts separately from missing reports; no query or answer bodies. */
 @Service
 public class ModelUsageReadService {
+  private final ApplicationUsageAccess applications;
   private final OcrAccountingService ocr;
   private final Db db;
   private final Identity auth;
 
-  public ModelUsageReadService(Db db, Identity auth, OcrAccountingService ocr) {
+  public ModelUsageReadService(
+      Db db, Identity auth, OcrAccountingService ocr, ApplicationUsageAccess applications) {
+    this.applications = applications;
     this.ocr = ocr;
     this.db = db;
     this.auth = auth;
@@ -23,10 +26,7 @@ public class ModelUsageReadService {
   }
 
   public Object application(Actor actor, String app) {
-    if (actor.app()) {
-      if (!actor.subject().equals(app)) throw ApiException.hidden();
-    } else auth.developer(actor);
-    db.one("SELECT id FROM applications WHERE tenant_id=? AND id=?", actor.tenant(), app);
+    applications.require(actor, app);
     return summary(actor.tenant(), app);
   }
 

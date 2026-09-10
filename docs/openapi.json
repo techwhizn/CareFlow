@@ -3354,6 +3354,46 @@
         }
       }
     },
+    "/api/v1/answers/{answer}/citations/{citation}": {
+      "get": {
+        "tags": [
+          "answer-citations-controller"
+        ],
+        "operationId": "source_1",
+        "parameters": [
+          {
+            "name": "answer",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "citation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/documents/{id}": {
       "delete": {
         "tags": [

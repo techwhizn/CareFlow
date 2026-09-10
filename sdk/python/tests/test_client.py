@@ -569,3 +569,15 @@ def test_conversation_and_saved_answer_endpoints():
 
     asyncio.run(run())
     assert len(requests) == 10
+
+
+def test_citation_source_requires_explicit_answer_and_evidence_identity():
+    seen = []
+
+    def handler(request):
+        seen.append(request.url.path)
+        return httpx.Response(200, json={"source_snapshot": True})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        assert client.citation_source(ID, ID)["source_snapshot"]
+    assert seen == [f"/api/v1/answers/{ID}/citations/{ID}"]

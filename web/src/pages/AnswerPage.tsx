@@ -1,14 +1,11 @@
+import { citationSegments } from "../features/retrieval/citationSegments";
+import AnswerCitations from "../features/retrieval/AnswerCitations";
 import MetadataFilterEditor, {
   serializeFilters,
 } from "../features/retrieval/MetadataFilterEditor";
 import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
-import {
-  ChatCircleText,
-  FileText,
-  PaperPlaneTilt,
-  Stop,
-} from "@phosphor-icons/react";
+import { ChatCircleText, PaperPlaneTilt, Stop } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type { Row } from "../api";
 import { post, request, streamAnswer } from "../api";
@@ -198,7 +195,35 @@ export default function AnswerPage() {
           {answer ? (
             <div className="answer-content">
               <span className="eyebrow">{stage}</span>
-              <p>{answer}</p>
+              <p>
+                {citationSegments(
+                  answer,
+                  evidence.map((c) => c.id),
+                ).map((segment, index) =>
+                  segment.citation ? (
+                    <button
+                      key={index}
+                      className="text-button"
+                      onClick={() => {
+                        const target = document.getElementById(
+                          `citation-${segment.citation}`,
+                        );
+                        if (target instanceof HTMLDetailsElement) {
+                          target.open = true;
+                          target.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                          });
+                        }
+                      }}
+                    >
+                      {segment.text}
+                    </button>
+                  ) : (
+                    <span key={index}>{segment.text}</span>
+                  ),
+                )}
+              </p>
               {usage && (
                 <small>
                   生成模型报告：输入 {usage.input_tokens ?? "未知"} Token · 输出{" "}
@@ -207,20 +232,7 @@ export default function AnswerPage() {
                 </small>
               )}
               {!!evidence.length && (
-                <div className="citations">
-                  <h3>引用证据</h3>
-                  {evidence.map((c) => (
-                    <details key={c.id}>
-                      <summary>
-                        <FileText />
-                        {c.title}
-                        <code>{c.id.slice(0, 8)}</code>
-                      </summary>
-                      <p>{c.content}</p>
-                      <small>{c.location}</small>
-                    </details>
-                  ))}
-                </div>
+                <AnswerCitations answerId={answerId} evidence={evidence} />
               )}
               {answerId && (
                 <div className="button-row">

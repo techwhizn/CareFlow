@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "synthetic_input": true,
+  "real_deepseek": true,
+  "fixture": {
+    "knowledge_base_id": "cdaa8739-6e00-447a-84c8-1a9a8379bd28",
+    "documents": [
+      {
+        "job_id": "91e73599-ce1c-4dd5-b278-48e0296c00f8",
+        "document_id": "524d4934-623f-4f32-bcb6-3bd83272f693",
+        "version_id": "110cc1c1-f01d-4111-b96d-33856f593720"
+      },
+      {
+        "job_id": "3f3436c0-b14b-499b-8c03-bb6b8a08ff3d",
+        "document_id": "5f3e79ef-2628-4776-b147-884896f22a91",
+        "version_id": "51183f81-ce4d-4d72-9997-4f942b7e9bb8"
+      }
+    ]
+  },
+  "answer_id": "42df44e4-d3a3-4ec4-9027-bac63bc8236d",
+  "answer": "CF-900 整机保修期在资料中存在冲突：\n\n- 《CF-900 维保手册A》写明：整机保修期为 **1 年**，适用于 CF-900 标准型号；其文件适用时间为 **2025-01-01 至 2027-12-31** [b430a703-eefa-4109-8431-c0647eca01c4]。\n- 《CF-900 维保手册B》写明：整机保修期为 **2 年**，适用于 CF-900 标准型号；其文件适用时间为 **2026-01-01 至 2027-12-31** [14a7fc87-9995-41a2-8aa8-da9f51bd7a75]。\n\n适用时间比较：\n\n- **2025-01-01 至 2025-12-31**：仅《CF-900 维保手册A》在其文件适用期内，资料显示整机保修期为 **1 年** [b430a703-eefa-4109-8431-c0647eca01c4]。\n- **2026-01-01 至 2027-12-31**：两份资料均在其文件适用期内，但分别显示 **1 年**和 **2 年**，构成直接冲突 [b430a703-eefa-4109-8431-c0647eca01c4] [14a7fc87-9995-41a2-8aa8-da9f51bd7a75]。\n\n因此，在 2026-01-01 之后存在冲突；在冲突未进一步说明优先规则前，不能擅自选择其中一个版本作为唯一事实。",
+  "cited_ids": [
+    "14a7fc87-9995-41a2-8aa8-da9f51bd7a75",
+    "b430a703-eefa-4109-8431-c0647eca01c4"
+  ],
+  "legal_ids_only": true,
+  "conflict_sources_both_cited": true,
+  "immutable_source_snapshots": true,
+  "read_does_not_grant_download": true,
+  "source_count": 2,
+  "usage": {
+    "input_tokens": 553,
+    "output_tokens": 1009,
+    "total_tokens": 1562
+  }
+}

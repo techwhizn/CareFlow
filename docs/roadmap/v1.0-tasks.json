@@ -530,7 +530,8 @@
       "V1-29"
     ],
     "acceptance": "仅允许引用本次合法证据；绑定文档/切片版本和位置；点击定位真实支持内容；下载单独鉴权；展示冲突来源和适用时间。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-31-citations.md"
   },
   {
     "id": "V1-32",

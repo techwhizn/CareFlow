@@ -137,7 +137,21 @@ public class AnswerHistoryService {
           var all = new LinkedHashMap<String, Map<String, Object>>();
           for (var source : sources) {
             evidence.check(actor, source, scope);
-            all.put(str(source, "id"), new LinkedHashMap<>(source));
+            var snapshot = new LinkedHashMap<>(source);
+            var ids =
+                source.get("covered_chunk_ids") instanceof List<?> covered
+                    ? covered
+                    : List.of(str(source, "id"));
+            var originals = new ArrayList<Map<String, Object>>();
+            for (Object chunk : ids)
+              originals.add(
+                  db.one(
+                      "SELECT id,version_id,revision,source_text,content,location,origin FROM chunks WHERE tenant_id=? AND version_id=? AND id=? AND enabled=TRUE",
+                      actor.tenant(),
+                      str(source, "version_id"),
+                      chunk));
+            snapshot.put("source_chunks", originals);
+            all.put(str(source, "id"), snapshot);
           }
           List<Map<String, Object>> dependencies = new ArrayList<>();
           if (context != null) dependencies.addAll(context.dependencies());

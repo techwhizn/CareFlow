@@ -88,9 +88,16 @@ class HistoryTokens(Contract):
     candidates: list[HistoryCandidate] = Field(max_length=6)
 
 
+class GenerationEvidence(Candidate):
+    title: str | None = Field(default=None, max_length=500)
+    document_id: str | None = Field(default=None, max_length=36)
+    version_id: str | None = Field(default=None, max_length=36)
+    applicability: dict[str, str] | None = Field(default=None, max_length=4)
+
+
 class Generate(ConfiguredOperation):
     query: str = Field(min_length=1, max_length=4000)
-    evidence: list[Candidate] = Field(min_length=1, max_length=6)
+    evidence: list[GenerationEvidence] = Field(min_length=1, max_length=6)
     history: list[ConversationTurn] = Field(default_factory=list, max_length=6)
 
 

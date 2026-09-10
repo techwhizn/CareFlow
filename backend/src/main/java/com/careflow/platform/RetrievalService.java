@@ -279,7 +279,7 @@ public class RetrievalService {
       String chunk = str(hit, "id");
       var rows =
           db.list(
-              "SELECT c.*,v.document_id,d.title FROM chunks c JOIN document_versions v ON v.id=c.version_id JOIN documents d ON d.id=v.document_id WHERE c.tenant_id=? AND c.id=? AND c.enabled=TRUE",
+              "SELECT c.*,v.document_id,d.title,d.valid_from AS document_valid_from,d.valid_until AS document_valid_until,v.valid_from AS version_valid_from,v.valid_until AS version_valid_until FROM chunks c JOIN document_versions v ON v.id=c.version_id JOIN documents d ON d.id=v.document_id WHERE c.tenant_id=? AND c.id=? AND c.enabled=TRUE",
               actor.tenant(),
               chunk);
       if (rows.isEmpty()) continue;
@@ -302,7 +302,29 @@ public class RetrievalService {
                 processed.rewritten(),
                 "candidates",
                 evidence.stream()
-                    .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
+                    .map(
+                        c ->
+                            Map.of(
+                                "id",
+                                str(c, "id"),
+                                "content",
+                                str(c, "content"),
+                                "title",
+                                str(c, "title"),
+                                "document_id",
+                                str(c, "document_id"),
+                                "version_id",
+                                str(c, "version_id"),
+                                "applicability",
+                                Map.of(
+                                    "document_from",
+                                    str(c, "document_valid_from"),
+                                    "document_until",
+                                    str(c, "document_valid_until"),
+                                    "version_from",
+                                    str(c, "version_valid_from"),
+                                    "version_until",
+                                    str(c, "version_valid_until"))))
                     .toList(),
                 "allow_degraded",
                 allowDegraded));
@@ -410,7 +432,29 @@ public class RetrievalService {
                 query.query(),
                 "evidence",
                 evidence.stream()
-                    .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
+                    .map(
+                        c ->
+                            Map.of(
+                                "id",
+                                str(c, "id"),
+                                "content",
+                                str(c, "content"),
+                                "title",
+                                str(c, "title"),
+                                "document_id",
+                                str(c, "document_id"),
+                                "version_id",
+                                str(c, "version_id"),
+                                "applicability",
+                                Map.of(
+                                    "document_from",
+                                    str(c, "document_valid_from"),
+                                    "document_until",
+                                    str(c, "document_valid_until"),
+                                    "version_from",
+                                    str(c, "version_valid_from"),
+                                    "version_until",
+                                    str(c, "version_valid_until"))))
                     .toList()));
     if (configuration != null)
       request.put("model_configuration", configuration.runtime().generation());

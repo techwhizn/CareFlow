@@ -216,6 +216,10 @@ public final class CareFlowClient {
         null);
   }
 
+  public JsonNode citationSource(String answerId, String citationId) throws IOException {
+    return request("GET", "answers/" + id(answerId) + "/citations/" + id(citationId), null, null);
+  }
+
   public JsonNode savedAnswer(String answerId) throws IOException {
     return request("GET", "answers/" + id(answerId), null, null);
   }

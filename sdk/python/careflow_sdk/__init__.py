@@ -194,6 +194,11 @@ class Client:
         params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
         return self._request("GET", "answers", params=params)
 
+    def citation_source(self, answer_id, citation_id):
+        return self._request(
+            "GET", f"answers/{_id(answer_id)}/citations/{_id(citation_id)}"
+        )
+
     def saved_answer(self, answer_id):
         return self._request("GET", f"answers/{_id(answer_id)}")
 
@@ -509,6 +514,11 @@ class AsyncClient:
     async def answer_history(self, *, conversation_id=None):
         params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
         return await self._request("GET", "answers", params=params)
+
+    async def citation_source(self, answer_id, citation_id):
+        return await self._request(
+            "GET", f"answers/{_id(answer_id)}/citations/{_id(citation_id)}"
+        )
 
     async def saved_answer(self, answer_id):
         return await self._request("GET", f"answers/{_id(answer_id)}")

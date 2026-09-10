@@ -103,6 +103,8 @@ public class AnswerStreamService {
               var generation =
                   retrieval.generationRequest(actor, q, scope, evidence, authorization);
               generation.put("history", context.turns());
+              var citations =
+                  new CitationGuard(evidence.stream().map(c -> Db.str(c, "id")).toList());
               accounting.started(actor.tenant(), event);
               worker.stream(
                   generation,
@@ -111,11 +113,13 @@ public class AnswerStreamService {
                     retrieval.reauthenticate(actor, authorization);
                     conversations.check(actor, context, event, scope);
                     for (var c : evidence) retrieval.checkEvidence(actor, c, scope);
-                    content.append(delta);
+                    String validated = citations.accept(delta);
+                    content.append(validated);
                     if (content.length() > 32000)
                       throw new ApiException(502, "OUTPUT_LIMIT", "模型输出超限");
                     try {
-                      emitter.send(SseEmitter.event().name("delta").data(Map.of("text", delta)));
+                      emitter.send(
+                          SseEmitter.event().name("delta").data(Map.of("text", validated)));
                     } catch (java.io.IOException e) {
                       throw new IllegalStateException(e);
                     }
@@ -133,6 +137,7 @@ public class AnswerStreamService {
                     }
                   },
                   cancellation);
+              citations.finish();
             }
             cancellation.check();
             retrieval.reauthenticate(actor, authorization);

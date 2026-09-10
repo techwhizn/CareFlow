@@ -59,6 +59,12 @@ class CareFlowClientTest {
   }
 
   @Test
+  void citationSourceUsesBothAuthorizedIdentities() throws Exception {
+    client.citationSource(ID, ID);
+    assertEquals("/api/v1/answers/" + ID + "/citations/" + ID, paths.getFirst());
+  }
+
+  @Test
   void conversationEndpointsAndQueryKeepTheExplicitSession() throws Exception {
     client.createConversation(null, List.of(ID));
     client.conversations();

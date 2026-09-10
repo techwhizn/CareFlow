@@ -3,6 +3,7 @@ package com.careflow.platform;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.util.List;
+import java.util.Map;
 
 /** Wire contract for /internal/v1. Domain code does not trust returned content as authority. */
 public final class WorkerProtocolV1 {
@@ -86,9 +87,17 @@ public final class WorkerProtocolV1 {
   public record HistoryTokensRequest(
       @NotNull @Size(max = 6) List<@Valid @NotNull HistoryCandidate> candidates) {}
 
+  public record GenerationEvidence(
+      @NotBlank @Size(max = 100) String id,
+      @NotBlank @Size(max = 10000) String content,
+      @Size(max = 500) String title,
+      @Size(max = 36) String document_id,
+      @Size(max = 36) String version_id,
+      @Size(max = 4) Map<@Size(max = 30) String, @Size(max = 100) String> applicability) {}
+
   public record GenerateRequest(
       @NotBlank @Size(max = 4000) String query,
-      @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence,
+      @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid GenerationEvidence> evidence,
       @Valid ModelConfiguration model_configuration,
       @Size(max = 6) List<@Valid @NotNull ConversationTurn> history) {
     public GenerateRequest {

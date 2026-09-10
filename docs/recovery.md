@@ -24,7 +24,15 @@ python3 scripts/cold-backup.py verify \
 
 卷内容直接管道加密，默认不产生明文tar。使用随机256位密钥、OpenSSL AES-256-CBC/PBKDF2加密，各文件密文摘要由独立派生的HMAC密钥认证。必须先验证整个清单及全部密文，再解密；不允许绕过校验直接运行解密命令。密钥只通过权限受限文件传给OpenSSL，不写入命令参数或备份。丢失密钥无法恢复。失败归档保留未完成状态，不能作为恢复输入。
 
-当前冷备份目录不属于旧版 `managed_backups.py` 的MySQL自动淘汰范围。应在备份存储配置30天生命周期；没有生命周期的本地测试目录需管理员按记录清理。不可把此工具描述为已经实现自动保留期管理。
+冷备份与数据库增量使用独立的保留期工具，不能用旧版MySQL淘汰器或按单文件年龄删除。将同一密钥签名的完整恢复链置于专用0700目录，密钥置于目录外；在独占维护窗口执行：
+
+```bash
+python3 scripts/recovery_retention.py --root /backups/careflow --key-file /secure/careflow-backup.key
+# 核对计划后显式执行；可由管理员的备份流程定期调用。
+python3 scripts/recovery_retention.py --root /backups/careflow --key-file /secure/careflow-backup.key --apply
+```
+
+默认30天且禁止缩短至30天以下。只有整条恢复链均超过保留期才可删除；每个来源项目最新完整备份始终保留。近期增量保护其基础备份。归档先验签并核对密文；孤立增量、篡改、未知文件和符号链接使操作停止。未完成或无清单目录不自动删除。工具使用目录锁；捕获与导出程序不共享此锁，因此须由运维在同一独占窗口串行调度。本工具不自动创建系统定时任务。
 
 ## 恢复存储，保持访问关闭
 

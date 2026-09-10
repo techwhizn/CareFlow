@@ -41,3 +41,16 @@
 搜索/问答传 `application_id`；应用凭证自动使用自身应用。问答页切换应用新建会话，不能把会话转给另一个应用。检索结果新增 `application_configuration_id`，与应用修订、处理配置共同回溯本次行为。
 
 Java/Python SDK 提供 ApplicationConfiguration、模型引用、AnswerPolicy 以及创建/保存/发布/查看历史方法；所有调用经过公共 Java API。
+
+## 应用限流
+
+`GET /applications/{id}/limits` 读取限制；`PUT` 携带
+`requests_per_minute`（1–6000）、`concurrent_requests`（1–100）和当前 `revision`。
+所有者、管理员和开发者可管理本企业应用；应用凭证不能自行提高限制。默认每分钟60次、并发4次。
+修改立即作用于后续请求，已开始调用继续执行，配置修订冲突返回409。
+
+搜索和问答共享应用级计数，同一应用的多个凭证也共享。Java在企业事务锁内检查滚动60秒窗口和仍在预占的调用，随后原子预占企业查询额度；拒绝时不新增预占。
+并发超限返回429 `APPLICATION_CONCURRENCY_LIMIT`，窗口超限返回429 `APPLICATION_RATE_LIMIT`。
+已接受的失败调用也计入窗口，正常结算或失败释放并发。重复幂等键优先返回409 `DUPLICATE_REQUEST`。
+当前查询进程崩溃后的预占回收属于V1-38待完善项；未将此限流增量宣称为V1-34完整验收。
+V28新增默认值列和查询索引，旧应用自动获得默认限制，不更改其发布配置。

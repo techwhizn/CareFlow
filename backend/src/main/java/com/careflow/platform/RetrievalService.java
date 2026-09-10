@@ -9,6 +9,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class RetrievalService {
+  private final ApplicationAdmissionService admission;
   private final Db db;
   private final Identity auth;
   private final WorkerClient worker;
@@ -22,6 +23,7 @@ public class RetrievalService {
   private final AnswerHistoryService history;
 
   public RetrievalService(
+      ApplicationAdmissionService admission,
       Db db,
       Identity auth,
       WorkerClient worker,
@@ -33,6 +35,7 @@ public class RetrievalService {
       EvidenceContextService contexts,
       EvidenceAuthorization evidenceAuthorization,
       AnswerHistoryService history) {
+    this.admission = admission;
     this.db = db;
     this.auth = auth;
     this.worker = worker;
@@ -220,6 +223,7 @@ public class RetrievalService {
                   key);
           if (!previous.isEmpty())
             throw new ApiException(409, "DUPLICATE_REQUEST", "此请求已处理或处理中，请查询历史结果，勿重复计费");
+          admission.admit(actor, app);
           entitlements.query(actor.tenant());
           if (db.exec(
                   "UPDATE tenants SET queries_reserved=queries_reserved+1 WHERE id=? AND queries_used+queries_reserved<query_limit",

@@ -221,6 +221,22 @@ class Client:
     def application_publications(self, application_id):
         return self._request("GET", f"applications/{_id(application_id)}/publications")
 
+    def application_limits(self, application_id):
+        return self._request("GET", f"applications/{_id(application_id)}/limits")
+
+    def update_application_limits(
+        self, application_id, *, requests_per_minute, concurrent_requests, revision
+    ):
+        return self._request(
+            "PUT",
+            f"applications/{_id(application_id)}/limits",
+            json=dict(
+                requests_per_minute=requests_per_minute,
+                concurrent_requests=concurrent_requests,
+                revision=revision,
+            ),
+        )
+
     def create_conversation(self, *, application_id=None, knowledge_base_ids=()):
         return self._request(
             "POST",
@@ -636,6 +652,22 @@ class AsyncClient:
     async def application_publications(self, application_id):
         return await self._request(
             "GET", f"applications/{_id(application_id)}/publications"
+        )
+
+    async def application_limits(self, application_id):
+        return await self._request("GET", f"applications/{_id(application_id)}/limits")
+
+    async def update_application_limits(
+        self, application_id, *, requests_per_minute, concurrent_requests, revision
+    ):
+        return await self._request(
+            "PUT",
+            f"applications/{_id(application_id)}/limits",
+            json=dict(
+                requests_per_minute=requests_per_minute,
+                concurrent_requests=concurrent_requests,
+                revision=revision,
+            ),
         )
 
     async def create_conversation(self, *, application_id=None, knowledge_base_ids=()):

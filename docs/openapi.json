@@ -744,6 +744,74 @@
         }
       }
     },
+    "/api/v1/applications/{id}/limits": {
+      "get": {
+        "tags": [
+          "application-limits-controller"
+        ],
+        "operationId": "get_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "application-limits-controller"
+        ],
+        "operationId": "update_6",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Limits"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/v1/jobs/{id}/heartbeat": {
       "post": {
         "tags": [
@@ -3381,7 +3449,7 @@
         "tags": [
           "conversations-controller"
         ],
-        "operationId": "get_4",
+        "operationId": "get_5",
         "parameters": [
           {
             "name": "id",
@@ -4431,6 +4499,28 @@
           "generation_profile_id",
           "rerank_profile_id"
         ]
+      },
+      "Limits": {
+        "type": "object",
+        "properties": {
+          "requests_per_minute": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 6000,
+            "minimum": 1
+          },
+          "concurrent_requests": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100,
+            "minimum": 1
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
       },
       "TaskFailure": {
         "type": "object",

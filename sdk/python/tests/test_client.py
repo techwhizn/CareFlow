@@ -637,3 +637,24 @@ def test_application_policy_serializes_model_revisions_and_answer_constraints():
     assert body["answer_policy"]["history_tokens"] == 300
     assert "api_key" not in body
     assert json.loads(seen[2].content)["revision"] == 2
+
+
+def test_application_limits_keep_revision_and_numeric_contract():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"revision": 5})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.application_limits(ID)
+        result = client.update_application_limits(
+            ID, requests_per_minute=60, concurrent_requests=4, revision=4
+        )
+    assert seen[0].method == "GET"
+    assert seen[1].method == "PUT"
+    assert seen[1].url.path.endswith("/limits")
+    assert json.loads(seen[1].content) == dict(
+        requests_per_minute=60, concurrent_requests=4, revision=4
+    )
+    assert result["revision"] == 5

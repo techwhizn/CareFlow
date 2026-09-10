@@ -235,6 +235,17 @@ public final class CareFlowClient {
     return request("GET", "applications/" + id(app) + "/publications", null, null);
   }
 
+  public JsonNode applicationLimits(String app) throws IOException {
+    return request("GET", "applications/" + id(app) + "/limits", null, null);
+  }
+
+  public record ApplicationLimits(
+      int requests_per_minute, int concurrent_requests, long revision) {}
+
+  public JsonNode updateApplicationLimits(String app, ApplicationLimits limits) throws IOException {
+    return request("PUT", "applications/" + id(app) + "/limits", limits, null);
+  }
+
   public JsonNode createConversation(String applicationId, List<String> knowledgeBaseIds)
       throws IOException {
     var body = new java.util.LinkedHashMap<String, Object>();

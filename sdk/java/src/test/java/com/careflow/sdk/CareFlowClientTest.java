@@ -314,4 +314,13 @@ class CareFlowClientTest {
     client.operationsStatus();
     assertEquals(List.of("/api/v1/operations/status"), paths);
   }
+
+  @Test
+  void applicationLimitsPreserveRevisionAndNumericValues() throws Exception {
+    client.applicationLimits(ID);
+    client.updateApplicationLimits(ID, new CareFlowClient.ApplicationLimits(60, 4, 3));
+    assertTrue(paths.get(0).endsWith("/limits"));
+    assertTrue(bodies.get(1).contains("\"revision\":3"));
+    assertTrue(bodies.get(1).contains("\"concurrent_requests\":4"));
+  }
 }

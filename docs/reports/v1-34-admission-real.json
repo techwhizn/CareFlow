@@ -1,0 +1,11 @@
+{
+  "synthetic_input": true,
+  "real_mysql": true,
+  "real_embedding_rerank": true,
+  "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+  "successful_request_id": "d3217afd-0d92-4c8e-868d-e98c683dc02c",
+  "duplicate_status": 409,
+  "rate_limit_status": 429,
+  "app_cannot_modify_limits": true,
+  "browser_save_verified": true
+}

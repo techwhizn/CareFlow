@@ -166,3 +166,5 @@ Python 使用 `submit_feedback`、`create_improvement`、`improvements`、`impro
 ## 应用配置
 
 Python 的 `ApplicationConfiguration`、`ApplicationModels`、`AnswerPolicy` 位于 `careflow_sdk.application`；使用 `create_application_configuration`、`publish_application_configuration` 和 `application_publications` 管理版本。Java 提供 `ApplicationConfiguration` 及对应驼峰方法。Query 的 `application_id` 指定应用，应用凭证自动使用自身。配置不包含真实模型密钥，详见[应用策略](../docs/application-policies.md)。
+
+应用限流：Python `application_limits(id)`、`update_application_limits(id, requests_per_minute=60, concurrent_requests=4, revision=0)`；Java `applicationLimits(id)`、`updateApplicationLimits(id, new CareFlowClient.ApplicationLimits(60, 4, 0))`。仅管理身份可配置；429和409保持公共API原始错误码。

@@ -1,3 +1,4 @@
+import ApplicationLimits from "./ApplicationLimits";
 import { useEffect, useState } from "react";
 import { post, put, request } from "../../api";
 import type { Row } from "../../api";
@@ -350,6 +351,7 @@ export default function ApplicationEditor({
           </p>
         ))}
       </details>
+      <ApplicationLimits applicationId={app.id} />
       <AppCredentials applicationId={app.id} onIssued={setSecret} />
       {secret && (
         <label>

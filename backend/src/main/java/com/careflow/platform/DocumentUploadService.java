@@ -169,6 +169,8 @@ public class DocumentUploadService {
                     fingerprint,
                     auth.kb(actor, kb, "edit").get("published_configuration"));
                 billing.attachJob(actor.tenant(), job, data.bytes().length);
+                db.exec(
+                    "UPDATE jobs SET http_request_id=? WHERE id=?", TraceContext.current(), job);
                 db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
                 if (document != null) conflicts.snapshotLatest(actor, nextDocument, version);
                 auth.audit(actor, "DOCUMENT_UPLOAD", nextDocument, version);

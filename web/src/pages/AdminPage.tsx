@@ -1,3 +1,4 @@
+import RetentionPanel from "../features/usage/RetentionPanel";
 import PricingPanel from "../features/billing/PricingPanel";
 import RequestLogsPanel from "../features/usage/RequestLogsPanel";
 import ModelUsagePanel from "../features/usage/ModelUsagePanel";
@@ -61,6 +62,7 @@ export default function AdminPage({ page }: { page: Page }) {
             </div>
           </div>
           <PricingPanel />
+          <RetentionPanel />
           <ModelUsagePanel />
           <RequestLogsPanel />
           <EntitlementPanel changed={data.reload} />

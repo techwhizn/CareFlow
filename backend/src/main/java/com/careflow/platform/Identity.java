@@ -63,8 +63,12 @@ public class Identity {
   public void authorizeRequest(Actor actor, String method, String path) {
     if (actor.role().equals("OPS")) {
       if (!method.equals("GET")
-          || !Set.of("/api/v1/me", "/api/v1/operations/status").contains(path))
-        throw ApiException.hidden();
+          || !Set.of(
+                  "/api/v1/me",
+                  "/api/v1/operations/status",
+                  "/api/v1/operations/metrics",
+                  "/api/v1/operations/prometheus")
+              .contains(path)) throw ApiException.hidden();
       return;
     }
     if (!actor.app()) return;
@@ -162,13 +166,14 @@ public class Identity {
 
   public void audit(Actor a, String action, String id, String details) {
     db.exec(
-        "INSERT INTO audit_events(id,tenant_id,actor_id,action,resource_id,details) VALUES(?,?,?,?,?,?)",
+        "INSERT INTO audit_events(id,tenant_id,actor_id,action,resource_id,details,http_request_id) VALUES(?,?,?,?,?,?,?)",
         Db.id(),
         a.tenant(),
         a.subject(),
         action,
         id,
-        details);
+        details,
+        TraceContext.current());
   }
 
   public String credential(String tenant, String subject, String kind, java.sql.Timestamp expires) {

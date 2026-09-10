@@ -19,6 +19,7 @@ function Details({ path }: { path: string }) {
       <ExecutionCost path={`${path}/cost`} />
       {data.data && (
         <>
+          <p>HTTP 请求 ID：{data.data.http_request_id || "早期未记录"}</p>
           <p>
             配置版本：
             {data.data.application_configuration_id ||

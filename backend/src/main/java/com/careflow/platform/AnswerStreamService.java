@@ -71,7 +71,7 @@ public class AnswerStreamService {
         () -> {
           boolean charged = false;
           String failureCode = null;
-          try {
+          try (var trace = TraceContext.use(event)) {
             cancellation.bindThread();
             emitter.send(
                 SseEmitter.event()

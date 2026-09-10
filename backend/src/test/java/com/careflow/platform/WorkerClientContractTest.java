@@ -22,6 +22,7 @@ class WorkerClientContractTest {
   volatile int status;
   volatile long delay;
   volatile String receivedToken;
+  volatile String receivedTrace;
   static final String TOKEN = "internal-synthetic-contract-secret-32chars";
   final ObjectMapper mapper = new ObjectMapper();
 
@@ -37,6 +38,7 @@ class WorkerClientContractTest {
     server.createContext(
         "/",
         exchange -> {
+          receivedTrace = exchange.getRequestHeaders().getFirst("X-Request-ID");
           receivedToken = exchange.getRequestHeaders().getFirst("X-Internal-Token");
           exchange.getRequestBody().readAllBytes();
           try {
@@ -77,6 +79,18 @@ class WorkerClientContractTest {
     server.stop(0);
     executor.shutdownNow();
     validation.close();
+  }
+
+  @Test
+  void correlationIsExplicitAndDoesNotLeakIntoNextRequest() {
+    String id = Db.id();
+    try (var trace = TraceContext.use(id)) {
+      client.call("/internal/v1/tokenize", Map.of("text", "fixture"));
+      assertThat(receivedTrace).isEqualTo(id);
+    }
+    client.call("/internal/v1/tokenize", Map.of("text", "fixture"));
+    assertThat(receivedTrace).isNull();
+    assertThat(TraceContext.current()).isNull();
   }
 
   @Test

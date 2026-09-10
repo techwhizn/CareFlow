@@ -29,7 +29,8 @@ public class HttpBoundary extends OncePerRequestFilter {
     req.setAttribute("request_id", requestId);
     res.setHeader("X-Request-ID", requestId);
     res.setHeader("Cache-Control", "no-store");
-    try {
+    long started = System.nanoTime();
+    try (var trace = TraceContext.use(requestId)) {
       if (req.getRequestURI().startsWith("/internal/")) {
         String supplied = req.getHeader("X-Internal-Token");
         if (internal.length() < 32
@@ -46,13 +47,31 @@ public class HttpBoundary extends OncePerRequestFilter {
         identity.authorizeRequest(actor, req.getMethod(), req.getRequestURI());
         req.setAttribute("actor", actor);
       }
-      chain.doFilter(req, res);
+      String linked = req.getHeader("X-Correlation-ID");
+      if (req.getRequestURI().startsWith("/internal/")
+          && linked != null
+          && linked.matches(
+              "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")) {
+        try (var correlation = TraceContext.use(linked)) {
+          req.setAttribute("correlation_id", linked);
+          chain.doFilter(req, res);
+        }
+      } else chain.doFilter(req, res);
     } catch (ApiException e) {
       res.setStatus(e.status);
       res.setContentType("application/json;charset=UTF-8");
       json.writeValue(
           res.getOutputStream(),
           Map.of("code", e.code, "message", e.getMessage(), "request_id", requestId));
+    } finally {
+      org.slf4j.LoggerFactory.getLogger(HttpBoundary.class)
+          .info(
+              "http_request_id={} correlation_id={} method={} status={} elapsed_ms={}",
+              requestId,
+              req.getAttribute("correlation_id"),
+              req.getMethod(),
+              res.getStatus(),
+              (System.nanoTime() - started) / 1_000_000);
     }
   }
 }

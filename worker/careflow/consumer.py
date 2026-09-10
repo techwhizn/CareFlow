@@ -22,7 +22,10 @@ def run_job(job_id):
         + "/internal/v1/jobs/"
         + job_id
     )
-    headers = {"X-Internal-Token": os.environ["INTERNAL_TOKEN"]}
+    headers = {
+        "X-Internal-Token": os.environ["INTERNAL_TOKEN"],
+        "X-Correlation-ID": job_id,
+    }
     with httpx.Client(timeout=90) as client:
         claimed = client.post(base + "/claim", headers=headers)
         if claimed.status_code in (404, 409):
@@ -37,6 +40,7 @@ def run_job(job_id):
         claimed.raise_for_status()
         claim = TaskClaim.model_validate(claimed.json())
         job = claim.model_dump(exclude={"configuration"})
+        log.info("job_id=%s state=CLAIMED kind=%s", job_id, job["kind"])
         configuration = claim.configuration
         headers["X-Lease-Token"] = job["lease_token"]
         stop = threading.Event()
@@ -119,6 +123,7 @@ def run_job(job_id):
                 client.post(
                     base + "/complete", headers=headers, json=result
                 ).raise_for_status()
+                log.info("job_id=%s state=DONE", job_id)
         except Exception as exc:
             if not lease_lost.is_set():
                 # Never put file content, vendor responses or secrets into public job errors.
@@ -130,6 +135,7 @@ def run_job(job_id):
                     code = "INVALID_FILE"
                 else:
                     code = "PROCESSING_UNAVAILABLE"
+                log.warning("job_id=%s state=FAILED error_code=%s", job_id, code)
                 client.post(
                     base + "/failed",
                     headers=headers,

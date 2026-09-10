@@ -71,6 +71,7 @@ public class IndexMaintenanceService {
               str(current, "configuration_id"),
               preserve);
           billing.attachJob(actor.tenant(), job, 0);
+          db.exec("UPDATE jobs SET http_request_id=? WHERE id=?", TraceContext.current(), job);
           db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
           if (!preserve)
             db.exec(

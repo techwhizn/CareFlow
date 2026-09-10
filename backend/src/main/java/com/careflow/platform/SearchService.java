@@ -19,7 +19,7 @@ public class SearchService {
       throw new IllegalArgumentException("Conversation context is supported by answers only");
     var scope = retrieval.scope(actor, query);
     String event = retrieval.reserve(actor, key, scope, "SEARCH");
-    try {
+    try (var trace = TraceContext.use(event)) {
       var result =
           retrieval.search(
               actor, query, scope, authorization, QueryProcessing.process(query.query()), event);

@@ -1,0 +1,12 @@
+ALTER TABLE jobs ADD COLUMN http_request_id VARCHAR(36) NULL;
+ALTER TABLE usage_events ADD COLUMN http_request_id VARCHAR(36) NULL;
+ALTER TABLE audit_events ADD COLUMN http_request_id VARCHAR(36) NULL;
+CREATE INDEX idx_jobs_http_request ON jobs(tenant_id,http_request_id);
+CREATE INDEX idx_usage_http_request ON usage_events(tenant_id,http_request_id);
+ALTER TABLE tenants ADD COLUMN debug_body_collection BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE tenants ADD COLUMN debug_retention_days INT NOT NULL DEFAULT 30;
+ALTER TABLE tenants ADD COLUMN audit_retention_days INT NOT NULL DEFAULT 180;
+ALTER TABLE tenants ADD COLUMN retention_revision BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE query_records ADD COLUMN body_state VARCHAR(16) NOT NULL DEFAULT 'COLLECTED';
+CREATE INDEX idx_query_body_retention ON query_records(tenant_id,body_state,created_at);
+CREATE INDEX idx_audit_retention ON audit_events(tenant_id,created_at);

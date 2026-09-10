@@ -39,6 +39,19 @@ public class Errors {
     return e.isForReturnValue() ? failure(e, r) : invalid(e, r);
   }
 
+  @ExceptionHandler({
+    org.springframework.web.servlet.resource.NoResourceFoundException.class,
+    org.springframework.web.servlet.NoHandlerFoundException.class
+  })
+  ResponseEntity<?> missing(Exception e, HttpServletRequest r) {
+    return error(404, "NOT_FOUND", "资源不存在或不可访问", r);
+  }
+
+  @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+  ResponseEntity<?> method(Exception e, HttpServletRequest r) {
+    return error(405, "METHOD_NOT_ALLOWED", "不支持该请求方法", r);
+  }
+
   @ExceptionHandler(MaxUploadSizeExceededException.class)
   ResponseEntity<?> size(Exception e, HttpServletRequest r) {
     return error(413, "FILE_TOO_LARGE", "文件不能超过 50 MiB", r);

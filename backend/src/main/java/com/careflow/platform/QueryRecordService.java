@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class QueryRecordService {
+  private final RetentionService retention;
   private final QueryReservationService reservations;
   private final Db db;
   private final Identity auth;
@@ -20,12 +21,14 @@ public class QueryRecordService {
   private final ConversationRepository conversations;
 
   public QueryRecordService(
+      RetentionService retention,
       QueryReservationService reservations,
       Db db,
       Identity auth,
       EvidenceAuthorization evidence,
       ObjectMapper json,
       ConversationRepository conversations) {
+    this.retention = retention;
     this.reservations = reservations;
     this.db = db;
     this.auth = auth;
@@ -41,6 +44,7 @@ public class QueryRecordService {
     reservations.result(actor, id, false);
     var sources = (List<Map<String, Object>>) result.get("evidence");
     for (var source : sources) evidence.check(actor, source, scope);
+    boolean collect = retention.collect(actor.tenant());
     var options = new LinkedHashMap<String, Object>();
     options.put("mode", query.mode());
     options.put("limit", query.limit());
@@ -58,7 +62,7 @@ public class QueryRecordService {
           actor.subject(),
           actor.kind(),
           scope.application(),
-          query.query(),
+          collect ? query.query() : "",
           result.get("configuration_id"),
           scope.applicationRevision(),
           conversations.binding(query.knowledge_base_ids()),
@@ -67,6 +71,7 @@ public class QueryRecordService {
     } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
       throw new IllegalArgumentException("Invalid query options", e);
     }
+    if (!collect) db.exec("UPDATE query_records SET body_state='DISABLED' WHERE id=?", id);
     var dependencies = new LinkedHashMap<String, Map<String, Object>>();
     for (var source : sources) {
       dependencies.put(str(source, "id"), source);

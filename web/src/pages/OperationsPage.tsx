@@ -20,6 +20,7 @@ const labels: Record<string, string> = {
   SUCCEEDED: "已完成",
   FAILED: "失败",
   CANCELLED: "已取消",
+  RECOVERED: "超时回收",
   RETRY: "等待重试",
   BLOCKED: "需要处理",
   PENDING: "待处理",
@@ -50,7 +51,22 @@ function Counts({ rows, jobs = false }: { rows: Count[]; jobs?: boolean }) {
     </table>
   );
 }
+const metricLabels: Record<string, string> = {
+  careflow_jobs_queued: "排队任务",
+  careflow_jobs_running: "运行任务",
+  careflow_jobs_failed: "失败任务",
+  careflow_jobs_expired_lease: "租约已过期任务",
+  careflow_queries_reserved: "查询预占",
+  careflow_queries_expired: "待回收查询",
+  careflow_queries_failed_recent: "近五分钟失败查询",
+  careflow_cleanup_blocked: "受阻清理任务",
+  QUERY_FAILURE_BURST: "近五分钟查询失败达到告警阈值",
+};
 export default function OperationsPage() {
+  const metrics = useData<{
+    gauges: Record<string, number>;
+    alerts: { code: string; count: number }[];
+  } | null>("/operations/metrics", null);
   const status = useData<Status | null>("/operations/status", null);
   return (
     <>
@@ -59,9 +75,38 @@ export default function OperationsPage() {
           <h1>运行状态</h1>
           <p>当前企业的任务与处理状态汇总。</p>
         </div>
-        <button onClick={() => void status.reload()}>刷新状态</button>
+        <button
+          onClick={() => {
+            void status.reload();
+            void metrics.reload();
+          }}
+        >
+          刷新状态
+        </button>
       </div>
-      <ErrorNote error={status.error} />
+      <ErrorNote error={status.error || metrics.error} />
+      {metrics.data && (
+        <section>
+          <h2>运行指标与告警</h2>
+          {metrics.data.alerts.length ? (
+            metrics.data.alerts.map((a) => (
+              <p role="alert" key={a.code}>
+                {metricLabels[a.code] || a.code}：{a.count}
+              </p>
+            ))
+          ) : (
+            <p>当前没有触发告警阈值。</p>
+          )}
+          <dl>
+            {Object.entries(metrics.data.gauges).map(([key, value]) => (
+              <div key={key}>
+                <dt>{metricLabels[key] || key}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
       {status.loading ? (
         <Loading />
       ) : (

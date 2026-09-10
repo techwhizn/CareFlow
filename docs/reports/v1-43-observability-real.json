@@ -1,0 +1,21 @@
+{
+  "complete": true,
+  "tenant_id": "3d692260-f6e3-4986-9cef-0b9c6386b1d2",
+  "old_query": "f3ffb7d3-769a-4d39-8500-8d53c3387fec",
+  "fresh_query": "44f28513-f1b1-4881-9ff8-4b366874b359",
+  "old_audit": "b3a7debc-efcd-4c8a-a33f-5262fb8d8218",
+  "disabled_body_query": "a76e07b9-4c14-4ead-9a2f-2ea2d9b55e1d",
+  "trace_query": "ac2d47c7-4b12-49a7-b9d5-bdde0a70182c",
+  "http_request_id": "c5e32ba1-0dfd-410b-8eed-2a85c61d4c64",
+  "worker_trace_verified": true,
+  "health_and_404_verified": true,
+  "body_collection_disabled_verified": true,
+  "upload_job_id": "d6f3c131-071e-4145-9ea3-71b8a3c2e409",
+  "upload_http_request_id": "aeabe31a-fb2e-44dd-b003-776f70cba4c0",
+  "upload_worker_audit_trace_verified": true,
+  "scheduled_retention_verified": true,
+  "fresh_debug_preserved": true,
+  "old_audit_removed": true,
+  "synthetic_failure_metrics_alert_trigger_and_recovery": true,
+  "browser_metrics_checked": true
+}

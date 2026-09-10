@@ -154,6 +154,7 @@ public class DocumentDraftService {
         key,
         configuration);
     billing.attachJob(actor.tenant(), job, 0);
+    db.exec("UPDATE jobs SET http_request_id=? WHERE id=?", TraceContext.current(), job);
     db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
     conflicts.snapshot(actor, id, next);
     auth.audit(
@@ -183,6 +184,7 @@ public class DocumentDraftService {
         key,
         v.get("configuration_id"));
     billing.attachJob(actor.tenant(), job, 0);
+    db.exec("UPDATE jobs SET http_request_id=? WHERE id=?", TraceContext.current(), job);
     db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
     db.exec(
         "UPDATE document_versions SET state='QUEUED' WHERE tenant_id=? AND id=?",

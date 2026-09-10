@@ -108,3 +108,5 @@ npm audit --prefix web
 多轮问答与历史授权规则见[会话文档](docs/conversations.md)。
 
 导入预估、费率版本和实际成本核算见[费用说明](docs/billing.md)。
+
+健康检查、指标、关联日志与保留策略见[可观测说明](docs/observability.md)。

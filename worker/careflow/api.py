@@ -1,5 +1,6 @@
 import hmac
 import json
+import logging
 import os
 import uuid
 
@@ -8,6 +9,7 @@ from fastapi.responses import StreamingResponse
 
 from careflow import index_cleanup, index_verification, models, retrieval
 from careflow.model_configuration import use_configuration
+from careflow.observability import RequestTraceMiddleware
 from careflow.protocol_v1 import (
     CachePurge,
     CompactionRequest,
@@ -39,7 +41,16 @@ def internal(x_internal_token: str = Header(default="")):
         raise HTTPException(401, "Invalid internal identity")
 
 
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 app = FastAPI(title="CareFlow Internal Worker", dependencies=[Depends(internal)])
+app.add_middleware(RequestTraceMiddleware)
+
+
+@app.get("/internal/v1/health")
+def health():
+    return {"status": "UP", "scope": "PROCESS"}
 
 
 @app.post("/internal/v1/context/tokens", response_model=ContextTokensResponse)

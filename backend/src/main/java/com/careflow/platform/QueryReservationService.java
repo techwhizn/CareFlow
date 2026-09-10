@@ -88,6 +88,10 @@ public class QueryReservationService {
                   : scope.applicationPolicy().id(),
               event);
           billing.attachRequest(actor.tenant(), event);
+          db.exec(
+              "UPDATE usage_events SET http_request_id=? WHERE id=?",
+              TraceContext.current(),
+              event);
           return event;
         });
   }

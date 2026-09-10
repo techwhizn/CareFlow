@@ -85,7 +85,9 @@ export default function ImprovementsPage() {
         {selected && (
           <section className="query-panel">
             <h2>改进任务详情</h2>
-            <p>{selected.query.question}</p>
+            <p>
+              {selected.query.question || "调试正文未采集或已按保留策略清除"}
+            </p>
             <p>{selected.description}</p>
             {selected.answer && (
               <>

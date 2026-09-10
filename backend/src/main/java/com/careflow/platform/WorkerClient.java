@@ -44,6 +44,12 @@ public class WorkerClient {
             .baseUrl(url)
             .defaultHeader("X-Internal-Token", token)
             .requestFactory(factory)
+            .requestInterceptor(
+                (request, bytes, execution) -> {
+                  String trace = TraceContext.current();
+                  if (trace != null) request.getHeaders().set("X-Request-ID", trace);
+                  return execution.execute(request, bytes);
+                })
             .build();
   }
 

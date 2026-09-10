@@ -115,7 +115,8 @@
       "V1-06"
     ],
     "acceptance": "搜索、问答、任务、历史、下载、引用、扩展片段和SDK逐一测越权；外发前和继续输出前复核；撤权隐藏历史答案；运维角色只能读运行元数据。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-07-boundaries.md"
   },
   {
     "id": "V1-08",
@@ -388,7 +389,8 @@
       "V1-22"
     ],
     "acceptance": "删除立即不可见；原文件、切片、索引等副本默认7天内清理；清理可重试审计；备份默认30天淘汰；迟到任务不能恢复对象。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-23-cleanup.md"
   },
   {
     "id": "V1-24",
@@ -407,8 +409,8 @@
       "V1-21"
     ],
     "acceptance": "语义/关键词/混合模式真实运行；分别记录dense/BM25/RRF/Rerank阶段；同义词及型号/错误码能定位标注证据。",
-    "status": "待验收",
-    "evidence": "docs/reports/v1-15-24-25-real.json"
+    "status": "完成",
+    "evidence": "docs/reports/v1-24-annotated.md"
   },
   {
     "id": "V1-25",
@@ -423,7 +425,7 @@
       "V1-24"
     ],
     "acceptance": "字段与操作符白名单；客户端过滤只能缩小授权范围；在召回阶段过滤，覆盖类型错误、注入及空结果，不允许任意SQL/Milvus表达式。",
-    "status": "待验收",
+    "status": "完成",
     "evidence": "docs/reports/v1-25-metadata-filters.md"
   },
   {
@@ -440,7 +442,8 @@
       "V1-24"
     ],
     "acceptance": "避免重叠和同源片段占满结果；仅扩展同版本授权父/相邻片段；将现有6000字符限制改为PRD的6000Token预算，并满足模型上下文限制。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-26-context.md"
   },
   {
     "id": "V1-27",
@@ -456,7 +459,8 @@
       "V1-24"
     ],
     "acceptance": "保留已有请求级门槛，补配置版本绑定；阈值用测试集标定；无分数不冒充达标；超时按应用策略降级或报错，系统故障与无答案明确区分。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-27-threshold.md"
   },
   {
     "id": "V1-28",
@@ -478,7 +482,8 @@
       "V1-26"
     ],
     "acceptance": "保留原问题/改写及关键型号；展示授权范围、各阶段候选排名分数、排除原因、耗时、用量及配置版本；调试不泄露未授权候选或隐含推理。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-28-query-trace.md"
   },
   {
     "id": "V1-29",
@@ -496,7 +501,8 @@
       "V1-27"
     ],
     "acceptance": "真实检索后生成；无证据拒答；断流/异常标记未完成；取消停止交付并关闭上游，记录实际用量；只有done算成功，不将局部DeepSeek测试当全链路证据。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-29-stream.md"
   },
   {
     "id": "V1-30",
@@ -585,7 +591,8 @@
       "V1-37"
     ],
     "acceptance": "应用Key可真实搜索/问答；按应用限流、统计和关联请求；敏感正文受控，错误和幂等语义一致。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-34-37-usage.md"
   },
   {
     "id": "V1-35",
@@ -637,7 +644,8 @@
       "V1-36"
     ],
     "acceptance": "统计OCR页、Embedding Token、Rerank、生成及存储；企业/应用用量可查询核对；额度调整记录前后值、操作者和原因。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-34-37-usage.md"
   },
   {
     "id": "V1-38",
@@ -654,7 +662,8 @@
       "V1-37"
     ],
     "acceptance": "内部重试成本与客户账单分离；取消计实际资源；进程崩溃/超时可核对释放或结算预占；并发和重复消息不重复扣费。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-38-crash-recovery-real.json"
   },
   {
     "id": "V1-39",
@@ -670,7 +679,8 @@
       "V1-38"
     ],
     "acceptance": "导入前估算、执行后实际结算；保存规则快照，价格变化不改写历史账单；供应商用量缺失有显式状态，不能编造。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-39-billing.md"
   },
   {
     "id": "V1-40",
@@ -761,7 +771,8 @@
       "V1-37"
     ],
     "acceptance": "请求ID串联上传/任务/模型/问答/用量；指标、日志、告警可用；权限/发布/删除/密钥/模型/额度变更可追溯；调试内容默认30天、审计180天，正文采集可关闭。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-43-observability.md"
   },
   {
     "id": "V1-44",
@@ -853,7 +864,8 @@
       "V1-48"
     ],
     "acceptance": "从空环境构建启动并执行主要浏览器流程；覆盖加载/错误/空态、键盘操作与窄屏；验证宣称支持的JDK/Python/依赖版本；不将本机已有数据当全新部署。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-49-browser-compatibility.md"
   },
   {
     "id": "V1-50",
@@ -893,7 +905,8 @@
       "V1-49"
     ],
     "acceptance": "同步README、配置项、架构ADR、OpenAPI、SDK、部署升级、故障排查和恢复手册；提供脱敏演示数据及示例，陌生开发者按文档完成导入至问答。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-52-documentation.md"
   },
   {
     "id": "V1-53",

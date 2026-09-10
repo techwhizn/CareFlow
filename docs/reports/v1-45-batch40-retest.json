@@ -1,0 +1,48 @@
+{
+  "recorded_at": "2026-09-11",
+  "source_sha256": "361da8e8b1c27dc805005d26e1ff0787a7b53bce54dec070b437b79b56929a7e",
+  "source_scope": "private row-level benchmark output without credentials or response bodies",
+  "corpus": {
+    "published_chunks": 100000,
+    "tenants": 10
+  },
+  "load": {
+    "offered_qps": 5,
+    "concurrency_limit": 10,
+    "requests_per_operation": 100
+  },
+  "model_service": {
+    "cpu_limit": 2,
+    "memory_limit_gib": 4,
+    "rerank_batch_size": 40,
+    "request_concurrency": 1
+  },
+  "results": {
+    "api": {
+      "successful": 100,
+      "failed": 0,
+      "successful_qps": 5.044480747142952,
+      "p95_ms": 27.64227300940547
+    },
+    "search": {
+      "successful": 3,
+      "failed": 97,
+      "failure_outcome": "HTTP_503",
+      "successful_qps": 0.1347872152956055,
+      "successful_sample_p95_ms": 9833.094517001882,
+      "pure_retrieval_successful_sample_p95_ms": 52.15393599792151,
+      "embedding_successful_sample_p95_ms": 89.78284100157907,
+      "rerank_successful_sample_p95_ms": 7596.119366
+    }
+  },
+  "first_query_serial": {
+    "search_successful": 10,
+    "search_p95_ms": 12947.43235000351,
+    "pure_retrieval_p95_ms": 525.4282349997084,
+    "embedding_p95_ms": 571.6939999983879,
+    "rerank_p95_ms": 7725.117354
+  },
+  "answer_probe": "not_run",
+  "target_met": false,
+  "invalid_attempt_excluded": "A separate startup-window run returned only NETWORK_ERROR before the backend was ready and was not used for these results."
+}

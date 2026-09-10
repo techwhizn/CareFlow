@@ -4,6 +4,8 @@
 
 Boot的依赖清单仍包含部分旧版本，显式采用Tomcat10.1.59、RabbitMQ客户端5.33.1、Jackson2.21.6、Log4j2.25.5、Commons Lang3.18.0、BouncyCastle1.84、Netty4.1.138.Final。上游后续BOM覆盖这些修复版本后，应移除不再需要的覆盖，而不是永久保留分叉依赖清单。Java SDK与后端同步Jackson版本。
 
-升级后实际解析90个后端运行依赖及3个Java SDK运行依赖，OSV均为0项已知公告；后端178项测试和SDK23项测试通过，包含公共OpenAPI快照对比。完整坐标与时间见[报告](v1-50-java-dependencies.json)。执行环境为JBR25.0.2，编译目标21；这不代替JDK21容器与运行服务验证。
+升级后实际解析91个后端运行依赖及3个Java SDK运行依赖，OSV均为0项已知公告；后端179项测试和SDK23项测试通过，包含公共OpenAPI快照对比。完整坐标与时间见[报告](v1-50-java-dependencies.json)。执行环境为JBR25.0.2，编译目标21；这不代替JDK21容器与运行服务验证。
 
 新增审计脚本遇到空依赖清单、未识别坐标、查询错误或分页不完整会失败；两项回归测试覆盖这些行为与跨页公告合并。审计只发送公开包坐标及版本，不发送代码或凭证。CI加入后端和SDK审计步骤；本地结果不意味着远端CI或分支保护已启用。
+
+干净构建发现MinIO8.6.0依赖的OkHttp5默认artifact仅含多平台元数据。按[OkHttp的Maven/JVM说明](https://github.com/square/okhttp#maven-and-jvm-projects)，显式加入okhttp-jvm5.1.0，并增加实际MinIO客户端读取本机合成S3响应的回归测试。随后重新执行clean verify，JDK21容器从源码构建成功；独立升级实例在真实MySQL/MinIO上通过Java和Python SDK原文件摘要及跨租户404检查。此前增量编译结果不能替代本次干净验证。

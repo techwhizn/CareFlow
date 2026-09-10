@@ -28,6 +28,8 @@ npm audit --prefix web --omit=dev --audit-level=high
 
 单元测试不依赖付费模型。真实服务验证单独运行 README 中的 smoke 脚本：它会调用模型并创建测试数据，需自行准备凭证与服务。记录模型、数据集、时间和限制，脱敏后提交报告；不得提交原始业务正文或令牌。
 
+依赖升级后运行 `mvn -f backend/pom.xml clean verify`，并完成一次干净容器构建；增量编译可能保留旧依赖编译出的类，不能替代干净编译。
+
 SDK 变更还需执行 [客户端验证命令](sdk/README.md#验证)，同步维护两种语言的协议行为。
 
 ## 评审与发布

@@ -3,7 +3,7 @@
   "source": "https://api.osv.dev/v1/querybatch",
   "before_affected_packages": 17,
   "backend": {
-    "generated_at": "2026-09-10T17:56:32.331611+00:00",
+    "generated_at": "2026-09-10T18:09:27.254712+00:00",
     "source": "https://api.osv.dev/v1/querybatch",
     "dependencies": [
       {
@@ -448,6 +448,38 @@
       },
       {
         "package": {
+          "name": "com.squareup.okhttp3:okhttp-jvm",
+          "ecosystem": "Maven"
+        },
+        "version": "5.1.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "com.squareup.okio:okio-jvm",
+          "ecosystem": "Maven"
+        },
+        "version": "3.15.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jetbrains.kotlin:kotlin-stdlib",
+          "ecosystem": "Maven"
+        },
+        "version": "1.9.25",
+        "advisory_ids": []
+      },
+      {
+        "package": {
+          "name": "org.jetbrains:annotations",
+          "ecosystem": "Maven"
+        },
+        "version": "13.0",
+        "advisory_ids": []
+      },
+      {
+        "package": {
           "name": "io.minio:minio",
           "ecosystem": "Maven"
         },
@@ -520,31 +552,7 @@
       },
       {
         "package": {
-          "name": "org.jetbrains.kotlin:kotlin-stdlib",
-          "ecosystem": "Maven"
-        },
-        "version": "1.9.25",
-        "advisory_ids": []
-      },
-      {
-        "package": {
-          "name": "org.jetbrains:annotations",
-          "ecosystem": "Maven"
-        },
-        "version": "13.0",
-        "advisory_ids": []
-      },
-      {
-        "package": {
           "name": "com.squareup.okio:okio",
-          "ecosystem": "Maven"
-        },
-        "version": "3.15.0",
-        "advisory_ids": []
-      },
-      {
-        "package": {
-          "name": "com.squareup.okio:okio-jvm",
           "ecosystem": "Maven"
         },
         "version": "3.15.0",
@@ -762,7 +770,7 @@
   },
   "tests": {
     "backend": {
-      "tests": 178,
+      "tests": 179,
       "failures": 0,
       "errors": 0,
       "skipped": 0
@@ -777,7 +785,14 @@
   "runtime_java": "JBR 25.0.2, compilation release 21",
   "limitations": [
     "Point-in-time known advisory lookup; no guarantee of vulnerability absence",
-    "Actual runtime has not yet restarted with these dependencies",
-    "JDK 21 container verification follows separately"
-  ]
+    "Primary evaluation runtime kept stable; upgraded image verified in a separate local instance",
+    "Full clean installation lifecycle follows separately"
+  ],
+  "clean_build": {
+    "compiled_from_clean_sources": true,
+    "java_runtime": "Temurin 21.0.12",
+    "image_id": "sha256:02c225b4d02fd0eb39e5b3763fce58c62260e7254072c12ec573f4726915d5a6",
+    "real_source_read_and_cross_tenant_checks": true,
+    "actual_minio_transport_regression": true
+  }
 }

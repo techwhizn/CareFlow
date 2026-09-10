@@ -230,4 +230,17 @@ class CareFlowClientTest {
                   throw new IllegalStateException("stop");
                 }));
   }
+
+  @Test
+  void generationMaintenancePreservesObservedRevisionAndGeneration() throws Exception {
+    client.rebuildIndex(ID, new CareFlowClient.IndexRebuild(4, "repair", ID), "rebuild");
+    client.checkIndex(ID, "check");
+    client.indexHistory(ID);
+    assertEquals("/api/v1/document-versions/" + ID + "/index/rebuild", paths.getFirst());
+    assertTrue(bodies.getFirst().contains("\"expected_generation_id\":\"" + ID + "\""));
+    assertTrue(bodies.getFirst().contains("\"revision\":4"));
+    assertEquals("rebuild", keys.getFirst());
+    assertTrue(paths.get(1).endsWith("/index/checks"));
+    assertTrue(paths.get(2).endsWith("/index/history"));
+  }
 }

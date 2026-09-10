@@ -1817,6 +1817,92 @@
         }
       }
     },
+    "/api/v1/document-versions/{id}/index/rebuild": {
+      "post": {
+        "tags": [
+          "index-maintenance-controller"
+        ],
+        "operationId": "rebuild",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Rebuild"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{id}/index/checks": {
+      "post": {
+        "tags": [
+          "index-maintenance-controller"
+        ],
+        "operationId": "inspect",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/document-versions/{id}/draft": {
       "post": {
         "tags": [
@@ -2704,7 +2790,7 @@
         "tags": [
           "chunk-quality-controller"
         ],
-        "operationId": "inspect",
+        "operationId": "inspect_1",
         "parameters": [
           {
             "name": "version",
@@ -2849,6 +2935,36 @@
                 "schema": {
                   "type": "string",
                   "format": "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{id}/index/history": {
+      "get": {
+        "tags": [
+          "index-maintenance-controller"
+        ],
+        "operationId": "history_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -3874,6 +3990,15 @@
             "format": "int32",
             "maximum": 50000,
             "minimum": 0
+          },
+          "generation_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "manifest": {
+            "type": "string",
+            "pattern": "[0-9a-f]{64}"
           }
         }
       },
@@ -4005,6 +4130,9 @@
       "TaskClaim": {
         "type": "object",
         "properties": {
+          "generation_id": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -4389,6 +4517,30 @@
         "required": [
           "action",
           "chunks",
+          "reason",
+          "revision"
+        ]
+      },
+      "Rebuild": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "expected_generation_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
           "reason",
           "revision"
         ]

@@ -252,6 +252,56 @@
           }
         }
       }
+    },
+    "/internal/v1/index/verify": {
+      "post": {
+        "summary": "Verify Index",
+        "operationId": "verify_index_internal_v1_index_verify_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndexVerification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexVerificationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -431,6 +481,148 @@
           "id"
         ],
         "title": "Hit"
+      },
+      "IndexEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "title": "Id"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "content_hash"
+        ],
+        "title": "IndexEntry"
+      },
+      "IndexVerification": {
+        "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "generation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Id"
+          },
+          "expected_model_identity": {
+            "type": "string",
+            "title": "Expected Model Identity"
+          },
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/IndexEntry"
+            },
+            "type": "array",
+            "maxItems": 50000,
+            "title": "Chunks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "version_id",
+          "expected_model_identity",
+          "chunks"
+        ],
+        "title": "IndexVerification"
+      },
+      "IndexVerificationResponse": {
+        "properties": {
+          "consistent": {
+            "type": "boolean",
+            "title": "Consistent"
+          },
+          "expected_count": {
+            "type": "integer",
+            "maximum": 50000.0,
+            "minimum": 0.0,
+            "title": "Expected Count"
+          },
+          "actual_count": {
+            "type": "integer",
+            "maximum": 50000.0,
+            "minimum": 0.0,
+            "title": "Actual Count"
+          },
+          "missing_count": {
+            "type": "integer",
+            "maximum": 50000.0,
+            "minimum": 0.0,
+            "title": "Missing Count"
+          },
+          "extra_count": {
+            "type": "integer",
+            "maximum": 50000.0,
+            "minimum": 0.0,
+            "title": "Extra Count"
+          },
+          "mismatched_count": {
+            "type": "integer",
+            "maximum": 50000.0,
+            "minimum": 0.0,
+            "title": "Mismatched Count"
+          },
+          "manifest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Manifest"
+          },
+          "samples": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Samples"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "consistent",
+          "expected_count",
+          "actual_count",
+          "missing_count",
+          "extra_count",
+          "mismatched_count",
+          "manifest",
+          "samples"
+        ],
+        "title": "IndexVerificationResponse"
       },
       "ManualFaq": {
         "properties": {
@@ -720,6 +912,22 @@
             "type": "array",
             "maxItems": 10000,
             "title": "Version Ids"
+          },
+          "generation_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10000,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Ids"
           },
           "expected_model_identity": {
             "anyOf": [

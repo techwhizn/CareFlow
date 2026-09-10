@@ -16,6 +16,7 @@ from .content import ChunkOperation as ChunkOperation
 from .content import ChunkRef as ChunkRef
 from .content import ConflictResolution as ConflictResolution
 from .content import FaqInput as FaqInput
+from .content import IndexRebuild as IndexRebuild
 
 
 class ApiError(RuntimeError):
@@ -279,6 +280,26 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
+    def rebuild_index(self, version_id, input: IndexRebuild, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index/rebuild",
+            json=asdict(input),
+            headers=_headers(idempotency_key),
+        )
+
+    def check_index(self, version_id, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index/checks",
+            headers=_headers(idempotency_key),
+        )
+
+    def index_history(self, version_id):
+        return self._request(
+            "GET", f"document-versions/{_id(version_id)}/index/history"
+        )
+
     def content_conflicts(self, version_id, *, page=0):
         return self._request(
             "GET",
@@ -538,6 +559,28 @@ class AsyncClient:
             f"document-versions/{_id(version_id)}/chunk-operations",
             json=asdict(operation),
             headers=_headers(idempotency_key),
+        )
+
+    async def rebuild_index(
+        self, version_id, input: IndexRebuild, *, idempotency_key=None
+    ):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index/rebuild",
+            json=asdict(input),
+            headers=_headers(idempotency_key),
+        )
+
+    async def check_index(self, version_id, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index/checks",
+            headers=_headers(idempotency_key),
+        )
+
+    async def index_history(self, version_id):
+        return await self._request(
+            "GET", f"document-versions/{_id(version_id)}/index/history"
         )
 
     async def content_conflicts(self, version_id, *, page=0):

@@ -35,6 +35,8 @@ class PlatformBoundaryTest {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper json;
   @Autowired Tasks tasks;
+  @Autowired ModelProfileService modelProfiles;
+  @Autowired KnowledgeConfigurationService configurations;
   @Autowired UploadStaging staging;
   @Autowired RetrievalService retrieval;
   @MockitoBean BlobStore blobs;
@@ -512,6 +514,7 @@ class PlatformBoundaryTest {
         tenant,
         version,
         Db.id());
+    bindIndexJob(job);
     String lease = Db.str(tasks.claim(job), "lease_token");
     String hidden = Db.id();
     db.exec(
@@ -1138,6 +1141,7 @@ class PlatformBoundaryTest {
         tenant,
         version,
         Db.id());
+    bindIndexJob(job);
     tasks.claim(job);
     assertThatThrownBy(() -> tasks.claim(job)).isInstanceOf(ApiException.class);
     assertThatThrownBy(
@@ -1930,5 +1934,40 @@ class PlatformBoundaryTest {
         key.get("id").asText());
     mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + key.get("token").asText()))
         .andExpect(status().isUnauthorized());
+  }
+
+  void bindIndexJob(String job) {
+    var ids = new ArrayList<String>();
+    for (String kind : List.of("EMBEDDING", "RERANK", "GENERATION"))
+      ids.add(
+          modelProfiles
+              .save(
+                  actor,
+                  null,
+                  new ModelProfileService.Input(
+                      "Fixture",
+                      kind,
+                      "https://api.deepseek.com",
+                      "fixture",
+                      kind.equals("EMBEDDING") ? "revision" : "",
+                      kind.equals("EMBEDDING") ? 512 : null,
+                      true,
+                      "",
+                      0))
+              .id());
+    String config =
+        configurations
+            .create(
+                actor,
+                kb,
+                new KnowledgeConfiguration.Definition(
+                    "fixture",
+                    new KnowledgeConfiguration.Parsing(20),
+                    new KnowledgeConfiguration.Chunking(120, 200, 10),
+                    new KnowledgeConfiguration.Retrieval("hybrid", 4, .2, false),
+                    new KnowledgeConfiguration.Models(ids.get(0), ids.get(1), ids.get(2))))
+            .id();
+    db.exec("UPDATE jobs SET configuration_id=? WHERE id=?", config, job);
+    db.exec("UPDATE document_versions SET configuration_id=? WHERE id=?", config, version);
   }
 }

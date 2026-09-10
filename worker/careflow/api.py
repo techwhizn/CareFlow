@@ -1,15 +1,18 @@
 import hmac
 import json
 import os
+import uuid
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 
-from careflow import models, retrieval
+from careflow import index_verification, models, retrieval
 from careflow.model_configuration import use_configuration
 from careflow.protocol_v1 import (
     Generate,
     GenerationEvent,
+    IndexVerification,
+    IndexVerificationResponse,
     ManualFaq,
     ParseCompletion,
     Recall,
@@ -75,6 +78,7 @@ def recall(body: Recall):
                     body.query,
                     body.mode,
                     body.allow_degraded,
+                    body.generation_ids,
                 )
             )
     except Exception as exc:
@@ -164,3 +168,29 @@ def tokenize(body: Tokenize):
         }
     except Exception as exc:
         raise HTTPException(503, "TOKENIZER_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/index/verify", response_model=IndexVerificationResponse)
+def verify_index(body: IndexVerification):
+    try:
+        if (
+            body.model_configuration is not None
+            and body.model_configuration.kind != "EMBEDDING"
+        ):
+            raise ValueError("Embedding configuration required")
+        with use_configuration(body.model_configuration):
+            if body.expected_model_identity != models.identity():
+                raise models.ModelUnavailable("Index model identity mismatch")
+            expected = {str(uuid.UUID(row.id)): row.content_hash for row in body.chunks}
+            if len(expected) != len(body.chunks):
+                raise ValueError("Duplicate expected chunk")
+            return index_verification.verify(
+                retrieval.client(),
+                retrieval.collection(body.tenant_id, body.generation_id is not None),
+                body.tenant_id,
+                body.version_id,
+                body.generation_id,
+                expected,
+            )
+    except Exception as exc:
+        raise HTTPException(503, "INDEX_VERIFICATION_UNAVAILABLE") from exc

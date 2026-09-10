@@ -1,0 +1,124 @@
+{
+  "started_at": "2026-09-10T13:21:00Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "legacy_index_full_verification_matches_all_three_chunks",
+      "passed": true,
+      "report": {
+        "consistent": true,
+        "expected_count": 3,
+        "actual_count": 3,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "8d0dbfff95a6f79c48988f9af4a75e0dc1cf017a9b9a3e82cfe8a21325aba81c",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      }
+    },
+    {
+      "name": "real_rebuild_reuses_vectors_switches_generation_and_preserves_retrieval",
+      "passed": true,
+      "generation_id": "d635d893-f64f-4c8d-93c9-7ce9704e3836",
+      "job_id": "d16eeeae-ae17-402c-9c29-f589787ac627",
+      "report": {
+        "consistent": true,
+        "expected_count": 3,
+        "actual_count": 3,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "8d0dbfff95a6f79c48988f9af4a75e0dc1cf017a9b9a3e82cfe8a21325aba81c",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      }
+    },
+    {
+      "name": "real_milvus_write_with_rejected_commit_does_not_replace_active_generation",
+      "passed": true,
+      "failed_generation": "07bfd7b7-8acb-4510-b4d5-5fcff1213685",
+      "retained_generation": "d635d893-f64f-4c8d-93c9-7ce9704e3836"
+    },
+    {
+      "name": "automatic_retry_builds_another_generation_and_recovers_without_exposing_failed_copy",
+      "passed": true,
+      "generation_id": "6bcf85e4-2fcb-4bc7-b90a-58217e1e9295",
+      "attempts": 2
+    },
+    {
+      "name": "real_checker_detects_missing_extra_changed_text_and_changed_vector",
+      "passed": true,
+      "report": {
+        "consistent": false,
+        "expected_count": 3,
+        "actual_count": 3,
+        "missing_count": 1,
+        "extra_count": 1,
+        "mismatched_count": 2,
+        "manifest": "1b43dce448e60c8741f1a3039621c91d3fe6944e9f13d28ac03eba1ee125ea85",
+        "samples": {
+          "missing": [
+            "0aef7785-d72e-41c4-bb61-96fa1ea59d57"
+          ],
+          "extra": [
+            "dd5f1df3-8937-4669-b724-17df05aa9e51"
+          ],
+          "mismatched": [
+            "0de13bcd-fdd2-4d92-9f97-105f7d4b0d62",
+            "bb581174-f2a1-4e5a-8780-b620fd9a054b"
+          ]
+        }
+      }
+    },
+    {
+      "name": "browser_rebuild_repairs_all_faults_and_browser_check_confirms_current_generation",
+      "passed": true,
+      "generation_id": "666427f6-a53a-4d75-b060-48bc78b15e8b",
+      "job_id": "c93d0644-98fd-4bd9-a205-cfd9d56b5068",
+      "report": {
+        "consistent": true,
+        "expected_count": 3,
+        "actual_count": 3,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "8d0dbfff95a6f79c48988f9af4a75e0dc1cf017a9b9a3e82cfe8a21325aba81c",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      }
+    },
+    {
+      "name": "initial_draft_index_uses_verified_generation_without_changing_published_scope",
+      "passed": true,
+      "draft_version": "d8a22c41-4630-4770-aa74-dec2bef94470",
+      "generation_id": "ad2f3842-e43e-4b92-a36b-f970d52578c1"
+    },
+    {
+      "name": "other_tenant_cannot_inspect_generation_history_or_run_checks",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "fixture": {
+    "knowledge_base_id": "13fad4c1-f759-48d3-ba97-a69746565a0e",
+    "document_id": "6711aaee-5aa2-4e92-9674-d6ad09e6dddd",
+    "source_version": "23a079fb-b769-4f6c-8a9b-5ddae2e689f9",
+    "draft_version": "ef7d4195-7f39-40b6-b326-6046ed9c8723",
+    "configuration_id": "342c9149-5139-4e5b-ac4f-42b7e900b3b1"
+  },
+  "active_generation": "666427f6-a53a-4d75-b060-48bc78b15e8b",
+  "awaiting_fault_and_browser_verification": false,
+  "retry_job": "9f46e12b-adc4-4e09-987f-d24ae2d19bbc",
+  "failed_generation": "07bfd7b7-8acb-4510-b4d5-5fcff1213685",
+  "awaiting_browser_repair": false
+}

@@ -42,7 +42,7 @@ public class DocumentReadService {
     auth.document(actor, id, "read");
     return db
         .list(
-            "SELECT id,document_id,filename,state,revision,ever_published,model_identity,configuration_id,created_at FROM document_versions WHERE tenant_id=? AND document_id=? ORDER BY created_at DESC,sequence_no DESC",
+            "SELECT id,document_id,filename,state,revision,ever_published,model_identity,configuration_id,active_index_generation,created_at FROM document_versions WHERE tenant_id=? AND document_id=? ORDER BY created_at DESC,sequence_no DESC",
             actor.tenant(),
             id)
         .stream()

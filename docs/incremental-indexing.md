@@ -17,4 +17,16 @@
 
 迁移V21后同步升级Java与Worker consumer。旧consumer没有完成计数，无法通过新Java的校验；先停止consumer，升级Java，再启动新consumer。进行中的调用失去回报时会保留未知；不要通过改成0消除告警。数据库备份必须包含`processing_model_calls`和`usage_events`。
 
-实际索引核对、代际重建、缓存与孤立数据的保留期清理由后续工作包完成，不能将向量复用单独视为全部索引运维验收。
+完整索引核对与代际重建见下节；缓存与孤立数据的保留期清理仍由V1-23完成，不能将向量复用单独视为全部索引运维验收。
+
+## 索引核对与新代际重建（V1-22）
+
+- `POST /document-versions/{id}/index/checks`：逐项核对当前READY版本，在返回后重新授权；差异不会自动篡改正文或清空旧索引。
+- `POST /document-versions/{id}/index/rebuild`：提交`revision`、`expected_generation_id`（旧索引为null）和`reason`，携带`Idempotency-Key`。返回`job_id`；同一版本已有任务时返回409。使用该版本原冻结配置，不自动采用知识库的新模型。
+- `GET /document-versions/{id}/index/history`：最近100个代际和50次核对记录；需编辑权限，归档/删除资源不能发起维护。
+
+版本列表新增`active_index_generation`。已发布版本重建期间READY和旧代际保持可读，新代际通过完整核对后才切换。草稿建立索引不会自动发布。每次重试使用不同代际，旧Worker迟到写入不影响当前代际。历史索引首次重建时继续可读，成功后转入代际模式；其后物理清理由保留期任务负责。
+
+任务失败、取消或核对发现差异时，可以在模型/存储恢复后再次重建。不要改数据库指针跳过核对。报告的向量校验和用于检测存储差异，不等于检索效果评估；效果仍需标注数据集验证。
+
+SDK：Python同步/异步`rebuild_index(version_id, IndexRebuild(revision, reason, expected_generation_id))`、`check_index`、`index_history`；Java `rebuildIndex`、`checkIndex`、`indexHistory`和`IndexRebuild`记录。重建请求保留预览时的修订和代际，409后重新读取确认。

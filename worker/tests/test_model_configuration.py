@@ -171,6 +171,7 @@ def test_consumer_uses_claim_snapshot_without_serializing_secret_as_mask(monkeyp
                     "id": "job",
                     "lease_token": "lease",
                     "kind": "INDEX",
+                    "generation_id": "00000000-0000-0000-0000-000000000001",
                     "tenant_id": "tenant",
                     "version_id": "version",
                     "filename": "synthetic.txt",
@@ -189,6 +190,8 @@ def test_consumer_uses_claim_snapshot_without_serializing_secret_as_mask(monkeyp
         assert value("EMBEDDING_API_KEY") == "unmasked-fixture-secret"
         return {
             "verified": True,
+            "generation_id": "00000000-0000-0000-0000-000000000001",
+            "manifest": "a" * 64,
             "model_identity": models.identity(),
             "embedding_tokens": 3,
             "indexed_chunks": 1,

@@ -102,6 +102,7 @@ def run_job(job_id):
                         chunks.json(),
                         chunking=configuration.chunking if configuration else None,
                         record_call=record_call,
+                        generation_id=job["generation_id"],
                     )
                 result = IndexCompletion.model_validate(result).model_dump()
                 checkpoint("INDEX_VERIFIED")

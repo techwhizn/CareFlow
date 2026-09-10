@@ -19,6 +19,7 @@ public class Tasks {
   private final KnowledgeConfigurationService configurations;
   private final ParsedContentService parsedContent;
   private final IndexAccountingService accounting;
+  private final IndexGenerationService generations;
 
   public Tasks(
       Db db,
@@ -27,7 +28,8 @@ public class Tasks {
       EntitlementService entitlements,
       KnowledgeConfigurationService configurations,
       ParsedContentService parsedContent,
-      IndexAccountingService accounting) {
+      IndexAccountingService accounting,
+      IndexGenerationService generations) {
     this.db = db;
     this.tx = tx;
     this.auth = auth;
@@ -35,6 +37,7 @@ public class Tasks {
     this.configurations = configurations;
     this.parsedContent = parsedContent;
     this.accounting = accounting;
+    this.generations = generations;
   }
 
   @Bean
@@ -43,6 +46,7 @@ public class Tasks {
   }
 
   public void recover() {
+    generations.recoverTerminalJobs();
     for (var candidate :
         db.list(
             "SELECT id,tenant_id FROM jobs WHERE state='RUNNING' AND lease_until<CURRENT_TIMESTAMP ORDER BY lease_until LIMIT 100")) {
@@ -66,10 +70,12 @@ public class Tasks {
                 "UPDATE jobs SET state=?,dispatch_until=NULL,dispatch_token=NULL,wait_reason=NULL,lease_token=NULL,lease_until=NULL,error_code='LEASE_EXPIRED' WHERE id=?",
                 next,
                 str(job, "id"));
-            db.exec(
-                "UPDATE document_versions SET state=? WHERE id=?",
-                next.equals("CANCELLED") ? "FAILED" : next,
-                str(job, "version_id"));
+            generations.abandon(job, next.equals("CANCELLED") ? "CANCELLED" : "FAILED");
+            if (!bool(job, "index_rebuild"))
+              db.exec(
+                  "UPDATE document_versions SET state=? WHERE id=?",
+                  next.equals("CANCELLED") ? "FAILED" : next,
+                  str(job, "version_id"));
             if (next.equals("QUEUED"))
               db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), str(job, "id"));
           });
@@ -89,7 +95,10 @@ public class Tasks {
           db.exec(
               "UPDATE jobs SET state='CANCELLED',lease_token=NULL,lease_until=NULL,error_code='CANCELLED' WHERE id=?",
               id);
-          db.exec("UPDATE document_versions SET state='FAILED' WHERE id=?", str(job, "version_id"));
+          generations.abandon(job, "CANCELLED");
+          if (!bool(job, "index_rebuild"))
+            db.exec(
+                "UPDATE document_versions SET state='FAILED' WHERE id=?", str(job, "version_id"));
           auth.audit(actor, "JOB_CANCEL", id, "");
         });
   }
@@ -129,12 +138,16 @@ public class Tasks {
               try {
                 configuration =
                     configurations.runtime(str(j, "tenant_id"), str(j, "configuration_id"));
+                if (configuration == null && str(j, "kind").equals("INDEX"))
+                  throw new ApiException(409, "MODEL_CONFIGURATION_REQUIRED", "索引任务缺少冻结配置");
               } catch (ApiException e) {
                 db.exec(
                     "UPDATE jobs SET state='FAILED',error_code='MODEL_CONFIGURATION_REQUIRED',dispatch_until=NULL,dispatch_token=NULL,wait_reason=NULL WHERE id=?",
                     id);
-                db.exec(
-                    "UPDATE document_versions SET state='FAILED' WHERE id=?", str(j, "version_id"));
+                if (!bool(j, "index_rebuild"))
+                  db.exec(
+                      "UPDATE document_versions SET state='FAILED' WHERE id=?",
+                      str(j, "version_id"));
                 return Map.<String, Object>of("configuration_unavailable", true);
               }
               entitlements.claimTask(str(j, "tenant_id"), j);
@@ -144,10 +157,11 @@ public class Tasks {
                   lease,
                   Timestamp.from(Instant.now().plusSeconds(90)),
                   id);
-              db.exec(
-                  "UPDATE document_versions SET state=? WHERE id=?",
-                  str(j, "kind").equals("PARSE") ? "PARSING" : "INDEXING",
-                  str(j, "version_id"));
+              if (!bool(j, "index_rebuild"))
+                db.exec(
+                    "UPDATE document_versions SET state=? WHERE id=?",
+                    str(j, "kind").equals("PARSE") ? "PARSING" : "INDEXING",
+                    str(j, "version_id"));
               var claim =
                   new LinkedHashMap<String, Object>(
                       Map.of(
@@ -170,6 +184,8 @@ public class Tasks {
                                   str(j, "tenant_id")),
                               "pdf_page_limit")));
               if (configuration != null) claim.put("configuration", configuration);
+              String generation = generations.start(j, v, lease);
+              if (generation != null) claim.put("generation_id", generation);
               return claim;
             });
     if (result.containsKey("configuration_unavailable"))
@@ -227,6 +243,7 @@ public class Tasks {
                     .equals(str(body, "model_identity")))
               throw new ApiException(409, "INDEX_MODEL_MISMATCH", "索引模型与任务快照不一致");
             accounting.complete(j, lease, body);
+            generations.activate(j, lease, body);
             db.exec(
                 "UPDATE document_versions SET state='READY',model_identity=? WHERE id=?",
                 str(body, "model_identity"),
@@ -273,7 +290,9 @@ public class Tasks {
               code.replaceAll("[^A-Z0-9_]", "")
                   .substring(0, Math.min(code.replaceAll("[^A-Z0-9_]", "").length(), 90)),
               id);
-          db.exec("UPDATE document_versions SET state=? WHERE id=?", next, str(j, "version_id"));
+          generations.abandon(j, "FAILED");
+          if (!bool(j, "index_rebuild"))
+            db.exec("UPDATE document_versions SET state=? WHERE id=?", next, str(j, "version_id"));
           if (next.equals("QUEUED")) db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), id);
         });
   }

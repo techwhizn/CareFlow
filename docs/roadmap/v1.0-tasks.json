@@ -370,7 +370,8 @@
       "V1-21"
     ],
     "acceptance": "业务有效切片与Milvus逐项核对；新代际构建验证后切换；重建失败旧版仍可用；发布回滚不恢复已撤权限；跨存储失败可补偿。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-22-generations.md"
   },
   {
     "id": "V1-23",

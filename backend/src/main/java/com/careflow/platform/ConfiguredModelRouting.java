@@ -19,7 +19,7 @@ public class ConfiguredModelRouting {
     this.worker = worker;
   }
 
-  private record Group(String configuration, String identity) {}
+  private record Group(String configuration, String identity, boolean generations) {}
 
   public record QueryConfiguration(
       KnowledgeConfiguration.Retrieval retrieval,
@@ -60,18 +60,22 @@ public class ConfiguredModelRouting {
     if (versions.isEmpty())
       return Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false);
     Map<Group, List<String>> groups = new LinkedHashMap<>();
+    Map<String, String> generations = new HashMap<>();
     for (String version : versions) {
       var row =
           db.one(
-              "SELECT configuration_id,model_identity FROM document_versions WHERE tenant_id=? AND id=?",
+              "SELECT configuration_id,model_identity,active_index_generation FROM document_versions WHERE tenant_id=? AND id=?",
               tenant,
               version);
       String identity = str(row, "model_identity");
       if (identity.isBlank())
         throw new ApiException(503, "INDEX_CONFIGURATION_UNRESOLVED", "索引模型身份缺失，请核对原配置");
+      String generation = str(row, "active_index_generation");
+      if (!generation.isBlank()) generations.put(version, generation);
       groups
           .computeIfAbsent(
-              new Group(str(row, "configuration_id"), identity), ignored -> new ArrayList<>())
+              new Group(str(row, "configuration_id"), identity, !generation.isBlank()),
+              ignored -> new ArrayList<>())
           .add(version);
     }
     List<List<Map<String, Object>>> dense = new ArrayList<>(),
@@ -96,6 +100,8 @@ public class ConfiguredModelRouting {
                   "expected_model_identity",
                   group.getKey().identity()));
       if (configuration != null) request.put("model_configuration", configuration.embedding());
+      if (group.getKey().generations())
+        request.put("generation_ids", group.getValue().stream().map(generations::get).toList());
       var response = worker.call("/internal/v1/recall", request);
       dense.add((List<Map<String, Object>>) response.get("dense"));
       bm25.add((List<Map<String, Object>>) response.get("bm25"));

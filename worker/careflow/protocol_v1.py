@@ -28,6 +28,9 @@ class ConfiguredOperation(Contract):
 class Recall(ConfiguredOperation):
     tenant_id: str = Field(min_length=1)
     version_ids: list[str] = Field(max_length=10000)
+    generation_ids: list[str] | None = Field(
+        default=None, min_length=1, max_length=10000
+    )
     expected_model_identity: str | None = Field(
         default=None, min_length=1, max_length=500
     )
@@ -127,6 +130,7 @@ class RuntimeConfiguration(Contract):
 
 
 class TaskClaim(Contract):
+    generation_id: str | None = None
     id: str
     lease_token: str
     kind: Literal["PARSE", "INDEX"]
@@ -170,9 +174,35 @@ class ManualFaq(ConfiguredOperation):
 
 
 class IndexCompletion(Contract):
+    generation_id: str
+    manifest: str = Field(pattern=r"^[0-9a-f]{64}$")
     verified: Literal[True]
     model_identity: str = Field(min_length=1, max_length=500)
     embedding_tokens: int | None = Field(default=None, ge=0)
     indexed_chunks: int = Field(ge=1, le=50000)
     embedded_texts: int = Field(ge=0, le=50000)
     reused_chunks: int = Field(ge=0, le=50000)
+
+
+class IndexEntry(Contract):
+    id: str = Field(min_length=36, max_length=36)
+    content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class IndexVerification(ConfiguredOperation):
+    tenant_id: str
+    version_id: str
+    generation_id: str | None = None
+    expected_model_identity: str
+    chunks: list[IndexEntry] = Field(max_length=50000)
+
+
+class IndexVerificationResponse(Contract):
+    consistent: bool
+    expected_count: int = Field(ge=0, le=50000)
+    actual_count: int = Field(ge=0, le=50000)
+    missing_count: int = Field(ge=0, le=50000)
+    extra_count: int = Field(ge=0, le=50000)
+    mismatched_count: int = Field(ge=0, le=50000)
+    manifest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    samples: dict[str, list[str]]

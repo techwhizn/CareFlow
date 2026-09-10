@@ -447,3 +447,42 @@ def test_python_character_boundaries_convert_for_non_bmp_split_offsets():
     assert utf16_offset("A😀B", 2) == 3
     with pytest.raises(ValueError):
         utf16_offset("abc", 4)
+
+
+def test_index_rebuild_uses_observed_generation_and_revision_sync_and_async():
+    from careflow_sdk import IndexRebuild
+
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"job_id": ID})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.rebuild_index(
+            ID, IndexRebuild(4, "repair", ID), idempotency_key="rebuild"
+        )
+        client.check_index(ID)
+        client.index_history(ID)
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.rebuild_index(
+                ID, IndexRebuild(4, "repair", ID), idempotency_key="rebuild"
+            )
+            await client.check_index(ID)
+            await client.index_history(ID)
+
+    asyncio.run(run())
+    for group in (seen[:3], seen[3:]):
+        assert group[0].url.path.endswith("/index/rebuild")
+        assert json.loads(group[0].content) == {
+            "revision": 4,
+            "reason": "repair",
+            "expected_generation_id": ID,
+        }
+        assert group[0].headers["Idempotency-Key"] == "rebuild"
+        assert group[1].url.path.endswith("/index/checks") and group[1].method == "POST"
+        assert group[2].url.path.endswith("/index/history") and group[2].method == "GET"

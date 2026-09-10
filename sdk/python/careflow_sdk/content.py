@@ -51,3 +51,10 @@ def utf16_offset(text: str, character_offset: int) -> int:
     if not 0 <= character_offset <= len(text):
         raise ValueError("Character offset is outside the content")
     return len(text[:character_offset].encode("utf-16-le")) // 2
+
+
+@dataclass(frozen=True)
+class IndexRebuild:
+    revision: int
+    reason: str
+    expected_generation_id: str | None = None

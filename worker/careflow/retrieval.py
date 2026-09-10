@@ -8,12 +8,17 @@ from functools import lru_cache
 
 from pymilvus import DataType, Function, FunctionType, MilvusClient
 
-from careflow import embedding_cache, models
+from careflow import embedding_cache, index_verification, models
 from careflow.model_configuration import value
 
 
-def collection(tenant):
-    return "cf_" + uuid.UUID(tenant).hex + "_" + models.identity()[:20]
+def collection(tenant, generations=False):
+    return (
+        ("cf2_" if generations else "cf_")
+        + uuid.UUID(tenant).hex
+        + "_"
+        + (models.identity() if generations else models.identity()[:20])
+    )
 
 
 @lru_cache(maxsize=1)
@@ -22,13 +27,17 @@ def client():
     return MilvusClient(uri=uri, token=os.environ.get("MILVUS_TOKEN", ""), timeout=30)
 
 
-def ensure_collection(tenant):
-    name = collection(tenant)
+def ensure_collection(tenant, generations=False):
+    name = collection(tenant, generations)
     c = client()
     if c.has_collection(name):
         return name
     schema = c.create_schema(auto_id=False, enable_dynamic_field=False)
     schema.add_field("id", DataType.VARCHAR, max_length=36, is_primary=True)
+    if generations:
+        schema.add_field("chunk_id", DataType.VARCHAR, max_length=36)
+        schema.add_field("vector_hash", DataType.VARCHAR, max_length=64)
+        schema.add_field("generation_id", DataType.VARCHAR, max_length=36)
     schema.add_field("tenant_id", DataType.VARCHAR, max_length=36)
     schema.add_field("version_id", DataType.VARCHAR, max_length=36)
     schema.add_field(
@@ -73,7 +82,7 @@ def ensure_collection(tenant):
     return name
 
 
-def index(tenant, version, chunks, chunking=None, record_call=None):
+def index(tenant, version, chunks, chunking=None, record_call=None, generation_id=None):
     import tiktoken
 
     if not chunks:
@@ -94,7 +103,7 @@ def index(tenant, version, chunks, chunking=None, record_call=None):
             for c in chunks
         ):
             raise ValueError("Edited chunk exceeds configured token limit")
-    name = ensure_collection(tenant)
+    name = ensure_collection(tenant, generation_id is not None)
     vectors, metrics = embedding_cache.vectors(
         client(), tenant, [c["content"] for c in chunks], record_call
     )
@@ -108,24 +117,38 @@ def index(tenant, version, chunks, chunking=None, record_call=None):
         }
         for row, vector in zip(chunks, vectors, strict=True)
     ]
+    if generation_id:
+        generation_id = str(uuid.UUID(generation_id))
+        for record in records:
+            record.update(
+                chunk_id=record["id"],
+                generation_id=generation_id,
+                vector_hash=index_verification.vector_hash(record["dense"]),
+            )
+            record["id"] = str(uuid.uuid5(uuid.UUID(generation_id), record["chunk_id"]))
     c = client()
     for start in range(0, len(records), 100):
         batch = records[start : start + 100]
         c.upsert(collection_name=name, data=batch)
-        ids = [r["id"] for r in batch]
-        found = c.query(
-            collection_name=name,
-            filter="id in " + json.dumps(ids),
-            output_fields=["id", "text"],
-            consistency_level="Strong",
-            limit=len(ids),
-        )
-        if {r["id"]: r["text"] for r in found} != {r["id"]: r["text"] for r in batch}:
-            raise RuntimeError("Indexed records failed visibility verification")
+    verification = index_verification.verify(
+        c,
+        name,
+        tenant,
+        version,
+        generation_id,
+        {
+            str(uuid.UUID(row["id"])): index_verification.content_hash(row["content"])
+            for row in chunks
+        },
+    )
+    if not verification["consistent"]:
+        raise RuntimeError("Indexed records failed full consistency verification")
     return {
         "verified": True,
         "model_identity": models.identity(),
         **metrics,
+        "generation_id": generation_id,
+        "manifest": verification["manifest"],
     }
 
 
@@ -145,14 +168,16 @@ def rrf(*lanes, k=60, limit=40):
     ]
 
 
-def recall(tenant, versions, query, mode="hybrid", allow_degraded=False):
+def recall(
+    tenant, versions, query, mode="hybrid", allow_degraded=False, generation_ids=None
+):
     tenant = str(uuid.UUID(tenant))
     versions = [str(uuid.UUID(v)) for v in versions]
     if not versions:
         return {"dense": [], "bm25": [], "fused": [], "degraded": False}
     if mode not in {"hybrid", "semantic", "keyword"}:
         raise ValueError("Invalid retrieval mode")
-    name = collection(tenant)
+    name = collection(tenant, generation_ids is not None)
     c = client()
     if not c.has_collection(name):
         # Published data routed to a different model must surface a configuration error.
@@ -163,6 +188,17 @@ def recall(tenant, versions, query, mode="hybrid", allow_degraded=False):
         + " and version_id in "
         + json.dumps(versions)
     )
+    if generation_ids is not None:
+        if not generation_ids:
+            raise ValueError("Generation scope must not be empty")
+        expression += " and generation_id in " + json.dumps(
+            [str(uuid.UUID(g)) for g in generation_ids]
+        )
+    fields = ["chunk_id"] if generation_ids is not None else ["id"]
+
+    def hit_id(hit):
+        return hit["entity"]["chunk_id"] if generation_ids is not None else hit["id"]
+
     dense, sparse, degraded = [], [], False
     if mode != "keyword":
         try:
@@ -173,11 +209,12 @@ def recall(tenant, versions, query, mode="hybrid", allow_degraded=False):
             degraded = True
         else:
             dense = [
-                {"id": h["id"], "score": h["distance"]}
+                {"id": hit_id(h), "score": h["distance"]}
                 for h in c.search(
                     collection_name=name,
                     data=vectors,
                     anns_field="dense",
+                    output_fields=fields,
                     filter=expression,
                     limit=40,
                     search_params={"metric_type": "COSINE"},
@@ -186,11 +223,12 @@ def recall(tenant, versions, query, mode="hybrid", allow_degraded=False):
             ]
     if mode != "semantic" or degraded:
         sparse = [
-            {"id": h["id"], "score": h["distance"]}
+            {"id": hit_id(h), "score": h["distance"]}
             for h in c.search(
                 collection_name=name,
                 data=[query],
                 anns_field="sparse",
+                output_fields=fields,
                 filter=expression,
                 limit=40,
                 search_params={"metric_type": "BM25"},

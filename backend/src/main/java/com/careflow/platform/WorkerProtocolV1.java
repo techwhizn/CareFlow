@@ -38,6 +38,7 @@ public final class WorkerProtocolV1 {
   public record RecallRequest(
       @NotBlank String tenant_id,
       @NotNull @Size(max = 10000) List<@NotBlank String> version_ids,
+      @Size(min = 1, max = 10000) List<@NotBlank String> generation_ids,
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Pattern(regexp = "hybrid|semantic|keyword") String mode,
       boolean allow_degraded,
@@ -84,6 +85,7 @@ public final class WorkerProtocolV1 {
       @NotNull @Min(1) @Max(131072) Integer model_limit) {}
 
   public record TaskClaim(
+      String generation_id,
       String id,
       String lease_token,
       String kind,
@@ -136,8 +138,32 @@ public final class WorkerProtocolV1 {
       @Min(0) Long embedding_tokens,
       @Min(1) @Max(50000) Integer indexed_chunks,
       @Min(0) @Max(50000) Integer embedded_texts,
-      @Min(0) @Max(50000) Integer reused_chunks) {}
+      @Min(0) @Max(50000) Integer reused_chunks,
+      @Size(max = 36) String generation_id,
+      @Pattern(regexp = "[0-9a-f]{64}") String manifest) {}
 
   public record TaskFailure(
       @NotBlank @Pattern(regexp = "[A-Z0-9_]{1,90}") String code, boolean retryable) {}
+
+  public record IndexEntry(
+      @NotBlank @Size(min = 36, max = 36) String id,
+      @NotBlank @Pattern(regexp = "[0-9a-f]{64}") String content_hash) {}
+
+  public record IndexVerification(
+      @NotBlank String tenant_id,
+      @NotBlank String version_id,
+      String generation_id,
+      @NotBlank String expected_model_identity,
+      @NotNull @Valid ModelConfiguration model_configuration,
+      @NotNull @Size(max = 50000) List<@NotNull @Valid IndexEntry> chunks) {}
+
+  public record IndexVerificationResponse(
+      @NotNull Boolean consistent,
+      @NotNull @Min(0) @Max(50000) Integer expected_count,
+      @NotNull @Min(0) @Max(50000) Integer actual_count,
+      @NotNull @Min(0) @Max(50000) Integer missing_count,
+      @NotNull @Min(0) @Max(50000) Integer extra_count,
+      @NotNull @Min(0) @Max(50000) Integer mismatched_count,
+      @NotBlank @Pattern(regexp = "[0-9a-f]{64}") String manifest,
+      @NotNull java.util.Map<String, List<@Size(max = 36) String>> samples) {}
 }

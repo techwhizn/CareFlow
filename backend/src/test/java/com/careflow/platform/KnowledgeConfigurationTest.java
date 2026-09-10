@@ -39,6 +39,7 @@ class KnowledgeConfigurationTest {
   @Autowired DocumentUploadService uploads;
   @Autowired DocumentDraftService drafts;
   @Autowired Tasks tasks;
+  @Autowired IndexMaintenanceService indexes;
   @Autowired RetrievalService retrieval;
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper json;
@@ -429,7 +430,13 @@ class KnowledgeConfigurationTest {
             "reused_chunks",
             0,
             "embedding_tokens",
-            7);
+            7,
+            "generation_id",
+            claim.get("generation_id"),
+            "manifest",
+            IndexManifest.digest(
+                IndexManifest.entries(
+                    db.list("SELECT id,content FROM chunks WHERE version_id=?", version))));
     var invalid = new HashMap<>(completion);
     invalid.put("embedding_tokens", 0);
     assertThatThrownBy(() -> tasks.complete(id, lease, invalid))
@@ -482,5 +489,158 @@ class KnowledgeConfigurationTest {
                 tasks.recordModelCall(
                     jobId, lease, call, new IndexAccountingService.Call("SUCCEEDED", 2, 3L)))
         .isInstanceOf(ApiException.class);
+  }
+
+  String publishedIndexFixture() throws Exception {
+    String config = configuration("rebuild", 120);
+    publish(config, 0);
+    String version = Db.str(upload("rebuild.txt"), "version_id");
+    db.exec("UPDATE jobs SET state='DONE' WHERE version_id=?", version);
+    db.exec(
+        "UPDATE document_versions SET state='READY',ever_published=TRUE,model_identity=? WHERE id=?",
+        configurations.modelIdentity(configurations.runtime(tenant, config).embedding()),
+        version);
+    db.exec(
+        "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count) VALUES(?,?,?,0,'synthetic','synthetic','{}',1)",
+        Db.id(),
+        tenant,
+        version);
+    return version;
+  }
+
+  @SuppressWarnings("unchecked")
+  Map<String, Object> rebuilding(String version, String previous) {
+    var job =
+        (Map<String, Object>)
+            indexes.rebuild(
+                actor,
+                version,
+                Db.id(),
+                new IndexMaintenanceService.Rebuild(0L, previous, "synthetic rebuild"));
+    return tasks.claim(Db.str(job, "job_id"));
+  }
+
+  Map<String, Object> verifiedGeneration(String version, Map<String, Object> claim) {
+    return Map.of(
+        "verified",
+        true,
+        "model_identity",
+        Db.str(db.one("SELECT * FROM document_versions WHERE id=?", version), "model_identity"),
+        "generation_id",
+        claim.get("generation_id"),
+        "manifest",
+        IndexManifest.digest(
+            IndexManifest.entries(
+                db.list("SELECT id,content FROM chunks WHERE version_id=?", version))),
+        "indexed_chunks",
+        1,
+        "embedded_texts",
+        0,
+        "reused_chunks",
+        1,
+        "embedding_tokens",
+        0);
+  }
+
+  @Test
+  void rebuildSwitchesOnlyVerifiedGenerationAndFailedRetryKeepsOldIndex() throws Exception {
+    String version = publishedIndexFixture();
+    var first = rebuilding(version, null);
+    assertThat(Db.str(db.one("SELECT * FROM document_versions WHERE id=?", version), "state"))
+        .isEqualTo("READY");
+    var invalid = new HashMap<>(verifiedGeneration(version, first));
+    invalid.put("manifest", "0".repeat(64));
+    assertThatThrownBy(
+            () -> tasks.complete(Db.str(first, "id"), Db.str(first, "lease_token"), invalid))
+        .isInstanceOf(ApiException.class);
+    tasks.complete(
+        Db.str(first, "id"), Db.str(first, "lease_token"), verifiedGeneration(version, first));
+    String previous = Db.str(first, "generation_id");
+    var second = rebuilding(version, previous);
+    tasks.failed(
+        Db.str(second, "id"), Db.str(second, "lease_token"), "PROCESSING_UNAVAILABLE", true);
+    assertThat(
+            Db.str(
+                db.one("SELECT * FROM document_versions WHERE id=?", version),
+                "active_index_generation"))
+        .isEqualTo(previous);
+    assertThat(Db.str(db.one("SELECT * FROM document_versions WHERE id=?", version), "state"))
+        .isEqualTo("READY");
+    var retry = tasks.claim(Db.str(second, "id"));
+    assertThat(retry.get("generation_id")).isNotEqualTo(second.get("generation_id"));
+    assertThatThrownBy(
+            () ->
+                tasks.complete(
+                    Db.str(second, "id"),
+                    Db.str(second, "lease_token"),
+                    verifiedGeneration(version, second)))
+        .isInstanceOf(ApiException.class);
+    tasks.complete(
+        Db.str(retry, "id"), Db.str(retry, "lease_token"), verifiedGeneration(version, retry));
+    assertThat(Db.str(db.one("SELECT * FROM index_generations WHERE id=?", previous), "state"))
+        .isEqualTo("RETIRED");
+    assertThat(
+            Db.str(
+                db.one("SELECT * FROM index_generations WHERE id=?", second.get("generation_id")),
+                "state"))
+        .isEqualTo("FAILED");
+    assertThat(
+            Db.str(
+                db.one("SELECT * FROM document_versions WHERE id=?", version),
+                "active_index_generation"))
+        .isEqualTo(retry.get("generation_id"));
+  }
+
+  @Test
+  void indexCheckRejectsFalseSuccessAndReauthorizesAfterWorker() throws Exception {
+    String version = publishedIndexFixture();
+    var report =
+        new HashMap<String, Object>(
+            Map.of(
+                "consistent",
+                true,
+                "expected_count",
+                1,
+                "actual_count",
+                1,
+                "missing_count",
+                0,
+                "extra_count",
+                0,
+                "mismatched_count",
+                0,
+                "manifest",
+                "0".repeat(64),
+                "samples",
+                Map.of()));
+    when(worker.call(eq("/internal/v1/index/verify"), any())).thenReturn(report);
+    assertThatThrownBy(() -> indexes.inspect(actor, token, version))
+        .isInstanceOf(ApiException.class);
+    report.put(
+        "manifest",
+        IndexManifest.digest(
+            IndexManifest.entries(
+                db.list("SELECT id,content FROM chunks WHERE version_id=?", version))));
+    indexes.inspect(actor, token, version);
+    assertThat(db.list("SELECT * FROM index_checks WHERE version_id=?", version)).hasSize(1);
+    when(worker.call(eq("/internal/v1/index/verify"), any()))
+        .thenAnswer(
+            invocation -> {
+              db.exec("UPDATE credentials SET active=FALSE WHERE tenant_id=?", tenant);
+              return report;
+            });
+    assertThatThrownBy(() -> indexes.inspect(actor, token, version))
+        .isInstanceOf(ApiException.class);
+    assertThat(db.list("SELECT * FROM index_checks WHERE version_id=?", version)).hasSize(1);
+  }
+
+  @Test
+  void archivedKnowledgeCannotStartIndexMaintenance() throws Exception {
+    String version = publishedIndexFixture();
+    db.exec("UPDATE knowledge_bases SET status='ARCHIVED' WHERE id=?", kb);
+    assertThatThrownBy(() -> rebuilding(version, null)).isInstanceOf(ApiException.class);
+    assertThatThrownBy(() -> indexes.inspect(actor, token, version))
+        .isInstanceOf(ApiException.class);
+    verify(worker, never()).call(eq("/internal/v1/index/verify"), any());
   }
 }

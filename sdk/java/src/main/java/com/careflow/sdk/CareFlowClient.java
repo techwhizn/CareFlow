@@ -267,6 +267,21 @@ public final class CareFlowClient {
     return request("POST", "document-versions/" + id(versionId) + "/chunk-operations", input, key);
   }
 
+  public record IndexRebuild(long revision, String reason, String expected_generation_id) {}
+
+  public JsonNode rebuildIndex(String versionId, IndexRebuild input, String key)
+      throws IOException {
+    return request("POST", "document-versions/" + id(versionId) + "/index/rebuild", input, key);
+  }
+
+  public JsonNode checkIndex(String versionId, String key) throws IOException {
+    return request("POST", "document-versions/" + id(versionId) + "/index/checks", null, key);
+  }
+
+  public JsonNode indexHistory(String versionId) throws IOException {
+    return request("GET", "document-versions/" + id(versionId) + "/index/history", null, null);
+  }
+
   public JsonNode contentConflicts(String versionId, int page) throws IOException {
     return request(
         "GET",

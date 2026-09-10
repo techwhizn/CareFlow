@@ -61,6 +61,10 @@ public class WorkerClient {
       Object request;
       Class<?> response;
       switch (path) {
+        case "/internal/v1/index/verify" -> {
+          request = checked(body, WorkerProtocolV1.IndexVerification.class);
+          response = WorkerProtocolV1.IndexVerificationResponse.class;
+        }
         case "/internal/v1/recall" -> {
           request = checked(body, WorkerProtocolV1.RecallRequest.class);
           response = WorkerProtocolV1.RecallResponse.class;

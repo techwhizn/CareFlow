@@ -25,11 +25,14 @@ public class KnowledgeLifecycleService {
   private final Db db;
   private final Identity auth;
   private final KnowledgeBaseRepository repository;
+  private final CleanupRepository cleanupRequests;
 
-  public KnowledgeLifecycleService(Db db, Identity auth, KnowledgeBaseRepository repository) {
+  public KnowledgeLifecycleService(
+      Db db, Identity auth, KnowledgeBaseRepository repository, CleanupRepository cleanupRequests) {
     this.db = db;
     this.auth = auth;
     this.repository = repository;
+    this.cleanupRequests = cleanupRequests;
   }
 
   @Transactional
@@ -101,13 +104,7 @@ public class KnowledgeLifecycleService {
     }
     String cleanup = "";
     if (input.status().equals("DELETED")) {
-      cleanup = id();
-      db.exec(
-          "INSERT INTO cleanup_requests(id,tenant_id,resource_type,resource_id,requested_by) VALUES(?,?,'KNOWLEDGE_BASE',?,?)",
-          cleanup,
-          actor.tenant(),
-          id,
-          actor.subject());
+      cleanup = cleanupRequests.enqueue(actor.tenant(), "KNOWLEDGE_BASE", id, actor.subject());
     }
     db.exec("UPDATE tenants SET revision=revision+1 WHERE id=?", actor.tenant());
     auth.audit(

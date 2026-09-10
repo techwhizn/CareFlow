@@ -32,3 +32,5 @@ REST `/api/v1`。Bearer credential；租户及主体从密钥摘要查出。创�
 - 内容修订：ParsedContentService、DocumentContextService、ChunkMutationService与ContentBudgetService、ContentConflictService；质量诊断由ChunkQualityService只读执行。修改与外部Token校验分阶段，提交前重验凭证和内容修订。
 - 应用：ApplicationService。任务：Tasks、JobReadService；IndexAccountingService拥有索引计数和模型调用台账；IndexGenerationService管理任务代际切换，IndexMaintenanceService负责完整核对和重建入口。用量管理：UsageAdministrationService；检索计量仍由RetrievalService拥有。
 - 公共控制器映射HTTP，Java服务拥有授权、事务及规则。新需求沿所属服务扩展，不重建通用管理控制器。
+
+物理清理由CleanupRepository持久化范围/租约/阶段，CleanupRootService安排子资源依赖，PhysicalCleanupService协调外部存储，ContentPurgeService在事务中删除正文副本。IndexCacheReferences记录内容缓存归属。清理记录与重试由CleanupReadService授权，Worker只执行内部存储协议。

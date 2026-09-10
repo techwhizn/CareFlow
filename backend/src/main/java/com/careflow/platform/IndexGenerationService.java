@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 public class IndexGenerationService {
   private final Db db;
   private final KnowledgeConfigurationService configurations;
+  private final IndexCacheReferences cache;
 
-  public IndexGenerationService(Db db, KnowledgeConfigurationService configurations) {
+  public IndexGenerationService(
+      Db db, KnowledgeConfigurationService configurations, IndexCacheReferences cache) {
     this.db = db;
     this.configurations = configurations;
+    this.cache = cache;
   }
 
   public void recoverTerminalJobs() {
@@ -25,6 +28,11 @@ public class IndexGenerationService {
     if (!str(job, "kind").equals("INDEX")) return null;
     String generation = id();
     var runtime = configurations.runtime(str(job, "tenant_id"), str(job, "configuration_id"));
+    cache.register(
+        str(job, "tenant_id"),
+        str(job, "version_id"),
+        configurations.modelIdentity(runtime.embedding()),
+        generation);
     db.exec(
         "INSERT INTO index_generations(id,tenant_id,version_id,job_id,lease_token,configuration_id,model_identity,content_revision,previous_generation,state) VALUES(?,?,?,?,?,?,?,?,?,'BUILDING')",
         generation,

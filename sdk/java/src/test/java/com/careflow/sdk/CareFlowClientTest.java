@@ -243,4 +243,14 @@ class CareFlowClientTest {
     assertTrue(paths.get(1).endsWith("/index/checks"));
     assertTrue(paths.get(2).endsWith("/index/history"));
   }
+
+  @Test
+  void cleanupMaintenanceContract() throws Exception {
+    client.cleanupRequests();
+    client.retryCleanup(ID, "storage recovered", "retry");
+    assertEquals("/api/v1/cleanup-requests", paths.getFirst());
+    assertEquals("/api/v1/cleanup-requests/" + ID + "/retry", paths.get(1));
+    assertTrue(bodies.get(1).contains("storage recovered"));
+    assertEquals("retry", keys.get(1));
+  }
 }

@@ -141,3 +141,6 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 搜索与问答的 Query.filters 支持类型化元数据条件；Python 使用 MetadataFilter，Java 使用 MetadataFilter/MetadataField/MetadataOperator。字段、值类型和组合规则见 [过滤契约](../docs/metadata-filters.md)。
 
 任务查询返回新增的索引计数及`index_usage`摘要。缺失供应商用量以未知调用数表示，不推断为0；详见 [增量索引与用量](../docs/incremental-indexing.md)。
+
+
+清理状态：Python同步/异步客户端使用 `cleanup_requests()`，Java使用 `cleanupRequests()`；失败恢复后分别调用 `retry_cleanup(request_id, reason, idempotency_key=...)` / `retryCleanup(requestId, reason, key)`。接口只返回当前身份有权查看的清理元数据；重试不跳过服务端范围校验，应用凭证不能调用管理清理接口。

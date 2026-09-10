@@ -206,3 +206,42 @@ class IndexVerificationResponse(Contract):
     mismatched_count: int = Field(ge=0, le=50000)
     manifest: str = Field(pattern=r"^[0-9a-f]{64}$")
     samples: dict[str, list[str]]
+
+
+class CacheReference(Contract):
+    model_identity: str = Field(pattern=r"^[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class Compaction(Contract):
+    collection: str = Field(max_length=255)
+    job_id: int = Field(ge=1)
+
+
+class IndexPurge(Contract):
+    tenant_id: str
+    version_id: str
+    generation_id: str | None = None
+
+
+class CachePurge(Contract):
+    tenant_id: str
+    entries: list[CacheReference] = Field(max_length=100)
+
+
+class LegacyCachePurge(Contract):
+    tenant_id: str
+
+
+class PurgeResponse(Contract):
+    verified: Literal[True]
+    compactions: list[Compaction] = Field(max_length=1000)
+
+
+class CompactionRequest(Contract):
+    tenant_id: str
+    compactions: list[Compaction] = Field(max_length=1000)
+
+
+class CompactionResponse(Contract):
+    complete: bool

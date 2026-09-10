@@ -98,3 +98,24 @@ def test_generation_events_reject_ambiguous_types_and_stop_at_done(monkeypatch):
     )
     response = c.post("/internal/v1/generate/stream", json=body)
     assert '"error"' in response.text and "ambiguous" not in response.text
+
+
+def test_cleanup_adapter_failure_is_sanitized(monkeypatch):
+    import careflow.api as api
+
+    c = client(monkeypatch)
+    monkeypatch.setattr(api.retrieval, "client", lambda: object())
+    monkeypatch.setattr(
+        api.index_cleanup,
+        "purge_version",
+        lambda *args: {
+            "verified": True,
+            "compactions": [{"collection": "synthetic", "job_id": 0}],
+        },
+    )
+    response = c.post(
+        "/internal/v1/index/purge-version",
+        json={"tenant_id": str(uuid.uuid4()), "version_id": str(uuid.uuid4())},
+    )
+    assert response.status_code == 503
+    assert response.json() == {"detail": "INDEX_PURGE_UNAVAILABLE"}

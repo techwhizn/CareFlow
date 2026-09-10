@@ -12,7 +12,7 @@ from careflow.model_configuration import value
 
 
 def collection(tenant):
-    return "cfec_" + uuid.UUID(tenant).hex + "_" + models.identity()
+    return "cfec2_" + uuid.UUID(tenant).hex + "_" + models.identity()
 
 
 def ensure(client, tenant):
@@ -42,7 +42,7 @@ def ensure(client, tenant):
     return name
 
 
-def vectors(client, tenant, texts, record_call=None):
+def vectors(client, tenant, texts, record_call=None, before_write=None):
     name = ensure(client, tenant)
     keys = [hashlib.sha256(text.encode("utf-8")).hexdigest() for text in texts]
     unique = dict(zip(keys, texts, strict=True))
@@ -82,6 +82,8 @@ def vectors(client, tenant, texts, record_call=None):
             {"id": key, "text": unique[key], "dense": vector}
             for key, vector in zip(batch, calculated, strict=True)
         ]
+        if before_write:
+            before_write()
         client.upsert(collection_name=name, data=records)
         found.update({row["id"]: row["dense"] for row in records})
     return [found[key] for key in keys], {

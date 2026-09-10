@@ -82,7 +82,15 @@ def ensure_collection(tenant, generations=False):
     return name
 
 
-def index(tenant, version, chunks, chunking=None, record_call=None, generation_id=None):
+def index(
+    tenant,
+    version,
+    chunks,
+    chunking=None,
+    record_call=None,
+    generation_id=None,
+    before_write=None,
+):
     import tiktoken
 
     if not chunks:
@@ -94,7 +102,9 @@ def index(tenant, version, chunks, chunking=None, record_call=None, generation_i
         raise ValueError("Edited chunk exceeds 600-token limit")
     if chunking:
         counts, actual_limit = models.input_tokens(
-            [c["content"] for c in chunks], chunking.model_tokenizer
+            [c["content"] for c in chunks],
+            chunking.model_tokenizer,
+            **({"before_batch": before_write} if before_write else {}),
         )
         if any(count > min(actual_limit, chunking.model_maximum) for count in counts):
             raise ValueError("Edited chunk exceeds model input limit")
@@ -105,7 +115,7 @@ def index(tenant, version, chunks, chunking=None, record_call=None, generation_i
             raise ValueError("Edited chunk exceeds configured token limit")
     name = ensure_collection(tenant, generation_id is not None)
     vectors, metrics = embedding_cache.vectors(
-        client(), tenant, [c["content"] for c in chunks], record_call
+        client(), tenant, [c["content"] for c in chunks], record_call, before_write
     )
     records = [
         {
@@ -129,6 +139,8 @@ def index(tenant, version, chunks, chunking=None, record_call=None, generation_i
     c = client()
     for start in range(0, len(records), 100):
         batch = records[start : start + 100]
+        if before_write:
+            before_write()
         c.upsert(collection_name=name, data=batch)
     verification = index_verification.verify(
         c,

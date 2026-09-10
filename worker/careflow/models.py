@@ -93,7 +93,7 @@ def embed(texts, record_call=None):
     return vectors, usage
 
 
-def input_tokens(texts, tokenizer="cl100k_base"):
+def input_tokens(texts, tokenizer="cl100k_base", before_batch=None):
     if tokenizer == "cl100k_base":
         import tiktoken
 
@@ -109,6 +109,8 @@ def input_tokens(texts, tokenizer="cl100k_base"):
     try:
         with httpx.Client(timeout=30) as client:
             for start in range(0, len(texts), 32):
+                if before_batch:
+                    before_batch()
                 batch = texts[start : start + 32]
                 response = client.post(
                     url, headers=headers, json={"model": model, "input": batch}

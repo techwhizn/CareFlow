@@ -61,6 +61,22 @@ public class WorkerClient {
       Object request;
       Class<?> response;
       switch (path) {
+        case "/internal/v1/index/purge-version" -> {
+          request = checked(body, WorkerProtocolV1.IndexPurge.class);
+          response = WorkerProtocolV1.PurgeResponse.class;
+        }
+        case "/internal/v1/index/purge-cache" -> {
+          request = checked(body, WorkerProtocolV1.CachePurge.class);
+          response = WorkerProtocolV1.PurgeResponse.class;
+        }
+        case "/internal/v1/index/purge-legacy-cache" -> {
+          request = checked(body, WorkerProtocolV1.LegacyCachePurge.class);
+          response = WorkerProtocolV1.PurgeResponse.class;
+        }
+        case "/internal/v1/index/compactions" -> {
+          request = checked(body, WorkerProtocolV1.CompactionRequest.class);
+          response = WorkerProtocolV1.CompactionResponse.class;
+        }
         case "/internal/v1/index/verify" -> {
           request = checked(body, WorkerProtocolV1.IndexVerification.class);
           response = WorkerProtocolV1.IndexVerificationResponse.class;

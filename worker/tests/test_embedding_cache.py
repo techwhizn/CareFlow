@@ -145,3 +145,19 @@ def test_call_is_recorded_before_invalid_vector_failure(configured, monkeypatch)
     with pytest.raises(models.ModelUnavailable):
         models.embed(["synthetic"], record_call=lambda *event: events.append(event))
     assert events[-1][1:] == ("SUCCEEDED", 1, 9)
+
+
+def test_cancelled_lease_cannot_write_cache_after_model_returns(
+    configured, monkeypatch
+):
+    store = Store()
+    monkeypatch.setattr(models, "embed", lambda *args, **kwargs: ([[1.0, 2.0]], 3))
+
+    def expired():
+        raise RuntimeError("lease expired")
+
+    with pytest.raises(RuntimeError, match="lease expired"):
+        embedding_cache.vectors(
+            store, str(uuid.uuid4()), ["synthetic"], before_write=expired
+        )
+    assert not store.rows

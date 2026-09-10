@@ -295,6 +295,17 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
+    def cleanup_requests(self):
+        return self._request("GET", "cleanup-requests")
+
+    def retry_cleanup(self, request_id, reason, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"cleanup-requests/{_id(request_id)}/retry",
+            json={"reason": reason},
+            headers=_headers(idempotency_key),
+        )
+
     def index_history(self, version_id):
         return self._request(
             "GET", f"document-versions/{_id(version_id)}/index/history"
@@ -575,6 +586,17 @@ class AsyncClient:
         return await self._request(
             "POST",
             f"document-versions/{_id(version_id)}/index/checks",
+            headers=_headers(idempotency_key),
+        )
+
+    async def cleanup_requests(self):
+        return await self._request("GET", "cleanup-requests")
+
+    async def retry_cleanup(self, request_id, reason, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"cleanup-requests/{_id(request_id)}/retry",
+            json={"reason": reason},
             headers=_headers(idempotency_key),
         )
 

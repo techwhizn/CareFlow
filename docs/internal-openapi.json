@@ -302,10 +302,254 @@
           }
         }
       }
+    },
+    "/internal/v1/index/purge-version": {
+      "post": {
+        "summary": "Purge Version",
+        "operationId": "purge_version_internal_v1_index_purge_version_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndexPurge"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/index/purge-cache": {
+      "post": {
+        "summary": "Purge Cache",
+        "operationId": "purge_cache_internal_v1_index_purge_cache_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CachePurge"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/index/purge-legacy-cache": {
+      "post": {
+        "summary": "Purge Legacy Cache",
+        "operationId": "purge_legacy_cache_internal_v1_index_purge_legacy_cache_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegacyCachePurge"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/index/compactions": {
+      "post": {
+        "summary": "Compactions",
+        "operationId": "compactions_internal_v1_index_compactions_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompactionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CachePurge": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/CacheReference"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "entries"
+        ],
+        "title": "CachePurge"
+      },
+      "CacheReference": {
+        "properties": {
+          "model_identity": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Identity"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_identity",
+          "content_hash"
+        ],
+        "title": "CacheReference"
+      },
       "Candidate": {
         "properties": {
           "id": {
@@ -406,6 +650,64 @@
         ],
         "title": "ChunkingConfiguration"
       },
+      "Compaction": {
+        "properties": {
+          "collection": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Collection"
+          },
+          "job_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Job Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "collection",
+          "job_id"
+        ],
+        "title": "Compaction"
+      },
+      "CompactionRequest": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "compactions": {
+            "items": {
+              "$ref": "#/components/schemas/Compaction"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Compactions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "compactions"
+        ],
+        "title": "CompactionRequest"
+      },
+      "CompactionResponse": {
+        "properties": {
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "complete"
+        ],
+        "title": "CompactionResponse"
+      },
       "Generate": {
         "properties": {
           "model_configuration": {
@@ -503,6 +805,36 @@
           "content_hash"
         ],
         "title": "IndexEntry"
+      },
+      "IndexPurge": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "generation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "version_id"
+        ],
+        "title": "IndexPurge"
       },
       "IndexVerification": {
         "properties": {
@@ -623,6 +955,20 @@
           "samples"
         ],
         "title": "IndexVerificationResponse"
+      },
+      "LegacyCachePurge": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id"
+        ],
+        "title": "LegacyCachePurge"
       },
       "ManualFaq": {
         "properties": {
@@ -887,6 +1233,30 @@
           "token_count"
         ],
         "title": "ParsedContext"
+      },
+      "PurgeResponse": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "const": true,
+            "title": "Verified"
+          },
+          "compactions": {
+            "items": {
+              "$ref": "#/components/schemas/Compaction"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Compactions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "verified",
+          "compactions"
+        ],
+        "title": "PurgeResponse"
       },
       "Recall": {
         "properties": {

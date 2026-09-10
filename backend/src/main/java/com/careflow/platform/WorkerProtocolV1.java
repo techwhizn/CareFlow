@@ -166,4 +166,29 @@ public final class WorkerProtocolV1 {
       @NotNull @Min(0) @Max(50000) Integer mismatched_count,
       @NotBlank @Pattern(regexp = "[0-9a-f]{64}") String manifest,
       @NotNull java.util.Map<String, List<@Size(max = 36) String>> samples) {}
+
+  public record CacheReference(
+      @NotBlank @Pattern(regexp = "[0-9a-f]{64}") String model_identity,
+      @NotBlank @Pattern(regexp = "[0-9a-f]{64}") String content_hash) {}
+
+  public record Compaction(@NotBlank @Size(max = 255) String collection, @Min(1) long job_id) {}
+
+  public record IndexPurge(
+      @NotBlank String tenant_id, @NotBlank String version_id, String generation_id) {}
+
+  public record CachePurge(
+      @NotBlank String tenant_id,
+      @NotNull @Size(max = 100) List<@NotNull @Valid CacheReference> entries) {}
+
+  public record LegacyCachePurge(@NotBlank String tenant_id) {}
+
+  public record PurgeResponse(
+      @NotNull @AssertTrue Boolean verified,
+      @NotNull @Size(max = 1000) List<@NotNull @Valid Compaction> compactions) {}
+
+  public record CompactionRequest(
+      @NotBlank String tenant_id,
+      @NotNull @Size(max = 1000) List<@NotNull @Valid Compaction> compactions) {}
+
+  public record CompactionResponse(@NotNull Boolean complete) {}
 }

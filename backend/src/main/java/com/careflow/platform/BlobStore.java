@@ -61,6 +61,44 @@ public class BlobStore {
     }
   }
 
+  /** Remove all S3 versions and delete markers, then verify absence of this exact key. */
+  public void purge(String key) {
+    if (key.isBlank()) return;
+    try {
+      var c = client();
+      if (!c.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) return;
+      for (var result :
+          c.listObjects(
+              ListObjectsArgs.builder()
+                  .bucket(bucket)
+                  .prefix(key)
+                  .recursive(true)
+                  .includeVersions(true)
+                  .build())) {
+        var item = result.get();
+        if (key.equals(item.objectName()))
+          c.removeObject(
+              RemoveObjectArgs.builder()
+                  .bucket(bucket)
+                  .object(key)
+                  .versionId(item.versionId())
+                  .build());
+      }
+      for (var result :
+          c.listObjects(
+              ListObjectsArgs.builder()
+                  .bucket(bucket)
+                  .prefix(key)
+                  .recursive(true)
+                  .includeVersions(true)
+                  .build()))
+        if (key.equals(result.get().objectName()))
+          throw new IllegalStateException("Object versions remain");
+    } catch (Exception e) {
+      throw new ApiException(503, "STORAGE_PURGE_UNAVAILABLE", "原文件及历史副本清理尚未完成");
+    }
+  }
+
   public byte[] get(String key) {
     try (var stream =
         client().getObject(GetObjectArgs.builder().bucket(bucket).object(key).build())) {

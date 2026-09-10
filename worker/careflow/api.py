@@ -6,15 +6,21 @@ import uuid
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 
-from careflow import index_verification, models, retrieval
+from careflow import index_cleanup, index_verification, models, retrieval
 from careflow.model_configuration import use_configuration
 from careflow.protocol_v1 import (
+    CachePurge,
+    CompactionRequest,
+    CompactionResponse,
     Generate,
     GenerationEvent,
+    IndexPurge,
     IndexVerification,
     IndexVerificationResponse,
+    LegacyCachePurge,
     ManualFaq,
     ParseCompletion,
+    PurgeResponse,
     Recall,
     RecallResponse,
     Rerank,
@@ -194,3 +200,53 @@ def verify_index(body: IndexVerification):
             )
     except Exception as exc:
         raise HTTPException(503, "INDEX_VERIFICATION_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/index/purge-version", response_model=PurgeResponse)
+def purge_version(body: IndexPurge):
+    try:
+        return PurgeResponse.model_validate(
+            index_cleanup.purge_version(
+                retrieval.client(), body.tenant_id, body.version_id, body.generation_id
+            )
+        )
+    except Exception as exc:
+        raise HTTPException(503, "INDEX_PURGE_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/index/purge-cache", response_model=PurgeResponse)
+def purge_cache(body: CachePurge):
+    try:
+        return PurgeResponse.model_validate(
+            index_cleanup.purge_cache(
+                retrieval.client(),
+                body.tenant_id,
+                [entry.model_dump() for entry in body.entries],
+            )
+        )
+    except Exception as exc:
+        raise HTTPException(503, "CACHE_PURGE_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/index/purge-legacy-cache", response_model=PurgeResponse)
+def purge_legacy_cache(body: LegacyCachePurge):
+    try:
+        return PurgeResponse.model_validate(
+            index_cleanup.purge_legacy_cache(retrieval.client(), body.tenant_id)
+        )
+    except Exception as exc:
+        raise HTTPException(503, "CACHE_PURGE_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/index/compactions", response_model=CompactionResponse)
+def compactions(body: CompactionRequest):
+    try:
+        return CompactionResponse.model_validate(
+            index_cleanup.compaction_state(
+                retrieval.client(),
+                body.tenant_id,
+                [job.model_dump() for job in body.compactions],
+            )
+        )
+    except Exception as exc:
+        raise HTTPException(503, "COMPACTION_UNAVAILABLE") from exc

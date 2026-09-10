@@ -486,3 +486,31 @@ def test_index_rebuild_uses_observed_generation_and_revision_sync_and_async():
         assert group[0].headers["Idempotency-Key"] == "rebuild"
         assert group[1].url.path.endswith("/index/checks") and group[1].method == "POST"
         assert group[2].url.path.endswith("/index/history") and group[2].method == "GET"
+
+
+def test_cleanup_contract_sync_and_async():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json=[])
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.cleanup_requests()
+        client.retry_cleanup(ID, "storage recovered", idempotency_key="retry")
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.cleanup_requests()
+            await client.retry_cleanup(ID, "storage recovered", idempotency_key="retry")
+
+    asyncio.run(run())
+    for group in (seen[:2], seen[2:]):
+        assert group[0].method == "GET" and group[0].url.path.endswith(
+            "/cleanup-requests"
+        )
+        assert group[1].url.path.endswith(f"/cleanup-requests/{ID}/retry")
+        assert json.loads(group[1].content) == {"reason": "storage recovered"}
+        assert group[1].headers["Idempotency-Key"] == "retry"

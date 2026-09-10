@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Row } from "../api";
 import { post } from "../api";
 import { Badge, Empty, ErrorNote, Loading, useData } from "../ui";
+import CleanupRequests from "../features/tasks/CleanupRequests";
 export default function TasksPage() {
   const jobs = useData<Row[]>("/jobs", []),
     [error, setError] = useState("");
@@ -141,6 +142,7 @@ export default function TasksPage() {
           </table>
         </div>
       )}
+      <CleanupRequests />
     </>
   );
 }

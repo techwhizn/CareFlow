@@ -13,11 +13,14 @@ public class DocumentPublicationService {
   private final Db db;
   private final Identity auth;
   private final ContentConflictService conflicts;
+  private final CleanupRepository cleanup;
 
-  public DocumentPublicationService(Db db, Identity auth, ContentConflictService conflicts) {
+  public DocumentPublicationService(
+      Db db, Identity auth, ContentConflictService conflicts, CleanupRepository cleanup) {
     this.db = db;
     this.auth = auth;
     this.conflicts = conflicts;
+    this.cleanup = cleanup;
   }
 
   public record Publish(
@@ -95,6 +98,7 @@ public class DocumentPublicationService {
         actor.tenant(),
         id);
     db.exec("UPDATE tenants SET revision=revision+1 WHERE id=?", actor.tenant());
-    auth.audit(actor, "DOCUMENT_DELETE", id, "立即阻断访问，物理清理待运行维护流程");
+    String request = cleanup.enqueue(actor.tenant(), "DOCUMENT", id, actor.subject());
+    auth.audit(actor, "DOCUMENT_DELETE", id, "cleanup_request=" + request);
   }
 }

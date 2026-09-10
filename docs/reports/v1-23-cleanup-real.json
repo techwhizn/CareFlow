@@ -1,0 +1,72 @@
+{
+  "started_at": "2026-09-10T13:51:01Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "logical_deletion_revokes_access_before_physical_cleanup",
+      "passed": true
+    },
+    {
+      "name": "durable_background_cleanup_removes_content_and_preserves_live_cache_ownership",
+      "passed": true,
+      "phases": [
+        {
+          "resource_type": "DOCUMENT_VERSION",
+          "state": "DONE",
+          "failures": 2
+        },
+        {
+          "resource_type": "DOCUMENT",
+          "state": "DONE",
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "name": "real_milvus_generation_rows_removed_and_shared_cache_retained",
+      "passed": true
+    },
+    {
+      "name": "real_s3_deleted_key_absent_and_live_source_preserved",
+      "passed": true
+    },
+    {
+      "name": "cleanup_records_are_tenant_scoped",
+      "passed": true
+    },
+    {
+      "name": "late_deleted_task_claim_rejected_409",
+      "passed": true
+    },
+    {
+      "name": "s3_two_versions_and_delete_marker_purged_exact_sibling_preserved",
+      "passed": true
+    },
+    {
+      "name": "mysql_managed_snapshot_and_30_day_retention_verified",
+      "passed": true
+    },
+    {
+      "name": "browser_cleanup_stage_and_failure_count_verified",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "fixture": {
+    "knowledge_base_id": "e058f62b-853c-4920-98ea-9f0074338805",
+    "deleted": {
+      "document_id": "b0e1aec5-d672-430d-9bb8-df1bcdebe439",
+      "version_id": "4103d7b1-c020-4763-a631-4348f64ecc8c",
+      "job_id": "bb22b3f8-f2e3-4b9d-a4c7-1f564460786f",
+      "object_key": "8ede50df-947e-467c-8096-0c3c44789617/b0e1aec5-d672-430d-9bb8-df1bcdebe439/4103d7b1-c020-4763-a631-4348f64ecc8c/source",
+      "generation_id": "3685c235-ae0d-48bd-bd26-8d1546f14c11"
+    },
+    "live": {
+      "document_id": "4bfcae64-62d2-4391-8c11-166b07c985c5",
+      "version_id": "57d8e747-3e16-46eb-8bff-38a5e1262f4d",
+      "job_id": "f4769374-30b7-4648-99d6-34672b1e1f96",
+      "object_key": "8ede50df-947e-467c-8096-0c3c44789617/4bfcae64-62d2-4391-8c11-166b07c985c5/57d8e747-3e16-46eb-8bff-38a5e1262f4d/source",
+      "generation_id": "a2fd854c-076d-4d69-8796-db12112cc2d2"
+    }
+  }
+}

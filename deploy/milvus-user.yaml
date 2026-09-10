@@ -1,0 +1,10 @@
+# Milvus 2.6.1 storage reclamation: scan orphan logs daily, not weekly.
+# Keep safety windows for in-flight storage writes; never delete segment objects directly.
+dataCoord:
+  enableCompaction: true
+  enableGarbageCollection: true
+  gc:
+    interval: 3600
+    missingTolerance: 86400
+    dropTolerance: 10800
+    scanInterval: 24

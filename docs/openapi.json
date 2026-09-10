@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8080",
+      "url": "http://localhost:8080",
       "description": "Generated server url"
     }
   ],
@@ -1973,6 +1973,39 @@
         }
       }
     },
+    "/api/v1/cleanup-requests/{id}/retry": {
+      "post": {
+        "tags": [
+          "cleanup-controller"
+        ],
+        "operationId": "retry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Retry"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/bootstrap": {
       "post": {
         "tags": [
@@ -3097,6 +3130,26 @@
           "identity-administration-controller"
         ],
         "operationId": "keys",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cleanup-requests": {
+      "get": {
+        "tags": [
+          "cleanup-controller"
+        ],
+        "operationId": "list_6",
         "responses": {
           "200": {
             "description": "OK",
@@ -4554,6 +4607,19 @@
             "minimum": 0
           }
         }
+      },
+      "Retry": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reason"
+        ]
       },
       "Named": {
         "type": "object",

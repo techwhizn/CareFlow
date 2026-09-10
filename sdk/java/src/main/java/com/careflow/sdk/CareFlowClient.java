@@ -278,6 +278,15 @@ public final class CareFlowClient {
     return request("POST", "document-versions/" + id(versionId) + "/index/checks", null, key);
   }
 
+  public JsonNode cleanupRequests() throws IOException {
+    return request("GET", "cleanup-requests", null, null);
+  }
+
+  public JsonNode retryCleanup(String requestId, String reason, String key) throws IOException {
+    return request(
+        "POST", "cleanup-requests/" + id(requestId) + "/retry", Map.of("reason", reason), key);
+  }
+
   public JsonNode indexHistory(String versionId) throws IOException {
     return request("GET", "document-versions/" + id(versionId) + "/index/history", null, null);
   }

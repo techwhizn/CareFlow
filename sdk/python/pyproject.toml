@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 license = "Apache-2.0"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "NOTICE"]
 name = "careflow-sdk"
 version = "0.1.0"
 description = "Python client for the CareFlow public API"

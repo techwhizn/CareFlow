@@ -2,6 +2,7 @@ ARG PYTHON_IMAGE=python:3.12-slim
 FROM ${PYTHON_IMAGE}
 COPY --from=ghcr.io/astral-sh/uv:0.8.15 /uv /usr/local/bin/uv
 WORKDIR /app
+COPY LICENSE NOTICE /usr/share/licenses/careflow/
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 COPY model_registry.py model_server.py download.py ./

@@ -552,6 +552,56 @@
           }
         }
       }
+    },
+    "/internal/v1/conversation/tokens": {
+      "post": {
+        "summary": "Conversation Tokens",
+        "operationId": "conversation_tokens_internal_v1_conversation_tokens_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HistoryTokens"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextTokensResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -800,6 +850,29 @@
         ],
         "title": "ContextTokensResponse"
       },
+      "ConversationTurn": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 32000,
+            "minLength": 1,
+            "title": "Answer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question",
+          "answer"
+        ],
+        "title": "ConversationTurn"
+      },
       "Generate": {
         "properties": {
           "model_configuration": {
@@ -826,6 +899,14 @@
             "maxItems": 6,
             "minItems": 1,
             "title": "Evidence"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationTurn"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "History"
           }
         },
         "additionalProperties": false,
@@ -848,6 +929,47 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HistoryCandidate": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 36001,
+            "minLength": 1,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "content"
+        ],
+        "title": "HistoryCandidate"
+      },
+      "HistoryTokens": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryCandidate"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Candidates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidates"
+        ],
+        "title": "HistoryTokens"
       },
       "Hit": {
         "properties": {

@@ -24,7 +24,29 @@ public final class CareFlowClient {
       int limit,
       boolean debug,
       Double minimum_rerank_score,
-      List<MetadataFilter> filters) {
+      List<MetadataFilter> filters,
+      String conversation_id) {
+    public Query(
+        String query,
+        String application_id,
+        List<String> knowledge_base_ids,
+        String mode,
+        int limit,
+        boolean debug,
+        Double minimum_rerank_score,
+        List<MetadataFilter> filters) {
+      this(
+          query,
+          application_id,
+          knowledge_base_ids,
+          mode,
+          limit,
+          debug,
+          minimum_rerank_score,
+          filters,
+          null);
+    }
+
     public Query(
         String query,
         String application_id,
@@ -168,6 +190,34 @@ public final class CareFlowClient {
     } finally {
       connection.disconnect();
     }
+  }
+
+  public JsonNode createConversation(String applicationId, List<String> knowledgeBaseIds)
+      throws IOException {
+    var body = new java.util.LinkedHashMap<String, Object>();
+    body.put("application_id", applicationId);
+    body.put("knowledge_base_ids", knowledgeBaseIds == null ? List.of() : knowledgeBaseIds);
+    return request("POST", "conversations", body, null);
+  }
+
+  public JsonNode conversations() throws IOException {
+    return request("GET", "conversations", null, null);
+  }
+
+  public JsonNode conversation(String conversationId) throws IOException {
+    return request("GET", "conversations/" + id(conversationId), null, null);
+  }
+
+  public JsonNode answerHistory(String conversationId) throws IOException {
+    return request(
+        "GET",
+        "answers" + (conversationId == null ? "" : "?conversation_id=" + id(conversationId)),
+        null,
+        null);
+  }
+
+  public JsonNode savedAnswer(String answerId) throws IOException {
+    return request("GET", "answers/" + id(answerId), null, null);
   }
 
   public JsonNode operationsStatus() throws IOException {

@@ -17,6 +17,8 @@ public class RetrievalService {
   private final MetadataFilters metadataFilters;
   private final ConfiguredModelRouting modelRouting;
   private final EvidenceContextService contexts;
+  private final EvidenceAuthorization evidenceAuthorization;
+  private final AnswerHistoryService history;
 
   public RetrievalService(
       Db db,
@@ -26,7 +28,9 @@ public class RetrievalService {
       EntitlementService entitlements,
       MetadataFilters metadataFilters,
       ConfiguredModelRouting modelRouting,
-      EvidenceContextService contexts) {
+      EvidenceContextService contexts,
+      EvidenceAuthorization evidenceAuthorization,
+      AnswerHistoryService history) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
@@ -35,6 +39,8 @@ public class RetrievalService {
     this.metadataFilters = metadataFilters;
     this.modelRouting = modelRouting;
     this.contexts = contexts;
+    this.evidenceAuthorization = evidenceAuthorization;
+    this.history = history;
   }
 
   public record Query(
@@ -45,7 +51,29 @@ public class RetrievalService {
       int limit,
       boolean debug,
       Double minimum_rerank_score,
-      List<MetadataFilters.Rule> filters) {
+      List<MetadataFilters.Rule> filters,
+      String conversation_id) {
+    public Query(
+        String query,
+        String application_id,
+        List<String> knowledge_base_ids,
+        String mode,
+        int limit,
+        boolean debug,
+        Double minimum_rerank_score,
+        List<MetadataFilters.Rule> filters) {
+      this(
+          query,
+          application_id,
+          knowledge_base_ids,
+          mode,
+          limit,
+          debug,
+          minimum_rerank_score,
+          filters,
+          null);
+    }
+
     public Query(
         String query,
         String application_id,
@@ -195,8 +223,17 @@ public class RetrievalService {
   // blindly.
   @SuppressWarnings("unchecked")
   public Map<String, Object> search(Actor actor, Query q, Scope scope, String authorization) {
+    return search(actor, q, scope, authorization, QueryProcessing.process(q.query()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> search(
+      Actor actor,
+      Query q,
+      Scope scope,
+      String authorization,
+      QueryProcessing.Processed processed) {
     long started = System.nanoTime();
-    var processed = QueryProcessing.process(q.query());
     var queryConfiguration = scope.configuration();
     boolean allowDegraded =
         queryConfiguration == null
@@ -385,66 +422,12 @@ public class RetrievalService {
     if (!expected.equals(now)) throw ApiException.hidden();
   }
 
-  public void checkEvidence(Actor actor, Map<String, Object> c, Scope scope) {
-    var d = auth.document(actor, str(c, "document_id"), "read");
-    var k = auth.kb(actor, str(d, "kb_id"), "read");
-    if (!str(k, "status").equals("ACTIVE") || !str(d, "status").equals("ACTIVE"))
-      throw ApiException.hidden();
-    var now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
-    db.one(
-        "SELECT id FROM documents WHERE tenant_id=? AND id=? AND (valid_from IS NULL OR valid_from<=?) AND (valid_until IS NULL OR valid_until>?)",
-        actor.tenant(),
-        str(d, "id"),
-        now,
-        now);
-    db.one(
-        "SELECT id FROM document_versions WHERE tenant_id=? AND id=? AND ever_published=TRUE AND (valid_from IS NULL OR valid_from<=CURRENT_TIMESTAMP) AND (valid_until IS NULL OR valid_until>CURRENT_TIMESTAMP)",
-        actor.tenant(),
-        str(c, "version_id"));
-    if (c.get("covered_chunk_ids") instanceof List<?> covered) {
-      for (Object chunk : covered)
-        db.one(
-            "SELECT id FROM chunks WHERE tenant_id=? AND version_id=? AND id=? AND enabled=TRUE",
-            actor.tenant(),
-            str(c, "version_id"),
-            chunk);
-    }
-    if (!scope.application().isBlank()) {
-      db.one(
-          "SELECT b.kb_id FROM application_bindings b JOIN applications a ON a.id=b.application_id WHERE b.tenant_id=? AND b.application_id=? AND b.kb_id=? AND a.published=TRUE",
-          actor.tenant(),
-          scope.application(),
-          str(d, "kb_id"));
-    }
+  public void checkEvidence(Actor actor, Map<String, Object> evidence, Scope scope) {
+    evidenceAuthorization.check(actor, evidence, scope);
   }
 
   public String saveAnswer(
       Actor actor, Query q, String content, List<Map<String, Object>> evidence) {
-    return tx.execute(
-        status -> {
-          auth.lock(actor);
-          String answer = id();
-          for (var c : evidence)
-            checkEvidence(
-                actor,
-                c,
-                new Scope(List.of(), false, Objects.toString(q.application_id(), ""), -1));
-          db.exec(
-              "INSERT INTO answers(id,tenant_id,subject_id,application_id,question,content) VALUES(?,?,?,?,?,?)",
-              answer,
-              actor.tenant(),
-              actor.subject(),
-              q.application_id(),
-              q.query(),
-              content);
-          for (var c : evidence)
-            db.exec(
-                "INSERT INTO answer_evidence(answer_id,document_id,version_id,chunk_id) VALUES(?,?,?,?)",
-                answer,
-                str(c, "document_id"),
-                str(c, "version_id"),
-                str(c, "id"));
-          return answer;
-        });
+    return history.save(actor, q, content, evidence, null, null);
   }
 }

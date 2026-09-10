@@ -57,6 +57,7 @@ class Query:
     debug: bool = False
     minimum_rerank_score: float | None = None
     filters: tuple[MetadataFilter, ...] = ()
+    conversation_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -172,6 +173,29 @@ class Client:
         response = self._http.request(method, path, **kwargs)
         _check(response)
         return response.json() if response.content else None
+
+    def create_conversation(self, *, application_id=None, knowledge_base_ids=()):
+        return self._request(
+            "POST",
+            "conversations",
+            json=dict(
+                application_id=application_id,
+                knowledge_base_ids=list(knowledge_base_ids),
+            ),
+        )
+
+    def conversations(self):
+        return self._request("GET", "conversations")
+
+    def conversation(self, conversation_id):
+        return self._request("GET", f"conversations/{_id(conversation_id)}")
+
+    def answer_history(self, *, conversation_id=None):
+        params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
+        return self._request("GET", "answers", params=params)
+
+    def saved_answer(self, answer_id):
+        return self._request("GET", f"answers/{_id(answer_id)}")
 
     def operations_status(self):
         return self._request("GET", "operations/status")
@@ -465,6 +489,29 @@ class AsyncClient:
         response = await self._http.request(method, path, **kwargs)
         _check(response)
         return response.json() if response.content else None
+
+    async def create_conversation(self, *, application_id=None, knowledge_base_ids=()):
+        return await self._request(
+            "POST",
+            "conversations",
+            json=dict(
+                application_id=application_id,
+                knowledge_base_ids=list(knowledge_base_ids),
+            ),
+        )
+
+    async def conversations(self):
+        return await self._request("GET", "conversations")
+
+    async def conversation(self, conversation_id):
+        return await self._request("GET", f"conversations/{_id(conversation_id)}")
+
+    async def answer_history(self, *, conversation_id=None):
+        params = {"conversation_id": _id(conversation_id)} if conversation_id else {}
+        return await self._request("GET", "answers", params=params)
+
+    async def saved_answer(self, answer_id):
+        return await self._request("GET", f"answers/{_id(answer_id)}")
 
     async def operations_status(self):
         return await self._request("GET", "operations/status")

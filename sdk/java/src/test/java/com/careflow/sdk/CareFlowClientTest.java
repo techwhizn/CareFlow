@@ -59,6 +59,22 @@ class CareFlowClientTest {
   }
 
   @Test
+  void conversationEndpointsAndQueryKeepTheExplicitSession() throws Exception {
+    client.createConversation(null, List.of(ID));
+    client.conversations();
+    client.conversation(ID);
+    client.answerHistory(ID);
+    client.savedAnswer(ID);
+    assertTrue(bodies.get(0).contains(ID));
+    assertEquals("/api/v1/conversations/" + ID, paths.get(2));
+    assertEquals("/api/v1/answers/" + ID, paths.get(4));
+    var query =
+        new CareFlowClient.Query("继续", null, List.of(), null, 6, false, null, List.of(), ID);
+    assertEquals(ID, query.conversation_id());
+    assertNull(new CareFlowClient.Query("兼容旧调用").conversation_id());
+  }
+
+  @Test
   void knowledgeConfigurationPreservesObservedRevisionsAndPublicReferences() throws Exception {
     var configuration =
         new KnowledgeConfiguration(

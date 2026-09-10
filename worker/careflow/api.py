@@ -16,6 +16,7 @@ from careflow.protocol_v1 import (
     ContextTokensResponse,
     Generate,
     GenerationEvent,
+    HistoryTokens,
     IndexPurge,
     IndexVerification,
     IndexVerificationResponse,
@@ -153,6 +154,8 @@ def rerank(body: Rerank):
 def stream(body: Generate):
     from careflow.chunking import tokens
 
+    if sum(tokens(turn.question + "\n" + turn.answer) for turn in body.history) > 3000:
+        raise HTTPException(422, "CONVERSATION_TOKEN_LIMIT")
     if sum(tokens(item.content) for item in body.evidence) > 6000:
         raise HTTPException(422, "EVIDENCE_TOKEN_LIMIT")
 
@@ -166,7 +169,9 @@ def stream(body: Generate):
                 raise ValueError("Generation requires generation configuration")
             with use_configuration(body.model_configuration):
                 upstream = models.generate_stream_async(
-                    body.query, [c.model_dump() for c in body.evidence]
+                    body.query,
+                    [c.model_dump() for c in body.evidence],
+                    [turn.model_dump() for turn in body.history],
                 )
                 async for line in upstream:
                     event = GenerationEvent.model_validate_json(line)
@@ -277,3 +282,16 @@ def compactions(body: CompactionRequest):
         )
     except Exception as exc:
         raise HTTPException(503, "COMPACTION_UNAVAILABLE") from exc
+
+
+@app.post("/internal/v1/conversation/tokens", response_model=ContextTokensResponse)
+def conversation_tokens(body: HistoryTokens):
+    from careflow.chunking import tokens
+
+    return {
+        "counts": [
+            {"id": row.id, "token_count": tokens(row.content)}
+            for row in body.candidates
+        ],
+        "tokenizer": "cl100k_base",
+    }

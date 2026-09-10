@@ -77,10 +77,24 @@ public final class WorkerProtocolV1 {
   public record GenerationUsage(
       @Min(0) Long input_tokens, @Min(0) Long output_tokens, @Min(0) Long total_tokens) {}
 
+  public record ConversationTurn(
+      @NotBlank @Size(max = 4000) String question, @NotBlank @Size(max = 32000) String answer) {}
+
+  public record HistoryCandidate(
+      @NotBlank @Size(max = 100) String id, @NotBlank @Size(max = 36001) String content) {}
+
+  public record HistoryTokensRequest(
+      @NotNull @Size(max = 6) List<@Valid @NotNull HistoryCandidate> candidates) {}
+
   public record GenerateRequest(
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence,
-      @Valid ModelConfiguration model_configuration) {}
+      @Valid ModelConfiguration model_configuration,
+      @Size(max = 6) List<@Valid @NotNull ConversationTurn> history) {
+    public GenerateRequest {
+      history = history == null ? List.of() : List.copyOf(history);
+    }
+  }
 
   public record TokenizeRequest(
       @NotBlank @Size(max = 10000) String text,

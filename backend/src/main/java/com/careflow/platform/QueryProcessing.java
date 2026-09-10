@@ -10,6 +10,18 @@ public final class QueryProcessing {
   public record Processed(
       String original, String rewritten, String method, List<String> identifiers) {}
 
+  public static Processed conversation(String current, String previous) {
+    var query = process(current);
+    if (previous == null || previous.isBlank() || !query.identifiers().isEmpty()) return query;
+    String combined = "当前问题：" + query.rewritten() + "\n历史问题：" + process(previous).rewritten();
+    if (combined.length() > 4000)
+      return new Processed(
+          query.original(), query.rewritten(), "CURRENT_ONLY_LENGTH_LIMIT", query.identifiers());
+    var rewritten = process(combined);
+    return new Processed(
+        query.original(), rewritten.rewritten(), "CONVERSATION_CONTEXT", rewritten.identifiers());
+  }
+
   public static Processed process(String input) {
     if (input == null || input.length() > 4000) throw new IllegalArgumentException("Invalid query");
     var output = new StringBuilder();

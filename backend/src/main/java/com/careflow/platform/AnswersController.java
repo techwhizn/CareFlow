@@ -16,13 +16,19 @@ public class AnswersController {
   private final Identity auth;
   private final RetrievalService retrieval;
   private final AnswerStreamService streams;
+  private final AnswerHistoryService history;
 
   public AnswersController(
-      Db db, Identity auth, RetrievalService retrieval, AnswerStreamService streams) {
+      Db db,
+      Identity auth,
+      RetrievalService retrieval,
+      AnswerStreamService streams,
+      AnswerHistoryService history) {
     this.db = db;
     this.auth = auth;
     this.retrieval = retrieval;
     this.streams = streams;
+    this.history = history;
   }
 
   @PostMapping("/retrieval/search")
@@ -31,6 +37,8 @@ public class AnswersController {
       @RequestHeader("Authorization") String authorization,
       @RequestHeader("Idempotency-Key") String key,
       @RequestBody Query q) {
+    if (q.conversation_id() != null && !q.conversation_id().isBlank())
+      throw new IllegalArgumentException("Conversation context is supported by answers only");
     Scope scope = retrieval.scope(actor, q);
     String event = retrieval.reserve(actor, key, scope.application());
     try {
@@ -53,29 +61,14 @@ public class AnswersController {
   }
 
   @GetMapping("/answers")
-  public Object history(@RequestAttribute Actor actor) {
-    List<Map<String, Object>> visible = new ArrayList<>();
-    for (var a :
-        db.list(
-            "SELECT * FROM answers WHERE tenant_id=? AND subject_id=? ORDER BY created_at DESC LIMIT 100",
-            actor.tenant(),
-            actor.subject())) {
-      boolean allowed = true;
-      for (var e :
-          db.list(
-              "SELECT document_id,version_id,chunk_id AS id FROM answer_evidence WHERE answer_id=?",
-              str(a, "id"))) {
-        try {
-          retrieval.checkEvidence(
-              actor, e, new Scope(List.of(), false, str(a, "application_id"), -1));
-        } catch (ApiException ex) {
-          allowed = false;
-          break;
-        }
-      }
-      if (allowed) visible.add(a);
-    }
-    return visible;
+  public Object history(
+      @RequestAttribute Actor actor, @RequestParam(required = false) String conversation_id) {
+    return history.history(actor, conversation_id);
+  }
+
+  @GetMapping("/answers/{id}")
+  public Object answer(@RequestAttribute Actor actor, @PathVariable UUID id) {
+    return history.answer(actor, id.toString());
   }
 
   @PostMapping("/answers/{id}/feedback")

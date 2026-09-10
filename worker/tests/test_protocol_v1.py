@@ -192,3 +192,47 @@ def test_model_usage_unknown_is_not_coerced_to_zero():
     ]:
         with pytest.raises(ValidationError):
             ModelUsage.model_validate(value)
+
+
+def test_conversation_tokenizer_and_generation_budget(monkeypatch):
+    from careflow.chunking import tokens
+
+    c = client(monkeypatch)
+    content = "CF-100 如何操作？\n按说明操作。"
+    response = c.post(
+        "/internal/v1/conversation/tokens",
+        json={"candidates": [{"id": "turn-1", "content": content}]},
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "tokenizer": "cl100k_base",
+        "counts": [{"id": "turn-1", "token_count": tokens(content)}],
+    }
+    response = c.post(
+        "/internal/v1/generate/stream",
+        json={
+            "query": "如何重置？",
+            "evidence": [{"id": "source-1", "content": "合成资料"}],
+            "history": [{"question": "问题", "answer": "资料 " * 4000}],
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"] == "CONVERSATION_TOKEN_LIMIT"
+
+
+def test_history_pairs_precede_current_evidence_and_never_replace_system_policy():
+    import json
+
+    from careflow.models import generation_payload
+
+    payload = generation_payload(
+        "那如何重置？",
+        [{"id": "current", "content": "当前证据"}],
+        "synthetic",
+        [{"question": "CF-100 如何操作？", "answer": "历史答案 [old]"}],
+    )
+    messages = payload["messages"]
+    assert [row["role"] for row in messages] == ["system", "user", "assistant", "user"]
+    assert "只能引用本次证据中的ID" in messages[0]["content"]
+    assert messages[1]["content"] == "CF-100 如何操作？"
+    assert json.loads(messages[-1]["content"])["evidence"][0]["id"] == "current"

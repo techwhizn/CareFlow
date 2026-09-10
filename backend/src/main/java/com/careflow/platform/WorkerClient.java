@@ -61,6 +61,10 @@ public class WorkerClient {
       Object request;
       Class<?> response;
       switch (path) {
+        case "/internal/v1/conversation/tokens" -> {
+          request = checked(body, WorkerProtocolV1.HistoryTokensRequest.class);
+          response = WorkerProtocolV1.ContextTokensResponse.class;
+        }
         case "/internal/v1/context/tokens" -> {
           request = checked(body, WorkerProtocolV1.ContextTokensRequest.class);
           response = WorkerProtocolV1.ContextTokensResponse.class;

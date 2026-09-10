@@ -74,9 +74,24 @@ class RerankResponse(Contract):
     usage: ModelUsage | None = None
 
 
+class ConversationTurn(Contract):
+    question: str = Field(min_length=1, max_length=4000)
+    answer: str = Field(min_length=1, max_length=32000)
+
+
+class HistoryCandidate(Contract):
+    id: str = Field(min_length=1, max_length=100)
+    content: str = Field(min_length=1, max_length=36001)
+
+
+class HistoryTokens(Contract):
+    candidates: list[HistoryCandidate] = Field(max_length=6)
+
+
 class Generate(ConfiguredOperation):
     query: str = Field(min_length=1, max_length=4000)
     evidence: list[Candidate] = Field(min_length=1, max_length=6)
+    history: list[ConversationTurn] = Field(default_factory=list, max_length=6)
 
 
 class Tokenize(ConfiguredOperation):

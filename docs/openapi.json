@@ -1973,6 +1973,54 @@
         }
       }
     },
+    "/api/v1/conversations": {
+      "get": {
+        "tags": [
+          "conversations-controller"
+        ],
+        "operationId": "list_4",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "conversations-controller"
+        ],
+        "operationId": "create_6",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cleanup-requests/{id}/retry": {
       "post": {
         "tags": [
@@ -2100,7 +2148,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "list_4",
+        "operationId": "list_5",
         "parameters": [
           {
             "name": "id",
@@ -2129,7 +2177,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "create_6",
+        "operationId": "create_7",
         "parameters": [
           {
             "name": "id",
@@ -2271,6 +2319,16 @@
           "answers-controller"
         ],
         "operationId": "history_1",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -2885,7 +2943,7 @@
         "tags": [
           "content-conflict-controller"
         ],
-        "operationId": "list_5",
+        "operationId": "list_6",
         "parameters": [
           {
             "name": "version",
@@ -3164,12 +3222,43 @@
         }
       }
     },
+    "/api/v1/conversations/{id}": {
+      "get": {
+        "tags": [
+          "conversations-controller"
+        ],
+        "operationId": "get_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cleanup-requests": {
       "get": {
         "tags": [
           "cleanup-controller"
         ],
-        "operationId": "list_6",
+        "operationId": "list_7",
         "responses": {
           "200": {
             "description": "OK",
@@ -3217,6 +3306,37 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/answers/{id}": {
+      "get": {
+        "tags": [
+          "answers-controller"
+        ],
+        "operationId": "answer_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -4280,6 +4400,9 @@
             "items": {
               "$ref": "#/components/schemas/Rule"
             }
+          },
+          "conversation_id": {
+            "type": "string"
           }
         }
       },

@@ -150,3 +150,9 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 生成流还可返回`usage`事件，计数来自供应商，缺失字段表示未知；事件不表示回答已完成。取消和迁移说明见[流式问答](../docs/answer-streaming.md)。
 
 运维汇总可通过Python `operations_status()`或Java `operationsStatus()`读取，仅OPS/OWNER/ADMIN允许；OPS不能读取知识内容。详见[访问边界](../docs/access-boundaries.md)。
+
+## 连续追问与历史
+
+Python `create_conversation(knowledge_base_ids=(kb_id,))` / Java `createConversation(null, List.of(kbId))` 创建会话。将返回的 `id` 传给 Query 新增的 `conversation_id`；保持应用和知识库集合一致。省略 ID 时自动创建新会话，旧调用保持兼容。
+
+Python `conversations()`、`conversation(id)`、`answer_history(conversation_id=id)`、`saved_answer(id)` 提供列表、会话历史和带引用的答案；异步客户端同样支持。Java 对应 `conversations()`、`conversation(id)`、`answerHistory(id)`、`savedAnswer(id)`。所有历史读取均重新授权，撤权后可能隐藏或返回 404。详见[会话协议](../docs/conversations.md)。

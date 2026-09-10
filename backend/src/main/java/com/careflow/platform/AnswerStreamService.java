@@ -12,23 +12,34 @@ public class AnswerStreamService {
   private final RetrievalService retrieval;
   private final WorkerClient worker;
   private final GenerationAccounting accounting;
+  private final ConversationService conversations;
+  private final AnswerHistoryService history;
 
   public AnswerStreamService(
-      RetrievalService retrieval, WorkerClient worker, GenerationAccounting accounting) {
+      RetrievalService retrieval,
+      WorkerClient worker,
+      GenerationAccounting accounting,
+      ConversationService conversations,
+      AnswerHistoryService history) {
     this.retrieval = retrieval;
     this.worker = worker;
     this.accounting = accounting;
+    this.conversations = conversations;
+    this.history = history;
   }
 
   public SseEmitter answer(Actor actor, String authorization, String key, Query q) {
     Scope scope = retrieval.scope(actor, q);
     String event = retrieval.reserve(actor, key, scope.application());
+    final ConversationService.Context context;
     try {
+      context = conversations.prepare(actor, q, scope, event, authorization);
       accounting.initialize(
           actor.tenant(),
           event,
           scope.configuration() == null ? null : scope.configuration().runtime().id());
     } catch (Exception error) {
+      conversations.release(actor, event);
       retrieval.settle(actor, event, false);
       throw error;
     }
@@ -53,14 +64,35 @@ public class AnswerStreamService {
           boolean charged = false;
           try {
             cancellation.bindThread();
-            emitter.send(SseEmitter.event().name("start").data(Map.of("request_id", event)));
+            emitter.send(
+                SseEmitter.event()
+                    .name("start")
+                    .data(
+                        Map.of(
+                            "request_id",
+                            event,
+                            "conversation_id",
+                            context.id(),
+                            "conversation_revision",
+                            context.revision(),
+                            "context_rounds",
+                            context.turns().size(),
+                            "context_tokens",
+                            context.tokens())));
             emitter.send(SseEmitter.event().name("status").data(Map.of("stage", "retrieval")));
-            var result = retrieval.search(actor, q, scope, authorization);
+            var result =
+                retrieval.search(
+                    actor,
+                    q,
+                    scope,
+                    authorization,
+                    QueryProcessing.conversation(q.query(), context.previousQuestion()));
             cancellation.check();
             if ("SCORE_UNAVAILABLE".equals(result.get("evidence_status")))
               throw new ApiException(503, "RERANK_UNAVAILABLE", "评分服务不可用，无法确认答案依据");
             @SuppressWarnings("unchecked")
             var evidence = (List<Map<String, Object>>) result.get("evidence");
+            conversations.check(actor, context, event, scope);
             StringBuilder content = new StringBuilder();
             if (evidence.isEmpty()) {
               content.append("当前可访问的资料中没有找到足够依据，无法确认答案。");
@@ -68,12 +100,16 @@ public class AnswerStreamService {
                   SseEmitter.event().name("delta").data(Map.of("text", content.toString())));
             } else {
               emitter.send(SseEmitter.event().name("status").data(Map.of("stage", "generation")));
+              var generation =
+                  retrieval.generationRequest(actor, q, scope, evidence, authorization);
+              generation.put("history", context.turns());
               accounting.started(actor.tenant(), event);
               worker.stream(
-                  retrieval.generationRequest(actor, q, scope, evidence, authorization),
+                  generation,
                   delta -> {
                     cancellation.check();
                     retrieval.reauthenticate(actor, authorization);
+                    conversations.check(actor, context, event, scope);
                     for (var c : evidence) retrieval.checkEvidence(actor, c, scope);
                     content.append(delta);
                     if (content.length() > 32000)
@@ -88,6 +124,7 @@ public class AnswerStreamService {
                     accounting.reported(actor.tenant(), event, usage);
                     cancellation.check();
                     retrieval.reauthenticate(actor, authorization);
+                    conversations.check(actor, context, event, scope);
                     for (var c : evidence) retrieval.checkEvidence(actor, c, scope);
                     try {
                       emitter.send(SseEmitter.event().name("usage").data(usage));
@@ -101,7 +138,7 @@ public class AnswerStreamService {
             retrieval.reauthenticate(actor, authorization);
             for (var c : evidence) retrieval.checkEvidence(actor, c, scope);
             String id =
-                retrieval.saveAnswer(
+                history.save(
                     actor,
                     new Query(
                         q.query(),
@@ -113,13 +150,24 @@ public class AnswerStreamService {
                         q.minimum_rerank_score(),
                         q.filters()),
                     content.toString(),
-                    evidence);
+                    evidence,
+                    context,
+                    event);
             charged = true;
             emitter.send(SseEmitter.event().name("citations").data(Map.of("evidence", evidence)));
             emitter.send(
                 SseEmitter.event()
                     .name("done")
-                    .data(Map.of("answer_id", id, "degraded", result.get("degraded"))));
+                    .data(
+                        Map.of(
+                            "answer_id",
+                            id,
+                            "degraded",
+                            result.get("degraded"),
+                            "conversation_id",
+                            context.id(),
+                            "conversation_revision",
+                            context.revision() + 1)));
             cancellation.finish();
             emitter.complete();
           } catch (Exception e) {
@@ -144,7 +192,11 @@ public class AnswerStreamService {
             try {
               accounting.finish(actor.tenant(), event, charged, cancellation.cancelled());
             } finally {
-              retrieval.settle(actor, event, charged);
+              try {
+                conversations.release(actor, event);
+              } finally {
+                retrieval.settle(actor, event, charged);
+              }
             }
           }
         });

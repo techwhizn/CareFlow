@@ -512,7 +512,8 @@
       "V1-29"
     ],
     "acceptance": "最近6轮且不超过3000Token；用户/应用会话隔离，切换应用新建会话；打开历史重新授权，依赖被删/撤权隐藏整条答案及引用。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-30-conversations.md"
   },
   {
     "id": "V1-31",

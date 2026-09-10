@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type { Row } from "../api";
-import { post, streamAnswer } from "../api";
+import { post, request, streamAnswer } from "../api";
 import { Empty, ErrorNote, useData } from "../ui";
 export default function AnswerPage() {
   const [query, setQuery] = useState(""),
@@ -24,11 +24,26 @@ export default function AnswerPage() {
     [error, setError] = useState(""),
     [evidence, setEvidence] = useState<Row[]>([]),
     [answerId, setAnswerId] = useState(""),
+    [conversationId, setConversationId] = useState(""),
+    [contextInfo, setContextInfo] = useState("新会话"),
     [usage, setUsage] = useState<Row | null>(null);
   const history = useData<Row[]>("/answers", []);
   const knowledge = useData<Row[]>("/knowledge-bases", []);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
+  function resetConversation() {
+    controller.current?.abort();
+    controller.current = null;
+    setBusy(false);
+    setConversationId("");
+    setContextInfo("新会话");
+    setAnswer("");
+    setAnswerId("");
+    setEvidence([]);
+    setUsage(null);
+    setError("");
+    setStage("");
+  }
   return (
     <>
       <div className="page-heading">
@@ -56,6 +71,7 @@ export default function AnswerPage() {
                 await streamAnswer(
                   {
                     query,
+                    conversation_id: conversationId || null,
                     knowledge_base_ids: kb ? [kb] : [],
                     mode: null,
                     limit: 6,
@@ -70,6 +86,12 @@ export default function AnswerPage() {
                       controller.current !== control
                     )
                       return;
+                    if (name === "start") {
+                      setConversationId(data.conversation_id);
+                      setContextInfo(
+                        `已带入 ${data.context_rounds} 轮上下文 · ${data.context_tokens} / 3000 Token`,
+                      );
+                    }
                     if (name === "status")
                       setStage(
                         data.stage === "retrieval"
@@ -108,7 +130,10 @@ export default function AnswerPage() {
               知识范围
               <select
                 value={kb}
-                onChange={(event) => setKb(event.target.value)}
+                onChange={(event) => {
+                  resetConversation();
+                  setKb(event.target.value);
+                }}
                 disabled={busy}
               >
                 <option value="">全部授权知识库</option>
@@ -143,7 +168,10 @@ export default function AnswerPage() {
               />
             </label>
             <div className="section-title">
-              <span className="muted">仅使用当前可访问的知识</span>
+              <span className="muted">{contextInfo}</span>
+              <button type="button" disabled={busy} onClick={resetConversation}>
+                新建会话
+              </button>
               {busy ? (
                 <button
                   key="stop"
@@ -236,12 +264,45 @@ export default function AnswerPage() {
           {history.data.map((a) => (
             <button
               key={a.id}
-              onClick={() => {
-                setQuery(a.question);
-                setAnswer(a.content);
-                setAnswerId(a.id);
-                setEvidence([]);
-                setStage("历史回答");
+              disabled={busy}
+              onClick={async () => {
+                resetConversation();
+                const control = new AbortController();
+                controller.current = control;
+                try {
+                  const saved = await request<Row>(`/answers/${a.id}`, {
+                    signal: control.signal,
+                  });
+                  if (controller.current !== control) return;
+                  if (saved.conversation_id) {
+                    const conversation = await request<Row>(
+                      `/conversations/${saved.conversation_id}`,
+                      { signal: control.signal },
+                    );
+                    if (controller.current !== control) return;
+                    const bases = JSON.parse(
+                      conversation.knowledge_base_ids,
+                    ) as string[];
+                    // Multi-base and application sessions remain available through their API scope.
+                    if (!conversation.application_id && bases.length <= 1) {
+                      setConversationId(saved.conversation_id);
+                      setKb(bases[0] || "");
+                      setContextInfo(
+                        `会话已有 ${conversation.revision} 轮回答`,
+                      );
+                    }
+                  }
+                  setQuery(saved.question);
+                  setAnswer(saved.content);
+                  setAnswerId(saved.id);
+                  setEvidence(saved.evidence);
+                  setStage("历史回答");
+                } catch (error) {
+                  if (controller.current !== control || control.signal.aborted)
+                    return;
+                  setError((error as Error).message);
+                  void history.reload();
+                }
               }}
             >
               {a.question}

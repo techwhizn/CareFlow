@@ -537,3 +537,35 @@ def test_operations_status_uses_the_same_authorized_public_api():
 
     asyncio.run(run())
     assert calls == ["/api/v1/operations/status"] * 2
+
+
+def test_conversation_and_saved_answer_endpoints():
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(200, json={"id": ID})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.create_conversation(knowledge_base_ids=(ID,))
+        client.conversations()
+        client.conversation(ID)
+        client.answer_history(conversation_id=ID)
+        client.saved_answer(ID)
+    assert json.loads(requests[0].content)["knowledge_base_ids"] == [ID]
+    assert requests[2].url.path == f"/api/v1/conversations/{ID}"
+    assert requests[3].url.params["conversation_id"] == ID
+    assert requests[4].url.path == f"/api/v1/answers/{ID}"
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.create_conversation()
+            await client.conversations()
+            await client.conversation(ID)
+            await client.answer_history(conversation_id=ID)
+            await client.saved_answer(ID)
+
+    asyncio.run(run())
+    assert len(requests) == 10

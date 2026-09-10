@@ -73,7 +73,10 @@ public class Identity {
             ? "READ"
             : method.equals("POST") && path.equals("/api/v1/retrieval/search")
                 ? "SEARCH"
-                : method.equals("POST") && path.equals("/api/v1/answers") ? "ANSWER" : null;
+                : method.equals("POST")
+                        && Set.of("/api/v1/answers", "/api/v1/conversations").contains(path)
+                    ? "ANSWER"
+                    : null;
     if (required == null || !actor.scopes().contains(required)) throw ApiException.hidden();
   }
 

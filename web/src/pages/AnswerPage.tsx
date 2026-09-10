@@ -50,7 +50,7 @@ export default function AnswerPage() {
                   {
                     query,
                     knowledge_base_ids: [],
-                    mode: "hybrid",
+                    mode: null,
                     limit: 6,
                     debug: false,
                     minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),

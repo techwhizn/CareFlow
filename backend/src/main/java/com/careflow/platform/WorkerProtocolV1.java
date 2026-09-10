@@ -78,7 +78,8 @@ public final class WorkerProtocolV1 {
       String tenant_id,
       String version_id,
       String filename,
-      int pdf_page_limit) {}
+      int pdf_page_limit,
+      KnowledgeConfiguration.RuntimeConfiguration configuration) {}
 
   public record IndexChunk(String id, String content) {}
 

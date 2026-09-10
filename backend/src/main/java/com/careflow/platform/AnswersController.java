@@ -73,13 +73,7 @@ public class AnswersController {
             } else {
               emitter.send(SseEmitter.event().name("status").data(Map.of("stage", "generation")));
               worker.stream(
-                  Map.of(
-                      "query",
-                      q.query(),
-                      "evidence",
-                      evidence.stream()
-                          .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
-                          .toList()),
+                  retrieval.generationRequest(actor, q, scope, evidence, authorization),
                   delta -> {
                     if (stopped.get()) throw new ApiException(409, "CANCELLED", "用户已停止接收");
                     retrieval.reauthenticate(actor, authorization);

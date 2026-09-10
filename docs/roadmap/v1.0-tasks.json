@@ -48,8 +48,8 @@
       "V1-01"
     ],
     "acceptance": "解析、切片、模型和检索配置可保存版本；草稿不影响线上；任务绑定配置快照；发布提示重解析/重建影响，旧索引按原模型身份查询。",
-    "status": "开发中",
-    "evidence": "docs/reports/v1-03-model-context.md"
+    "status": "完成",
+    "evidence": "docs/reports/v1-03-configurations.md"
   },
   {
     "id": "V1-04",

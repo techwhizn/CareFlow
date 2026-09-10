@@ -16,12 +16,19 @@ public class Tasks {
   private final TransactionTemplate tx;
   private final Identity auth;
   private final EntitlementService entitlements;
+  private final KnowledgeConfigurationService configurations;
 
-  public Tasks(Db db, TransactionTemplate tx, Identity auth, EntitlementService entitlements) {
+  public Tasks(
+      Db db,
+      TransactionTemplate tx,
+      Identity auth,
+      EntitlementService entitlements,
+      KnowledgeConfigurationService configurations) {
     this.db = db;
     this.tx = tx;
     this.auth = auth;
     this.entitlements = entitlements;
+    this.configurations = configurations;
   }
 
   @Bean
@@ -101,45 +108,67 @@ public class Tasks {
   }
 
   public Map<String, Object> claim(String id) {
-    return tx.execute(
-        status -> {
-          var tenantRow = db.one("SELECT tenant_id FROM jobs WHERE id=?", id);
-          db.one("SELECT id FROM tenants WHERE id=? FOR UPDATE", str(tenantRow, "tenant_id"));
-          var j = db.one("SELECT * FROM jobs WHERE id=? FOR UPDATE", id);
-          if (!str(j, "state").equals("QUEUED")) throw ApiException.conflict();
-          var v =
-              db.one(
-                  "SELECT v.* FROM document_versions v JOIN documents d ON d.id=v.document_id JOIN knowledge_bases k ON k.id=d.kb_id WHERE v.id=? AND d.status='ACTIVE' AND k.status='ACTIVE'",
+    var result =
+        tx.execute(
+            status -> {
+              var tenantRow = db.one("SELECT tenant_id FROM jobs WHERE id=?", id);
+              db.one("SELECT id FROM tenants WHERE id=? FOR UPDATE", str(tenantRow, "tenant_id"));
+              var j = db.one("SELECT * FROM jobs WHERE id=? FOR UPDATE", id);
+              if (!str(j, "state").equals("QUEUED")) throw ApiException.conflict();
+              var v =
+                  db.one(
+                      "SELECT v.* FROM document_versions v JOIN documents d ON d.id=v.document_id JOIN knowledge_bases k ON k.id=d.kb_id WHERE v.id=? AND d.status='ACTIVE' AND k.status='ACTIVE'",
+                      str(j, "version_id"));
+              KnowledgeConfiguration.RuntimeConfiguration configuration;
+              try {
+                configuration =
+                    configurations.runtime(str(j, "tenant_id"), str(j, "configuration_id"));
+              } catch (ApiException e) {
+                db.exec(
+                    "UPDATE jobs SET state='FAILED',error_code='MODEL_CONFIGURATION_REQUIRED',dispatch_until=NULL,dispatch_token=NULL,wait_reason=NULL WHERE id=?",
+                    id);
+                db.exec(
+                    "UPDATE document_versions SET state='FAILED' WHERE id=?", str(j, "version_id"));
+                return Map.<String, Object>of("configuration_unavailable", true);
+              }
+              entitlements.claimTask(str(j, "tenant_id"), j);
+              String lease = id();
+              db.exec(
+                  "UPDATE jobs SET state='RUNNING',dispatch_until=NULL,wait_reason=NULL,attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
+                  lease,
+                  Timestamp.from(Instant.now().plusSeconds(90)),
+                  id);
+              db.exec(
+                  "UPDATE document_versions SET state=? WHERE id=?",
+                  str(j, "kind").equals("PARSE") ? "PARSING" : "INDEXING",
                   str(j, "version_id"));
-          entitlements.claimTask(str(j, "tenant_id"), j);
-          String lease = id();
-          db.exec(
-              "UPDATE jobs SET state='RUNNING',dispatch_until=NULL,wait_reason=NULL,attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
-              lease,
-              Timestamp.from(Instant.now().plusSeconds(90)),
-              id);
-          db.exec(
-              "UPDATE document_versions SET state=? WHERE id=?",
-              str(j, "kind").equals("PARSE") ? "PARSING" : "INDEXING",
-              str(j, "version_id"));
-          return Map.of(
-              "id",
-              id,
-              "lease_token",
-              lease,
-              "kind",
-              str(j, "kind"),
-              "tenant_id",
-              str(j, "tenant_id"),
-              "version_id",
-              str(j, "version_id"),
-              "filename",
-              str(v, "filename"),
-              "pdf_page_limit",
-              num(
-                  db.one("SELECT pdf_page_limit FROM tenants WHERE id=?", str(j, "tenant_id")),
-                  "pdf_page_limit"));
-        });
+              var claim =
+                  new LinkedHashMap<String, Object>(
+                      Map.of(
+                          "id",
+                          id,
+                          "lease_token",
+                          lease,
+                          "kind",
+                          str(j, "kind"),
+                          "tenant_id",
+                          str(j, "tenant_id"),
+                          "version_id",
+                          str(j, "version_id"),
+                          "filename",
+                          str(v, "filename"),
+                          "pdf_page_limit",
+                          num(
+                              db.one(
+                                  "SELECT pdf_page_limit FROM tenants WHERE id=?",
+                                  str(j, "tenant_id")),
+                              "pdf_page_limit")));
+              if (configuration != null) claim.put("configuration", configuration);
+              return claim;
+            });
+    if (result.containsKey("configuration_unavailable"))
+      throw new ApiException(409, "MODEL_CONFIGURATION_REQUIRED", "任务配置不可用，任务已标记失败");
+    return result;
   }
 
   public Map<String, Object> validate(String id, String lease) {
@@ -198,6 +227,12 @@ public class Tasks {
           } else {
             if (!Boolean.TRUE.equals(body.get("verified")) || str(body, "model_identity").isBlank())
               throw new IllegalArgumentException();
+            var configuration = configurations.runtime(tenant, str(j, "configuration_id"));
+            if (configuration != null
+                && !configurations
+                    .modelIdentity(configuration.embedding())
+                    .equals(str(body, "model_identity")))
+              throw new ApiException(409, "INDEX_MODEL_MISMATCH", "索引模型与任务快照不一致");
             db.exec(
                 "UPDATE document_versions SET state='READY',model_identity=? WHERE id=?",
                 str(body, "model_identity"),

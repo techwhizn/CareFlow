@@ -59,6 +59,32 @@ class CareFlowClientTest {
   }
 
   @Test
+  void knowledgeConfigurationPreservesObservedRevisionsAndPublicReferences() throws Exception {
+    var configuration =
+        new KnowledgeConfiguration(
+            "synthetic",
+            new KnowledgeConfiguration.Parsing(20),
+            new KnowledgeConfiguration.Chunking(120, 200, 10),
+            new KnowledgeConfiguration.Retrieval("hybrid", 4, null, false),
+            new KnowledgeConfiguration.Models(ID, ID, ID, 2, 3, 4));
+    client.knowledgeConfigurations(ID);
+    client.configurationModels(ID);
+    client.createKnowledgeConfiguration(ID, configuration, "draft");
+    client.configurationImpact(ID, ID);
+    client.publishKnowledgeConfiguration(ID, ID, 7, "synthetic", "publish-config");
+    client.reprocess(ID, "reprocess");
+    assertTrue(bodies.get(2).contains("\"embedding_profile_revision\":2"));
+    assertFalse(bodies.get(2).contains("api_key"));
+    assertTrue(bodies.get(4).contains("\"revision\":7"));
+    assertEquals("/api/v1/document-versions/" + ID + "/reprocess", paths.get(5));
+    assertEquals("reprocess", keys.get(5));
+    client.bindConfiguration(ID, 9, "bind");
+    assertEquals("/api/v1/document-versions/" + ID + "/configuration-binding", paths.get(6));
+    assertTrue(bodies.get(6).contains("\"revision\":9"));
+    assertEquals("bind", keys.get(6));
+  }
+
+  @Test
   void metadataFilterSerializesWithoutAnExpressionString() throws Exception {
     var filter =
         new CareFlowClient.MetadataFilter(

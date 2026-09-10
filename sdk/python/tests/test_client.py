@@ -216,6 +216,13 @@ def test_routes_and_query_fields_exist_in_openapi():
         ("/documents/{id}/publications", "post"),
         ("/retrieval/search", "post"),
         ("/answers", "post"),
+        ("/knowledge-bases/{kb}/configurations", "get"),
+        ("/knowledge-bases/{kb}/configurations", "post"),
+        ("/knowledge-bases/{kb}/configuration-models", "get"),
+        ("/knowledge-bases/{kb}/configurations/{id}/impact", "get"),
+        ("/knowledge-bases/{kb}/configuration-publications", "post"),
+        ("/document-versions/{id}/reprocess", "post"),
+        ("/document-versions/{id}/configuration-binding", "post"),
     ]:
         assert method in schema["paths"]["/api/v1" + path]
     assert set(Query.__dataclass_fields__) <= set(
@@ -257,3 +264,72 @@ def test_typed_metadata_filter_serializes_closed_request_shape():
                 filters=(MetadataFilter("product_models", "in", ("CF-100", "CF-200")),),
             )
         )
+
+
+def test_configuration_revision_and_reprocess_contracts_sync_and_async():
+    from careflow_sdk.configuration import KnowledgeConfiguration, ModelReferences
+
+    captured = []
+
+    def handler(request):
+        captured.append(request)
+        return httpx.Response(200, json={"id": ID})
+
+    configuration = KnowledgeConfiguration(
+        "synthetic", ModelReferences(ID, ID, ID, 2, 3, 4)
+    )
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.knowledge_configurations(ID)
+        client.configuration_models(ID)
+        client.create_knowledge_configuration(
+            ID, configuration, idempotency_key="draft"
+        )
+        client.configuration_impact(ID, ID)
+        client.publish_knowledge_configuration(
+            ID, ID, 7, "synthetic", idempotency_key="publish-config"
+        )
+        client.reprocess(ID, idempotency_key="reprocess")
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.create_knowledge_configuration(
+                ID, configuration, idempotency_key="async-draft"
+            )
+            await client.publish_knowledge_configuration(
+                ID, ID, 8, "synthetic", idempotency_key="async-publish"
+            )
+            await client.reprocess(ID, idempotency_key="async-reprocess")
+
+    asyncio.run(run())
+    assert json.loads(captured[2].content)["models"]["embedding_profile_revision"] == 2
+    assert json.loads(captured[4].content)["revision"] == 7
+    assert captured[5].url.path.endswith(f"/{ID}/reprocess")
+    assert captured[-1].headers["idempotency-key"] == "async-reprocess"
+    assert "api_key" not in captured[2].content.decode()
+
+
+def test_configuration_binding_preserves_reviewed_revision_sync_and_async():
+    def handler(request):
+        assert (
+            request.url.path == f"/api/v1/document-versions/{ID}/configuration-binding"
+        )
+        assert json.loads(request.content) == {"revision": 9}
+        assert request.headers["idempotency-key"] == "bind"
+        return httpx.Response(200, json={"revision": 10})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        assert (
+            client.bind_configuration(ID, 9, idempotency_key="bind")["revision"] == 10
+        )
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            assert (await client.bind_configuration(ID, 9, idempotency_key="bind"))[
+                "revision"
+            ] == 10
+
+    asyncio.run(run())

@@ -96,14 +96,22 @@ public class ModelProfileService {
         localBases.stream().sorted().toList());
   }
 
+  public void checkEndpoint(String base, boolean external) {
+    if (!(external ? externalBases : localBases).contains(canonical(base)))
+      throw new ApiException(400, "MODEL_ENDPOINT_NOT_ALLOWED", "模型地址未获部署管理员授权，或地址许可已撤销");
+  }
+
+  public List<View> forKnowledgeConfiguration(Actor actor, String kb) {
+    auth.kb(actor, kb, "manage");
+    return repository.list(actor.tenant()).stream().map(this::view).toList();
+  }
+
   @Transactional
   public View save(Actor actor, String profile, Input input) {
     auth.admin(actor);
     auth.lock(actor);
     String base = canonical(input.base_url());
-    Set<String> allowed = input.external_processing() ? externalBases : localBases;
-    if (!allowed.contains(base))
-      throw new ApiException(400, "MODEL_ENDPOINT_NOT_ALLOWED", "模型地址未获部署管理员授权，或外发声明与地址策略不符");
+    checkEndpoint(base, input.external_processing());
     if (input.kind().equals("EMBEDDING")
         && (input.dimensions() == null || input.model_revision().isBlank()))
       throw new IllegalArgumentException("Embedding requires dimensions and immutable revision");

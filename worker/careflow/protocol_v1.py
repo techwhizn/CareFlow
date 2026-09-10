@@ -81,6 +81,41 @@ class GenerationEvent(Contract):
         return self
 
 
+class ParsingConfiguration(Contract):
+    pdf_page_limit: int = Field(ge=1, le=500)
+
+
+class ChunkingConfiguration(Contract):
+    target: int = Field(ge=1, le=600)
+    maximum: int = Field(ge=1, le=600)
+    overlap: int = Field(ge=0, le=599)
+
+    @model_validator(mode="after")
+    def bounded_overlap(self):
+        if not self.overlap < self.target <= self.maximum:
+            raise ValueError("Expected overlap < target <= maximum")
+        return self
+
+
+class RuntimeConfiguration(Contract):
+    id: str = Field(min_length=1, max_length=36)
+    parsing: ParsingConfiguration
+    chunking: ChunkingConfiguration
+    embedding: ModelConfiguration
+    rerank: ModelConfiguration
+    generation: ModelConfiguration
+
+    @model_validator(mode="after")
+    def model_kinds(self):
+        if (
+            self.embedding.kind != "EMBEDDING"
+            or self.rerank.kind != "RERANK"
+            or self.generation.kind != "GENERATION"
+        ):
+            raise ValueError("Model configuration kinds do not match task contract")
+        return self
+
+
 class TaskClaim(Contract):
     id: str
     lease_token: str
@@ -89,6 +124,7 @@ class TaskClaim(Contract):
     version_id: str
     filename: str
     pdf_page_limit: int = Field(default=500, ge=1, le=500)
+    configuration: RuntimeConfiguration | None = None
 
 
 class ParsedChunk(Contract):

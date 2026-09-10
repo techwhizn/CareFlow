@@ -7,6 +7,7 @@ import DocumentUpload from "../../components/DocumentUpload";
 import KnowledgeOverview from "../../components/KnowledgeOverview";
 import KnowledgeLifecycle from "../../components/KnowledgeLifecycle";
 import DocumentDetail from "./DocumentDetail";
+import ConfigurationVersions from "./ConfigurationVersions";
 import { knowledgePaths } from "./client";
 export default function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
   const [page, setPage] = useState(0),
@@ -47,6 +48,7 @@ export default function KnowledgeDetail({ kb, back }: { kb: Row; back: () => voi
       </div>
       <KnowledgeOverview id={kb.id} onSaved={back} />
       <KnowledgeLifecycle id={kb.id} onChanged={back} />
+      <ConfigurationVersions kb={kb.id} />
       <div className="tabs">
         <button className="active">文档</button>
         <span>上传 → 解析 → 审核切片 → 索引 → 发布</span>

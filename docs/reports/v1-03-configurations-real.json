@@ -1,0 +1,44 @@
+{
+  "started_at": "2026-09-10T11:35:04Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "accepted_document_retains_configuration_A_after_B_publication",
+      "passed": true,
+      "configuration_a": "091c457b-04bf-4e48-97e5-09ae58bba043",
+      "configuration_b": "1e6c3369-5b60-433a-86cb-01d049bed8a8",
+      "chunks": 5
+    },
+    {
+      "name": "real_index_A_remains_searchable_with_B_query_policy",
+      "passed": true,
+      "evidence_count": 3,
+      "model_identity": "71fdbcf92c1d94a24fd0fa2566d397c2318f6ec11aa5bea2e6b33d60e020e170"
+    },
+    {
+      "name": "rollback_changes_default_query_mode_and_rejects_stale_revision",
+      "passed": true
+    },
+    {
+      "name": "reprocess_creates_new_draft_preserving_published_version",
+      "passed": true
+    },
+    {
+      "name": "deepseek_v4_flash_generation_uses_frozen_configuration",
+      "passed": true,
+      "events": [
+        "citations",
+        "delta",
+        "done",
+        "start",
+        "status"
+      ]
+    },
+    {
+      "name": "public_configuration_responses_contain_no_credentials",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "knowledge_base_id": "cfabfb15-054d-4b12-ac19-bf7f00ac5a77"
+}

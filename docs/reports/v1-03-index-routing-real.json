@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-09-10T11:39:21Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "legacy_index_bound_only_to_matching_identity_and_still_searchable",
+      "passed": true,
+      "model_identity": "71fdbcf92c1d94a24fd0fa2566d397c2318f6ec11aa5bea2e6b33d60e020e170"
+    },
+    {
+      "name": "two_real_embedding_endpoint_identities_are_routed_and_rank_fused",
+      "passed": true,
+      "model_identities": [
+        "71fdbcf92c1d94a24fd0fa2566d397c2318f6ec11aa5bea2e6b33d60e020e170",
+        "2f293c4d6390bcf072ced78d5cff0ed471a48ef7b8f5c35467a5464e4a3d66d8"
+      ],
+      "dense_candidates": 10,
+      "fused_candidates": 10,
+      "note": "Same pinned BGE weights, distinct configured local endpoint identities"
+    }
+  ],
+  "complete": true
+}

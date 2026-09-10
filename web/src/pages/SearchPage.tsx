@@ -10,7 +10,7 @@ export default function SearchPage() {
   const k = useData<Row[]>("/knowledge-bases", []),
     [query, setQuery] = useState(""),
     [kb, setKb] = useState(""),
-    [mode, setMode] = useState("hybrid"),
+    [mode, setMode] = useState(""),
     [minimumScore, setMinimumScore] = useState(""),
     [filters, setFilters] = useState<FilterDraft[]>([]),
     [busy, setBusy] = useState(false),
@@ -36,7 +36,7 @@ export default function SearchPage() {
               await post("/retrieval/search", {
                 query,
                 knowledge_base_ids: kb ? [kb] : [],
-                mode,
+                mode: mode || null,
                 limit: 6,
                 debug: true,
                 minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
@@ -85,6 +85,7 @@ export default function SearchPage() {
           <label>
             检索策略
             <select value={mode} onChange={(e) => setMode(e.target.value)}>
+              <option value="">使用已发布配置</option>
               <option value="hybrid">混合检索</option>
               <option value="semantic">语义检索</option>
               <option value="keyword">关键词检索</option>

@@ -98,3 +98,5 @@ npm audit --prefix web
 套餐人工开通、限制单位、有效期和迁移规则见 [套餐与资源限制](docs/entitlements.md)。
 
 文档发布需要同时校验文档与内容版本修订，详见 [发布隔离与客户端升级](docs/document-publications.md)。
+
+知识库可独立保存、发布和回滚解析、切片、检索与模型配置，详见 [配置版本与历史索引升级](docs/knowledge-configurations.md)。

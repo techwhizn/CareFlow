@@ -26,6 +26,22 @@ public class DocumentDraftController {
     return service.draft(actor, id);
   }
 
+  @PostMapping("/document-versions/{id}/configuration-binding")
+  public Object bindConfiguration(
+      @RequestAttribute Actor actor,
+      @PathVariable String id,
+      @RequestBody @Valid DocumentDraftService.BindConfiguration input) {
+    return service.bindConfiguration(actor, id, input);
+  }
+
+  @PostMapping("/document-versions/{id}/reprocess")
+  public Object reprocess(
+      @RequestAttribute Actor actor,
+      @PathVariable String id,
+      @RequestHeader("Idempotency-Key") String key) {
+    return service.reprocess(actor, id, key);
+  }
+
   @PostMapping("/document-versions/{id}/index")
   public Object index(
       @RequestAttribute Actor actor,

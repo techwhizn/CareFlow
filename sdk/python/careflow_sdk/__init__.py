@@ -10,6 +10,8 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from .configuration import KnowledgeConfiguration as KnowledgeConfiguration
+
 
 class ApiError(RuntimeError):
     def __init__(self, status: int, code: str, request_id: str | None = None):
@@ -44,7 +46,7 @@ class Query:
     query: str
     application_id: str | None = None
     knowledge_base_ids: tuple[str, ...] = ()
-    mode: str = "hybrid"
+    mode: str | None = None
     limit: int = 6
     debug: bool = False
     minimum_rerank_score: float | None = None
@@ -186,6 +188,71 @@ class Client:
                 headers=_headers(idempotency_key),
             )
 
+    def knowledge_configurations(self, knowledge_base_id):
+        return self._request(
+            "GET", f"knowledge-bases/{_id(knowledge_base_id)}/configurations"
+        )
+
+    def configuration_models(self, knowledge_base_id):
+        return self._request(
+            "GET", f"knowledge-bases/{_id(knowledge_base_id)}/configuration-models"
+        )
+
+    def create_knowledge_configuration(
+        self,
+        knowledge_base_id,
+        configuration: KnowledgeConfiguration,
+        *,
+        idempotency_key=None,
+    ):
+        return self._request(
+            "POST",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configurations",
+            json=asdict(configuration),
+            headers=_headers(idempotency_key),
+        )
+
+    def configuration_impact(self, knowledge_base_id, configuration_id):
+        return self._request(
+            "GET",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configurations/{_id(configuration_id)}/impact",
+        )
+
+    def publish_knowledge_configuration(
+        self,
+        knowledge_base_id,
+        configuration_id,
+        revision,
+        reason,
+        *,
+        idempotency_key=None,
+    ):
+        return self._request(
+            "POST",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configuration-publications",
+            json={
+                "configuration_id": _id(configuration_id),
+                "revision": revision,
+                "reason": reason,
+            },
+            headers=_headers(idempotency_key),
+        )
+
+    def bind_configuration(self, version_id, revision, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/configuration-binding",
+            json={"revision": revision},
+            headers=_headers(idempotency_key),
+        )
+
+    def reprocess(self, version_id, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/reprocess",
+            headers=_headers(idempotency_key),
+        )
+
     def document_versions(self, document_id):
         return self._request("GET", f"documents/{_id(document_id)}/versions")
 
@@ -294,6 +361,71 @@ class AsyncClient:
                 files={"file": (path.name, source, "application/octet-stream")},
                 headers=_headers(idempotency_key),
             )
+
+    async def knowledge_configurations(self, knowledge_base_id):
+        return await self._request(
+            "GET", f"knowledge-bases/{_id(knowledge_base_id)}/configurations"
+        )
+
+    async def configuration_models(self, knowledge_base_id):
+        return await self._request(
+            "GET", f"knowledge-bases/{_id(knowledge_base_id)}/configuration-models"
+        )
+
+    async def create_knowledge_configuration(
+        self,
+        knowledge_base_id,
+        configuration: KnowledgeConfiguration,
+        *,
+        idempotency_key=None,
+    ):
+        return await self._request(
+            "POST",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configurations",
+            json=asdict(configuration),
+            headers=_headers(idempotency_key),
+        )
+
+    async def configuration_impact(self, knowledge_base_id, configuration_id):
+        return await self._request(
+            "GET",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configurations/{_id(configuration_id)}/impact",
+        )
+
+    async def publish_knowledge_configuration(
+        self,
+        knowledge_base_id,
+        configuration_id,
+        revision,
+        reason,
+        *,
+        idempotency_key=None,
+    ):
+        return await self._request(
+            "POST",
+            f"knowledge-bases/{_id(knowledge_base_id)}/configuration-publications",
+            json={
+                "configuration_id": _id(configuration_id),
+                "revision": revision,
+                "reason": reason,
+            },
+            headers=_headers(idempotency_key),
+        )
+
+    async def bind_configuration(self, version_id, revision, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/configuration-binding",
+            json={"revision": revision},
+            headers=_headers(idempotency_key),
+        )
+
+    async def reprocess(self, version_id, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/reprocess",
+            headers=_headers(idempotency_key),
+        )
 
     async def document_versions(self, document_id):
         return await self._request("GET", f"documents/{_id(document_id)}/versions")

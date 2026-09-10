@@ -12,6 +12,8 @@ export const knowledgeClient = {
   removeDocument: (id: string, revision: number) => request(`/documents/${id}?revision=${revision}`, { method: "DELETE" }),
   download: downloadSource,
   draft: (id: string) => post(`/document-versions/${id}/draft`),
+  bindConfiguration: (id: string, revision: number) => post(`/document-versions/${id}/configuration-binding`, { revision }),
+  reprocess: (id: string) => post(`/document-versions/${id}/reprocess`),
   index: (id: string) => post(`/document-versions/${id}/index`),
   publish: (id: string, input: { version_id: string; revision: number; version_revision: number }) => post(`/documents/${id}/publications`, input),
   editChunk: (id: string, input: { content: string; enabled: boolean; revision: number; reason: string }) => put(`/chunks/${id}`, input),

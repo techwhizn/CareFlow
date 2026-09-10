@@ -139,3 +139,67 @@ def test_generation_context_does_not_cross_threadpool_yields(monkeypatch):
     ]
     assert seen == ["stream-snapshot"] * 3
     assert value("GENERATION_MODEL") != "stream-snapshot"
+
+
+def test_consumer_uses_claim_snapshot_without_serializing_secret_as_mask(monkeypatch):
+    import httpx
+
+    from careflow import consumer
+
+    monkeypatch.setenv("INTERNAL_TOKEN", "fixture-internal-key")
+    monkeypatch.setenv("EMBEDDING_MODEL", "changed-deployment-model")
+    client_type = httpx.Client
+    completed = []
+    runtime = {
+        "id": "configuration-id",
+        "parsing": {"pdf_page_limit": 20},
+        "chunking": {"target": 120, "maximum": 200, "overlap": 10},
+        **{
+            kind.lower(): {
+                **configuration(kind=kind).model_dump(mode="json"),
+                "api_key": "unmasked-fixture-secret",
+            }
+            for kind in ("EMBEDDING", "RERANK", "GENERATION")
+        },
+    }
+
+    def handler(request):
+        if request.url.path.endswith("/claim"):
+            return httpx.Response(
+                200,
+                json={
+                    "id": "job",
+                    "lease_token": "lease",
+                    "kind": "INDEX",
+                    "tenant_id": "tenant",
+                    "version_id": "version",
+                    "filename": "synthetic.txt",
+                    "pdf_page_limit": 500,
+                    "configuration": runtime,
+                },
+            )
+        if request.url.path.endswith("/chunks"):
+            return httpx.Response(200, json=[{"id": "chunk", "content": "synthetic"}])
+        if request.url.path.endswith("/complete"):
+            completed.append(json.loads(request.content))
+        return httpx.Response(200, json={})
+
+    def index(*args):
+        assert value("EMBEDDING_MODEL") == "snapshot-model"
+        assert value("EMBEDDING_API_KEY") == "unmasked-fixture-secret"
+        return {
+            "verified": True,
+            "model_identity": models.identity(),
+            "embedding_tokens": 3,
+        }
+
+    monkeypatch.setattr(
+        consumer.httpx,
+        "Client",
+        lambda **kwargs: client_type(transport=httpx.MockTransport(handler), **kwargs),
+    )
+    monkeypatch.setattr(consumer.retrieval, "index", index)
+    consumer.run_job("job")
+    assert completed[0]["verified"]
+    assert value("EMBEDDING_MODEL") == "changed-deployment-model"
+    assert "unmasked-fixture-secret" not in json.dumps(completed)

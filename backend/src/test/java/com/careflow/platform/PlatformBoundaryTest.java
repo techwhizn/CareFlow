@@ -1341,7 +1341,16 @@ class PlatformBoundaryTest {
             worker.call(
                 org.mockito.ArgumentMatchers.eq("/internal/v1/recall"),
                 org.mockito.ArgumentMatchers.any()))
-        .thenReturn(Map.of("fused", List.of(Map.of("id", chunk, "score", 1)), "degraded", false));
+        .thenReturn(
+            Map.of(
+                "dense",
+                List.of(),
+                "bm25",
+                List.of(),
+                "fused",
+                List.of(Map.of("id", chunk, "score", 1)),
+                "degraded",
+                false));
     org.mockito.Mockito.when(
             worker.call(
                 org.mockito.ArgumentMatchers.eq("/internal/v1/rerank"),
@@ -1389,7 +1398,16 @@ class PlatformBoundaryTest {
             worker.call(
                 org.mockito.ArgumentMatchers.eq("/internal/v1/recall"),
                 org.mockito.ArgumentMatchers.any()))
-        .thenReturn(Map.of("fused", List.of(Map.of("id", chunk, "score", 1)), "degraded", false));
+        .thenReturn(
+            Map.of(
+                "dense",
+                List.of(),
+                "bm25",
+                List.of(),
+                "fused",
+                List.of(Map.of("id", chunk, "score", 1)),
+                "degraded",
+                false));
     org.mockito.Mockito.when(
             worker.call(
                 org.mockito.ArgumentMatchers.eq("/internal/v1/rerank"),

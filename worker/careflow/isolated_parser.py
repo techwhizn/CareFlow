@@ -25,7 +25,7 @@ def _limit_process():
         resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
 
 
-def _child(connection, data, filename, pdf_page_limit):
+def _child(connection, data, filename, pdf_page_limit, chunking):
     try:
         if pdf_page_limit is not None:
             os.environ["PARSE_MAX_PDF_PAGES"] = str(
@@ -34,7 +34,7 @@ def _child(connection, data, filename, pdf_page_limit):
         _limit_process()
         from careflow.parsing import chunk, parse
 
-        connection.send(("OK", chunk(parse(data, filename))))
+        connection.send(("OK", chunk(parse(data, filename), **(chunking or {}))))
     except MemoryError:
         connection.send(("PARSE_RESOURCE_LIMIT", None))
     except InvalidFile:
@@ -47,13 +47,15 @@ def _child(connection, data, filename, pdf_page_limit):
 
 
 def parse_document(
-    data: bytes, filename: str, cancelled=None, pdf_page_limit=None
+    data: bytes, filename: str, cancelled=None, pdf_page_limit=None, chunking=None
 ) -> list[dict]:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)
     process = context.Process(
-        target=_child, args=(sender, data, filename, pdf_page_limit), daemon=True
+        target=_child,
+        args=(sender, data, filename, pdf_page_limit, chunking),
+        daemon=True,
     )
     try:
         process.start()

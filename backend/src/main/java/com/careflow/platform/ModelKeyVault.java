@@ -38,4 +38,23 @@ public class ModelKeyVault {
       throw new ApiException(503, "MODEL_KEY_STORAGE_UNAVAILABLE", "模型密钥存储未正确配置");
     }
   }
+
+  public String decrypt(String tenant, String profile, String encrypted) {
+    if (encrypted == null || encrypted.isEmpty()) return "";
+    try {
+      String[] parts = encrypted.split(":", -1);
+      if (parts.length != 3 || !parts[0].equals("v1")) throw new IllegalArgumentException();
+      byte[] key = Base64.getDecoder().decode(configured);
+      byte[] nonce = Base64.getDecoder().decode(parts[1]);
+      if (key.length != 32 || nonce.length != 12) throw new IllegalArgumentException();
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(
+          Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(128, nonce));
+      cipher.updateAAD((tenant + ":" + profile).getBytes(StandardCharsets.UTF_8));
+      return new String(
+          cipher.doFinal(Base64.getDecoder().decode(parts[2])), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new ApiException(503, "MODEL_KEY_STORAGE_UNAVAILABLE", "模型密钥无法解密，请检查部署密钥与快照");
+    }
+  }
 }

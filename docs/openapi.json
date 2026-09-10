@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://127.0.0.1:8080",
       "description": "Generated server url"
     }
   ],
@@ -971,6 +971,114 @@
         }
       }
     },
+    "/api/v1/knowledge-bases/{kb}/configurations": {
+      "get": {
+        "tags": [
+          "knowledge-configuration-controller"
+        ],
+        "operationId": "list_3",
+        "parameters": [
+          {
+            "name": "kb",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "knowledge-configuration-controller"
+        ],
+        "operationId": "create_3",
+        "parameters": [
+          {
+            "name": "kb",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeDefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge-bases/{kb}/configuration-publications": {
+      "post": {
+        "tags": [
+          "knowledge-configuration-controller"
+        ],
+        "operationId": "publish",
+        "parameters": [
+          {
+            "name": "kb",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgePublish"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/documents": {
       "get": {
         "tags": [
@@ -1102,7 +1210,7 @@
         "tags": [
           "enterprises-controller"
         ],
-        "operationId": "create_3",
+        "operationId": "create_4",
         "parameters": [
           {
             "name": "X-Bootstrap-Token",
@@ -1277,7 +1385,7 @@
         "tags": [
           "document-publication-controller"
         ],
-        "operationId": "publish",
+        "operationId": "publish_1",
         "parameters": [
           {
             "name": "id",
@@ -1298,6 +1406,44 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{id}/reprocess": {
+      "post": {
+        "tags": [
+          "document-draft-controller"
+        ],
+        "operationId": "reprocess",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1366,6 +1512,46 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{id}/configuration-binding": {
+      "post": {
+        "tags": [
+          "document-draft-controller"
+        ],
+        "operationId": "bindConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BindConfiguration"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1474,7 +1660,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "list_3",
+        "operationId": "list_4",
         "parameters": [
           {
             "name": "id",
@@ -1503,7 +1689,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "create_4",
+        "operationId": "create_5",
         "parameters": [
           {
             "name": "id",
@@ -1882,6 +2068,74 @@
         }
       }
     },
+    "/api/v1/knowledge-bases/{kb}/configurations/{id}/impact": {
+      "get": {
+        "tags": [
+          "knowledge-configuration-controller"
+        ],
+        "operationId": "impact",
+        "parameters": [
+          {
+            "name": "kb",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge-bases/{kb}/configuration-models": {
+      "get": {
+        "tags": [
+          "knowledge-configuration-controller"
+        ],
+        "operationId": "models",
+        "parameters": [
+          {
+            "name": "kb",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/settings": {
       "get": {
         "tags": [
@@ -1947,7 +2201,7 @@
         "tags": [
           "knowledge-bases-controller"
         ],
-        "operationId": "impact",
+        "operationId": "impact_1",
         "parameters": [
           {
             "name": "id",
@@ -2936,6 +3190,104 @@
           }
         }
       },
+      "KnowledgeChunking": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 600,
+            "minimum": 1
+          },
+          "maximum": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 600,
+            "minimum": 1
+          },
+          "overlap": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 599,
+            "minimum": 0
+          }
+        }
+      },
+      "KnowledgeParsing": {
+        "type": "object",
+        "properties": {
+          "pdf_page_limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 500,
+            "minimum": 1
+          }
+        }
+      },
+      "KnowledgeRuntimeConfiguration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "parsing": {
+            "$ref": "#/components/schemas/KnowledgeParsing"
+          },
+          "chunking": {
+            "$ref": "#/components/schemas/KnowledgeChunking"
+          },
+          "embedding": {
+            "$ref": "#/components/schemas/ModelConfiguration"
+          },
+          "rerank": {
+            "$ref": "#/components/schemas/ModelConfiguration"
+          },
+          "generation": {
+            "$ref": "#/components/schemas/ModelConfiguration"
+          }
+        }
+      },
+      "ModelConfiguration": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "pattern": "EMBEDDING|RERANK|GENERATION"
+          },
+          "base_url": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "revision": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "dimensions": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 65536,
+            "minimum": 1
+          },
+          "api_key": {
+            "type": "string",
+            "maxLength": 8192,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "base_url",
+          "kind",
+          "model",
+          "revision"
+        ]
+      },
       "TaskClaim": {
         "type": "object",
         "properties": {
@@ -2960,6 +3312,9 @@
           "pdf_page_limit": {
             "type": "integer",
             "format": "int32"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/KnowledgeRuntimeConfiguration"
           }
         }
       },
@@ -3061,6 +3416,124 @@
           "role"
         ]
       },
+      "KnowledgeDefinition": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "parsing": {
+            "$ref": "#/components/schemas/KnowledgeParsing"
+          },
+          "chunking": {
+            "$ref": "#/components/schemas/KnowledgeChunking"
+          },
+          "retrieval": {
+            "$ref": "#/components/schemas/KnowledgeRetrieval"
+          },
+          "models": {
+            "$ref": "#/components/schemas/KnowledgeModels"
+          }
+        },
+        "required": [
+          "chunking",
+          "models",
+          "name",
+          "parsing",
+          "retrieval"
+        ]
+      },
+      "KnowledgeModels": {
+        "type": "object",
+        "properties": {
+          "embedding_profile_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "rerank_profile_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "generation_profile_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "embedding_profile_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "rerank_profile_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "generation_profile_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "embedding_profile_id",
+          "generation_profile_id",
+          "rerank_profile_id"
+        ]
+      },
+      "KnowledgeRetrieval": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "pattern": "hybrid|semantic|keyword"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 6,
+            "minimum": 1
+          },
+          "minimum_rerank_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "allow_degraded": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "KnowledgePublish": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "configuration_id",
+          "reason"
+        ]
+      },
       "ProvisionEnterprise": {
         "type": "object",
         "properties": {
@@ -3102,6 +3575,16 @@
           "version_id",
           "version_revision"
         ]
+      },
+      "BindConfiguration": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
       },
       "Named": {
         "type": "object",

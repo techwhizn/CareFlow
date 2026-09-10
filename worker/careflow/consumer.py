@@ -10,6 +10,7 @@ import pika
 
 from careflow import models, parsing, retrieval
 from careflow.isolated_parser import ParseFailure, parse_document
+from careflow.model_configuration import use_configuration
 from careflow.protocol_v1 import IndexCompletion, ParseCompletion, TaskClaim
 
 log = logging.getLogger(__name__)
@@ -34,7 +35,9 @@ def run_job(job_id):
             # Acknowledge this delivery so a paused tenant cannot block the shared queue.
             return
         claimed.raise_for_status()
-        job = TaskClaim.model_validate(claimed.json()).model_dump()
+        claim = TaskClaim.model_validate(claimed.json())
+        job = claim.model_dump(exclude={"configuration"})
+        configuration = claim.configuration
         headers["X-Lease-Token"] = job["lease_token"]
         stop = threading.Event()
         lease_lost = threading.Event()
@@ -68,7 +71,14 @@ def run_job(job_id):
                         source.content,
                         job["filename"],
                         cancelled=lease_lost.is_set,
-                        pdf_page_limit=job["pdf_page_limit"],
+                        pdf_page_limit=min(
+                            job["pdf_page_limit"], configuration.parsing.pdf_page_limit
+                        )
+                        if configuration
+                        else job["pdf_page_limit"],
+                        chunking=configuration.chunking.model_dump()
+                        if configuration
+                        else None,
                     )
                 }
                 result = ParseCompletion.model_validate(result).model_dump()
@@ -77,9 +87,12 @@ def run_job(job_id):
                 chunks = client.get(base + "/chunks", headers=headers)
                 chunks.raise_for_status()
                 checkpoint("INDEXING")
-                result = retrieval.index(
-                    job["tenant_id"], job["version_id"], chunks.json()
-                )
+                with use_configuration(
+                    configuration.embedding if configuration else None
+                ):
+                    result = retrieval.index(
+                        job["tenant_id"], job["version_id"], chunks.json()
+                    )
                 result = IndexCompletion.model_validate(result).model_dump()
                 checkpoint("INDEX_VERIFIED")
             if not lease_lost.is_set():

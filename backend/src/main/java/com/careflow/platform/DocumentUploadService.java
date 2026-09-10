@@ -117,21 +117,23 @@ public class DocumentUploadService {
                       kb,
                       data.name());
                 db.exec(
-                    "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,size_bytes) VALUES(?,?,?,?,?,?,?)",
+                    "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,size_bytes,configuration_id) VALUES(?,?,?,?,?,?,?,?)",
                     version,
                     actor.tenant(),
                     nextDocument,
                     objectKey,
                     data.name(),
                     data.digest(),
-                    data.bytes().length);
+                    data.bytes().length,
+                    auth.kb(actor, kb, "edit").get("published_configuration"));
                 db.exec(
-                    "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key,upload_fingerprint) VALUES(?,?,?,'PARSE',?,?)",
+                    "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key,upload_fingerprint,configuration_id) VALUES(?,?,?,'PARSE',?,?,?)",
                     job,
                     actor.tenant(),
                     version,
                     requestKey,
-                    fingerprint);
+                    fingerprint,
+                    auth.kb(actor, kb, "edit").get("published_configuration"));
                 db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
                 auth.audit(actor, "DOCUMENT_UPLOAD", nextDocument, version);
                 return Map.<String, Object>of(

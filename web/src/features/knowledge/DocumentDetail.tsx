@@ -87,6 +87,17 @@ export default function DocumentDetail({ doc, back }: { doc: Row; back: () => vo
             </span>
           </>
         )}
+        {active && !active.configuration_id && active.state === "READY" && <button disabled={busy} onClick={() => {
+          if (window.confirm("将当前知识库配置绑定到此旧索引。只有Embedding地址、模型、修订和维度完全相同才会成功；原文和切片保持不变。")) void action(async () => {
+            await knowledgeClient.bindConfiguration(active.id, active.revision); setActive(null);
+          });
+        }}>绑定当前兼容配置</button>}
+        {active && <button disabled={busy} onClick={() => {
+          if (window.confirm("将按知识库当前发布配置创建新的处理版本。旧发布和人工修订保留在原版本；新解析不会自动合并修订。是否继续？")) void action(async () => {
+            await knowledgeClient.reprocess(active.id); setActive(null);
+          });
+        }}>按当前配置重新处理</button>}
+        {active && <span className="muted">处理配置：{active.configuration_id ? active.configuration_id.slice(0, 8) : "历史部署配置"}</span>}
         <label className="file-button">
           上传新版
           <input

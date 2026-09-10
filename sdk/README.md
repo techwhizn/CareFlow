@@ -10,6 +10,10 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 | 上传文件 | upload | upload |
 | 查询文档版本与内容修订 | document_versions | documentVersions |
 | 查询任务 | job | job |
+| 配置版本与可用模型 | knowledge_configurations / configuration_models | knowledgeConfigurations / configurationModels |
+| 保存、影响检查、发布配置 | create_knowledge_configuration / configuration_impact / publish_knowledge_configuration | createKnowledgeConfiguration / configurationImpact / publishKnowledgeConfiguration |
+| 按新配置重处理 | reprocess | reprocess |
+| 兼容旧索引绑定 | bind_configuration | bindConfiguration |
 | 建立索引 | index | index |
 | 发布版本 | publish | publish |
 | 搜索 | search | search |

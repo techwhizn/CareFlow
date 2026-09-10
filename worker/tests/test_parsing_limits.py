@@ -95,3 +95,12 @@ def test_tenant_pdf_limit_rejects_in_child_without_changing_parent(monkeypatch):
         parse_document(stream.getvalue(), "two.pdf", pdf_page_limit=1)
     assert error.value.code == "INVALID_FILE"
     assert Limits.environment().pdf_pages == 500
+
+
+def test_task_chunk_configuration_is_applied_inside_isolated_process():
+    text = ("Synthetic configuration snapshot sentence. " * 80).encode()
+    result = parse_document(
+        text, "snapshot.txt", chunking={"target": 40, "maximum": 60, "overlap": 5}
+    )
+    assert len(result) > 5
+    assert all(0 < row["token_count"] <= 60 for row in result)

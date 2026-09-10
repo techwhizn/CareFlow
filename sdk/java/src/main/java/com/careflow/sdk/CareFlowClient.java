@@ -45,7 +45,7 @@ public final class CareFlowClient {
     }
 
     public Query(String query) {
-      this(query, null, List.of(), "hybrid", 6, false, null);
+      this(query, null, List.of(), null, 6, false, null);
     }
   }
 
@@ -178,6 +178,57 @@ public final class CareFlowClient {
       throws IOException {
     return request(
         "POST", "knowledge-bases", Map.of("name", name, "description", description), key);
+  }
+
+  public JsonNode knowledgeConfigurations(String knowledgeBaseId) throws IOException {
+    return request("GET", "knowledge-bases/" + id(knowledgeBaseId) + "/configurations", null, null);
+  }
+
+  public JsonNode configurationModels(String knowledgeBaseId) throws IOException {
+    return request(
+        "GET", "knowledge-bases/" + id(knowledgeBaseId) + "/configuration-models", null, null);
+  }
+
+  public JsonNode createKnowledgeConfiguration(
+      String knowledgeBaseId, KnowledgeConfiguration configuration, String key) throws IOException {
+    return request(
+        "POST", "knowledge-bases/" + id(knowledgeBaseId) + "/configurations", configuration, key);
+  }
+
+  public JsonNode configurationImpact(String knowledgeBaseId, String configurationId)
+      throws IOException {
+    return request(
+        "GET",
+        "knowledge-bases/"
+            + id(knowledgeBaseId)
+            + "/configurations/"
+            + id(configurationId)
+            + "/impact",
+        null,
+        null);
+  }
+
+  public JsonNode publishKnowledgeConfiguration(
+      String knowledgeBaseId, String configurationId, long revision, String reason, String key)
+      throws IOException {
+    return request(
+        "POST",
+        "knowledge-bases/" + id(knowledgeBaseId) + "/configuration-publications",
+        Map.of("configuration_id", id(configurationId), "revision", revision, "reason", reason),
+        key);
+  }
+
+  public JsonNode reprocess(String versionId, String key) throws IOException {
+    return request("POST", "document-versions/" + id(versionId) + "/reprocess", null, key);
+  }
+
+  public JsonNode bindConfiguration(String versionId, long revision, String key)
+      throws IOException {
+    return request(
+        "POST",
+        "document-versions/" + id(versionId) + "/configuration-binding",
+        Map.of("revision", revision),
+        key);
   }
 
   public JsonNode documentVersions(String documentId) throws IOException {

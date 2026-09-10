@@ -87,7 +87,7 @@ export default function Knowledge() {
                 <h3>{x.name}</h3>
                 <p>{x.description || "尚未填写知识库说明"}</p>
                 <footer>
-                  配置版本 {x.revision}
+                  配置发布修订 {x.configuration_revision}
                   <ArrowRight />
                 </footer>
               </button>

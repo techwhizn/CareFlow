@@ -15,6 +15,7 @@ public class RetrievalService {
   private final TransactionTemplate tx;
   private final EntitlementService entitlements;
   private final MetadataFilters metadataFilters;
+  private final ConfiguredModelRouting modelRouting;
 
   public RetrievalService(
       Db db,
@@ -22,13 +23,15 @@ public class RetrievalService {
       WorkerClient worker,
       TransactionTemplate tx,
       EntitlementService entitlements,
-      MetadataFilters metadataFilters) {
+      MetadataFilters metadataFilters,
+      ConfiguredModelRouting modelRouting) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
     this.tx = tx;
     this.entitlements = entitlements;
     this.metadataFilters = metadataFilters;
+    this.modelRouting = modelRouting;
   }
 
   public record Query(
@@ -65,10 +68,10 @@ public class RetrievalService {
       boolean degraded,
       String application,
       long applicationRevision,
-      Set<String> modelIdentities) {
+      ConfiguredModelRouting.QueryConfiguration configuration) {
     public Scope(
         List<String> versions, boolean degraded, String application, long applicationRevision) {
-      this(versions, degraded, application, applicationRevision, Set.of());
+      this(versions, degraded, application, applicationRevision, null);
     }
   }
 
@@ -78,7 +81,7 @@ public class RetrievalService {
         || q.query().length() > 4000
         || q.limit() < 1
         || q.limit() > 20
-        || !Set.of("hybrid", "semantic", "keyword").contains(q.mode()))
+        || (q.mode() != null && !Set.of("hybrid", "semantic", "keyword").contains(q.mode())))
       throw new IllegalArgumentException();
     if (q.minimum_rerank_score() != null && !Double.isFinite(q.minimum_rerank_score()))
       throw new IllegalArgumentException("minimum_rerank_score must be finite");
@@ -108,10 +111,9 @@ public class RetrievalService {
     }
     var now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
     List<String> versions = new ArrayList<>();
-    Set<String> modelIdentities = new HashSet<>();
     for (var d :
         db.list(
-            "SELECT d.*,v.id AS version_id,v.model_identity AS index_model_identity FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND (d.valid_from IS NULL OR d.valid_from<=?) AND (d.valid_until IS NULL OR d.valid_until>?) AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
+            "SELECT d.*,v.id AS version_id FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND (d.valid_from IS NULL OR d.valid_from<=?) AND (d.valid_until IS NULL OR d.valid_until>?) AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
             actor.tenant(),
             now,
             now)) {
@@ -124,14 +126,17 @@ public class RetrievalService {
         auth.document(actor, str(d, "id"), "read");
         if (metadata.test(d)) {
           versions.add(str(d, "version_id"));
-          modelIdentities.add(str(d, "index_model_identity"));
         }
       } catch (ApiException e) {
         if (e.status != 404) throw e;
       }
     }
     return new Scope(
-        versions, degrade, app == null ? "" : app, appRevision, Set.copyOf(modelIdentities));
+        versions,
+        degrade,
+        app == null ? "" : app,
+        appRevision,
+        modelRouting.queryConfiguration(actor.tenant(), versions));
   }
 
   public String reserve(Actor actor, String key, String app) {
@@ -186,31 +191,32 @@ public class RetrievalService {
   // blindly.
   @SuppressWarnings("unchecked")
   public Map<String, Object> search(Actor actor, Query q, Scope scope, String authorization) {
-    String expectedIdentity = "";
-    if (!scope.versions().isEmpty()) {
-      Set<String> identities = scope.modelIdentities();
-      if (identities.size() != 1 || identities.contains(""))
-        throw new ApiException(503, "INDEX_CONFIGURATION_UNRESOLVED", "索引模型身份缺失或不一致，请按原配置核对索引");
-      expectedIdentity = identities.iterator().next();
-    }
+    var queryConfiguration = scope.configuration();
+    boolean allowDegraded =
+        queryConfiguration == null
+            ? scope.degraded()
+            : scope.degraded() && queryConfiguration.retrieval().allow_degraded();
+    if (scope.application().isBlank() && queryConfiguration != null)
+      allowDegraded = queryConfiguration.retrieval().allow_degraded();
+    int resultLimit =
+        queryConfiguration == null
+            ? q.limit()
+            : Math.min(q.limit(), queryConfiguration.retrieval().limit());
+    Double minimumScore = q.minimum_rerank_score();
+    if (queryConfiguration != null && queryConfiguration.retrieval().minimum_rerank_score() != null)
+      minimumScore =
+          minimumScore == null
+              ? queryConfiguration.retrieval().minimum_rerank_score()
+              : Math.max(minimumScore, queryConfiguration.retrieval().minimum_rerank_score());
     Map<String, Object> recall =
-        scope.versions().isEmpty()
-            ? Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false)
-            : worker.call(
-                "/internal/v1/recall",
-                Map.of(
-                    "tenant_id",
-                    actor.tenant(),
-                    "version_ids",
-                    scope.versions(),
-                    "query",
-                    q.query(),
-                    "mode",
-                    q.mode(),
-                    "allow_degraded",
-                    scope.degraded(),
-                    "expected_model_identity",
-                    expectedIdentity));
+        modelRouting.recall(
+            actor.tenant(),
+            scope.versions(),
+            q.query(),
+            q.mode() == null
+                ? (queryConfiguration == null ? "hybrid" : queryConfiguration.retrieval().mode())
+                : q.mode(),
+            allowDegraded);
     List<Map<String, Object>> evidence = new ArrayList<>();
     var fused = (List<Map<String, Object>>) recall.getOrDefault("fused", List.of());
     reauthenticate(actor, authorization);
@@ -234,20 +240,23 @@ public class RetrievalService {
     // Recheck before disclosing any candidate text to an external model.
     reauthenticate(actor, authorization);
     for (var c : evidence) checkEvidence(actor, c, scope);
+    Map<String, Object> rerankRequest =
+        new LinkedHashMap<>(
+            Map.of(
+                "query",
+                q.query(),
+                "candidates",
+                evidence.stream()
+                    .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
+                    .toList(),
+                "allow_degraded",
+                allowDegraded));
+    if (queryConfiguration != null)
+      rerankRequest.put("model_configuration", queryConfiguration.runtime().rerank());
     Map<String, Object> ranked =
         evidence.isEmpty()
             ? Map.of("results", List.of(), "degraded", false)
-            : worker.call(
-                "/internal/v1/rerank",
-                Map.of(
-                    "query",
-                    q.query(),
-                    "candidates",
-                    evidence.stream()
-                        .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
-                        .toList(),
-                    "allow_degraded",
-                    scope.degraded()));
+            : worker.call("/internal/v1/rerank", rerankRequest);
     var byId = new HashMap<String, Map<String, Object>>();
     for (var e : evidence) byId.put(str(e, "id"), e);
     boolean debug = q.debug() && !actor.app() && !actor.role().equals("USER");
@@ -255,15 +264,17 @@ public class RetrievalService {
         EvidenceSelection.select(
             byId,
             (List<Map<String, Object>>) ranked.getOrDefault("results", List.of()),
-            q.limit(),
-            q.minimum_rerank_score(),
+            resultLimit,
+            minimumScore,
             Boolean.TRUE.equals(ranked.get("degraded")),
             debug);
     reauthenticate(actor, authorization);
     for (var c : evidence) checkEvidence(actor, c, scope);
     var response = new LinkedHashMap<String, Object>();
     response.put("evidence", selection.evidence());
-    response.put("minimum_rerank_score", q.minimum_rerank_score());
+    response.put("minimum_rerank_score", minimumScore);
+    response.put(
+        "configuration_id", queryConfiguration == null ? "" : queryConfiguration.runtime().id());
     response.put("trace_id", id());
     response.put("publication_versions", scope.versions());
     response.put("application_revision", scope.applicationRevision());
@@ -289,6 +300,29 @@ public class RetrievalService {
       response.put("excluded", selection.excluded());
     }
     return response;
+  }
+
+  public Map<String, Object> generationRequest(
+      Actor actor,
+      Query query,
+      Scope scope,
+      List<Map<String, Object>> evidence,
+      String authorization) {
+    reauthenticate(actor, authorization);
+    for (var item : evidence) checkEvidence(actor, item, scope);
+    var configuration = scope.configuration();
+    Map<String, Object> request =
+        new LinkedHashMap<>(
+            Map.of(
+                "query",
+                query.query(),
+                "evidence",
+                evidence.stream()
+                    .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
+                    .toList()));
+    if (configuration != null)
+      request.put("model_configuration", configuration.runtime().generation());
+    return request;
   }
 
   public void reauthenticate(Actor expected, String authorization) {

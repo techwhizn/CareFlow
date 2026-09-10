@@ -11,6 +11,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 export type Page =
+  | "evaluation"
   | "improvements"
   | "operations"
   | "overview"
@@ -28,6 +29,12 @@ export const nav: { id: Page; label: string; icon: Icon; group: string }[] = [
   { id: "overview", label: "工作台", icon: SquaresFour, group: "工作空间" },
   { id: "knowledge", label: "知识库", icon: Books, group: "工作空间" },
   { id: "tasks", label: "任务中心", icon: Stack, group: "工作空间" },
+  {
+    id: "evaluation",
+    label: "测试集与评审",
+    icon: ChartBar,
+    group: "知识应用",
+  },
   { id: "search", label: "检索调试", icon: MagnifyingGlass, group: "知识应用" },
   { id: "answers", label: "引用问答", icon: ChatCircleText, group: "知识应用" },
   { id: "improvements", label: "知识改进", icon: Stack, group: "知识应用" },

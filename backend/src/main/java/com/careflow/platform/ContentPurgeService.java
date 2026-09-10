@@ -16,6 +16,10 @@ public class ContentPurgeService {
 
   public void version(String tenant, String version) {
     db.exec(
+        "DELETE FROM evaluation_dataset_versions WHERE tenant_id=? AND id IN (SELECT version_id FROM evaluation_evidence WHERE source_version_id=?)",
+        tenant,
+        version);
+    db.exec(
         "DELETE FROM chunk_revisions WHERE tenant_id=? AND chunk_id IN (SELECT id FROM chunks WHERE tenant_id=? AND version_id=?)",
         tenant,
         tenant,
@@ -66,6 +70,10 @@ public class ContentPurgeService {
 
   public void document(String tenant, String document) {
     db.exec(
+        "DELETE FROM evaluation_dataset_versions WHERE tenant_id=? AND id IN (SELECT version_id FROM evaluation_evidence WHERE document_id=?)",
+        tenant,
+        document);
+    db.exec(
         "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM query_record_evidence WHERE document_id=?)",
         tenant,
         document);
@@ -91,6 +99,7 @@ public class ContentPurgeService {
   }
 
   public void knowledgeBase(String tenant, String kb) {
+    db.exec("DELETE FROM evaluation_datasets WHERE tenant_id=? AND kb_id=?", tenant, kb);
     db.exec(
         "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM improvement_tasks WHERE tenant_id=? AND kb_id=?)",
         tenant,

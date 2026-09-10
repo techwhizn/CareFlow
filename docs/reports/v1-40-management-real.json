@@ -1,0 +1,14 @@
+{
+  "complete": true,
+  "synthetic_api_fixture_only": true,
+  "dataset_id": "e98839bb-bff5-47cf-80ad-580b765d1f2c",
+  "first_version": "9b0a6742-4cd8-43bf-8ffa-29af564686fd",
+  "second_version": "a129c310-17d4-4a0c-8341-b407b90b900c",
+  "old_version_unchanged": true,
+  "stale_revision_rejected": true,
+  "other_tenant_hidden": true,
+  "human_reviews_created": 0,
+  "pilot_human_review_status": "PENDING",
+  "browser_json_import_saved_version": 3,
+  "browser_report_loaded_cases": 3
+}

@@ -1,3 +1,4 @@
+import EvaluationPage from "./pages/EvaluationPage";
 import ImprovementsPage from "./pages/ImprovementsPage";
 import { Books, CaretRight, ShieldCheck, SignOut } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
@@ -130,6 +131,8 @@ function App() {
             <Loading />
           ) : effectivePage === "improvements" ? (
             <ImprovementsPage />
+          ) : effectivePage === "evaluation" ? (
+            <EvaluationPage />
           ) : effectivePage === "operations" ? (
             <OperationsPage />
           ) : page === "models" ? (

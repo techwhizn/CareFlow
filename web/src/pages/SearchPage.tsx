@@ -1,0 +1,146 @@
+import RelevanceThreshold from "../components/RelevanceThreshold";
+import { ArrowRight, FileText, MagnifyingGlass } from "@phosphor-icons/react";
+import { useState } from "react";
+import type { Row } from "../api";
+import { post } from "../api";
+import { Empty, ErrorNote, Loading, useData } from "../ui";
+export default function SearchPage() {
+  const k = useData<Row[]>("/knowledge-bases", []),
+    [query, setQuery] = useState(""),
+    [kb, setKb] = useState(""),
+    [mode, setMode] = useState("hybrid"),
+    [minimumScore, setMinimumScore] = useState(""),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState(""),
+    [result, setResult] = useState<Row | null>(null),
+    [debug, setDebug] = useState(false);
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <h1>检索调试</h1>
+          <p>验证问题能否找到正确证据，对照召回与模型重排。</p>
+        </div>
+      </div>
+      <form
+        className="query-panel"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          setError("");
+          try {
+            setResult(
+              await post("/retrieval/search", {
+                query,
+                knowledge_base_ids: kb ? [kb] : [],
+                mode,
+                limit: 6,
+                debug: true,
+                minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
+              }),
+            );
+          } catch (e) {
+            setError((e as Error).message);
+            setResult(null);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          测试问题
+          <div className="query-input">
+            <MagnifyingGlass size={22} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              required
+              placeholder="输入问题、产品型号或错误码…"
+              maxLength={4000}
+            />
+            <button className="primary" disabled={busy}>
+              {busy ? "检索中…" : "开始检索"}
+              <ArrowRight />
+            </button>
+          </div>
+        </label>
+<RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
+        <div className="query-options">
+          <label>
+            知识范围
+            <select value={kb} onChange={(e) => setKb(e.target.value)}>
+              <option value="">全部授权知识库</option>
+              {k.data.map((x) => (
+                <option value={x.id} key={x.id}>
+                  {x.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            检索策略
+            <select value={mode} onChange={(e) => setMode(e.target.value)}>
+              <option value="hybrid">混合检索</option>
+              <option value="semantic">语义检索</option>
+              <option value="keyword">关键词检索</option>
+            </select>
+          </label>
+        </div>
+      </form>
+      <ErrorNote error={error || k.error} />
+      {busy ? (
+        <Loading />
+      ) : result ? (
+        <>
+          <div className="section-title">
+            <h2>
+              检索证据 <span className="count">{result.evidence.length}</span>
+            </h2>
+            <button onClick={() => setDebug(!debug)}>
+              {" "}
+              {debug ? "收起" : "查看"}调试详情
+            </button>
+          </div>
+          {result.degraded && (
+            <div className="notice">
+              本次结果已降级，未完成全部模型处理阶段。
+            </div>
+          )}
+          {!result.evidence.length ? (
+            <Empty
+              icon={MagnifyingGlass}
+              title="没有找到可用证据"
+              detail="检查资料是否已发布、是否有访问权限，或调整问题表达。"
+            />
+          ) : (
+            result.evidence.map((c: Row, i: number) => (
+              <article className="evidence" key={c.id}>
+                <header>
+                  <span className="rank">{i + 1}</span>
+                  <b>{c.title}</b>
+                  <code>{c.version_id.slice(0, 8)}</code>
+                </header>
+                <p>{c.content}</p>
+                <footer>
+                  <FileText />
+                  {c.location}
+                </footer>
+              </article>
+            ))
+          )}
+          {debug && (
+            <pre className="debug-output">
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          )}
+        </>
+      ) : (
+        <Empty
+          icon={MagnifyingGlass}
+          title="用一个问题，检验你的知识"
+          detail="检索仅返回知识证据，不调用生成模型。"
+        />
+      )}
+    </>
+  );
+}

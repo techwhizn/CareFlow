@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-09-10T13:31:20.872661+08:00",
+  "provider": "DeepSeek",
+  "model": "deepseek-v4-flash",
+  "test": "Real local worker streaming generation with synthetic evidence",
+  "http_status": 200,
+  "completed": true,
+  "answer": "演示设备型号是 CF-100 [test-source]。",
+  "errors": []
+}

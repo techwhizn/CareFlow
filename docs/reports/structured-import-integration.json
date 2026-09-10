@@ -1,0 +1,17 @@
+{
+  "pipeline": "real MySQL + S3 + RabbitMQ + Python Worker",
+  "job": {
+    "id": "8b097ea4-1643-4b7a-b972-ce26ad4f237d",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "version_id": "4a31b6c8-2e12-4d79-8373-510a9775634d",
+    "kind": "PARSE",
+    "state": "DONE",
+    "attempts": 1,
+    "lease_until": null,
+    "error_code": null,
+    "created_at": "2026-09-09T21:14:58.000+00:00"
+  },
+  "chunk_count": 5,
+  "heading_paths_preserved": true,
+  "passed": true
+}

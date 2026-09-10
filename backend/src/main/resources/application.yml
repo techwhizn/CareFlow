@@ -1,0 +1,29 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: 8080
+  error:
+    include-message: never
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/careflow}
+    username: ${DATABASE_USER:careflow}
+    password: ${DATABASE_PASSWORD:}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 51MB
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    username: ${RABBITMQ_USER:careflow}
+    password: ${RABBITMQ_PASSWORD:}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+careflow:
+  bootstrap-token: ${BOOTSTRAP_TOKEN:}
+  internal-token: ${INTERNAL_TOKEN:}
+  worker-url: ${WORKER_URL:http://localhost:8090}
+  scheduling: ${SCHEDULING_ENABLED:true}
+  s3-endpoint: ${S3_ENDPOINT:http://localhost:9000}
+  s3-access-key: ${S3_ACCESS_KEY:}
+  s3-secret-key: ${S3_SECRET_KEY:}
+  s3-bucket: ${S3_BUCKET:careflow}

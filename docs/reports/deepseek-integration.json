@@ -1,0 +1,14 @@
+{
+  "verified_at": "2026-09-10T13:29:57.569503+08:00",
+  "provider": "DeepSeek",
+  "model": "deepseek-v4-pro",
+  "base_url": "https://api.deepseek.com",
+  "test": "Real local worker streaming generation with synthetic evidence",
+  "http_status": 200,
+  "event_count": 12,
+  "completed": true,
+  "answer": "演示设备的型号是 CF-100 [test-source]。",
+  "errors": [],
+  "embedding_configured": false,
+  "rerank_configured": false
+}

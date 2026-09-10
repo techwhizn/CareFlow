@@ -1,0 +1,316 @@
+"""CareFlow public API clients. No implicit retries or credential redirects."""
+
+import json
+import uuid
+from contextlib import asynccontextmanager, contextmanager
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlsplit
+
+import httpx
+
+
+class ApiError(RuntimeError):
+    def __init__(self, status: int, code: str, request_id: str | None = None):
+        # Do not embed server bodies, questions, URLs or credentials in exceptions.
+        super().__init__(f"CareFlow request failed (HTTP {status})")
+        self.status = status
+        self.code = code
+        self.request_id = request_id
+
+
+class StreamError(RuntimeError):
+    pass
+
+
+@dataclass(frozen=True)
+class Query:
+    query: str
+    application_id: str | None = None
+    knowledge_base_ids: tuple[str, ...] = ()
+    mode: str = "hybrid"
+    limit: int = 6
+    debug: bool = False
+    minimum_rerank_score: float | None = None
+
+
+@dataclass(frozen=True)
+class Event:
+    name: str
+    data: dict[str, Any]
+
+
+def _headers(key):
+    return {"Idempotency-Key": key or str(uuid.uuid4())}
+
+
+def _id(value):
+    return str(uuid.UUID(value))
+
+
+def _options(base_url, token, timeout, transport):
+    parsed = urlsplit(base_url)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+        or parsed.path not in {"", "/"}
+    ):
+        raise ValueError(
+            "base_url must be an HTTP(S) origin without credentials or path"
+        )
+    if not token or "\n" in token or "\r" in token:
+        raise ValueError("A nonempty token is required")
+    return dict(
+        base_url=base_url.rstrip("/") + "/api/v1/",
+        headers={"Authorization": "Bearer " + token},
+        timeout=timeout,
+        follow_redirects=False,
+        transport=transport,
+    )
+
+
+def _check(response):
+    if not 200 <= response.status_code < 300:
+        try:
+            body = response.json()
+        except (ValueError, UnicodeError):
+            body = {}
+        if not isinstance(body, dict):
+            body = {}
+        raise ApiError(
+            response.status_code, body.get("code", "HTTP_ERROR"), body.get("request_id")
+        )
+
+
+class _SSE:
+    def __init__(self):
+        self.name, self.data, self.size = "message", [], 0
+        self.done = False
+
+    def line(self, line):
+        if line == "":
+            if not self.data:
+                self.name = "message"
+                self.size = 0
+                return None
+            try:
+                payload = json.loads("\n".join(self.data))
+            except ValueError as exc:
+                raise StreamError("Invalid SSE JSON") from exc
+            if not isinstance(payload, dict):
+                raise StreamError("Invalid SSE payload")
+            event = Event(self.name, payload)
+            self.name, self.data, self.size = "message", [], 0
+            if event.name == "error":
+                raise StreamError("Server reported an incomplete answer")
+            if event.name == "done":
+                self.done = True
+            return event
+        self.size += len(line)
+        if self.size > 1024 * 1024:
+            raise StreamError("SSE event exceeds size limit")
+        field, _, value = line.partition(":")
+        value = value[1:] if value.startswith(" ") else value
+        if field == "event":
+            self.name = value
+        elif field == "data":
+            self.data.append(value)
+        return None
+
+
+def _stream_type(response):
+    if (
+        response.headers.get("content-type", "").split(";", 1)[0].strip()
+        != "text/event-stream"
+    ):
+        raise StreamError("Expected an SSE response")
+
+
+class Client:
+    def __init__(self, base_url, token, *, timeout=120.0, transport=None):
+        self._http = httpx.Client(**_options(base_url, token, timeout, transport))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def close(self):
+        self._http.close()
+
+    def _request(self, method, path, **kwargs):
+        response = self._http.request(method, path, **kwargs)
+        _check(response)
+        return response.json() if response.content else None
+
+    def knowledge_bases(self):
+        return self._request("GET", "knowledge-bases")
+
+    def create_knowledge_base(self, name, description="", *, idempotency_key=None):
+        return self._request(
+            "POST",
+            "knowledge-bases",
+            json=dict(name=name, description=description),
+            headers=_headers(idempotency_key),
+        )
+
+    def upload(self, knowledge_base_id, file, *, idempotency_key=None):
+        path = Path(file)
+        with path.open("rb") as source:
+            return self._request(
+                "POST",
+                f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+                files={"file": (path.name, source, "application/octet-stream")},
+                headers=_headers(idempotency_key),
+            )
+
+    def job(self, job_id):
+        return self._request("GET", f"jobs/{_id(job_id)}")
+
+    def index(self, version_id, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index",
+            headers=_headers(idempotency_key),
+        )
+
+    def publish(self, document_id, version_id, revision, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            f"documents/{_id(document_id)}/publications",
+            json=dict(version_id=_id(version_id), revision=revision),
+            headers=_headers(idempotency_key),
+        )
+
+    def search(self, query: Query, *, idempotency_key=None):
+        return self._request(
+            "POST",
+            "retrieval/search",
+            json=asdict(query),
+            headers=_headers(idempotency_key),
+        )
+
+    @contextmanager
+    def answer(self, query: Query, *, idempotency_key=None):
+        """Use with; leaving the context closes the response, including early cancellation."""
+        with self._http.stream(
+            "POST",
+            "answers",
+            json=asdict(query),
+            headers={**_headers(idempotency_key), "Accept": "text/event-stream"},
+        ) as response:
+            if not response.is_success:
+                response.read()
+            _check(response)
+            _stream_type(response)
+
+            def events():
+                parser = _SSE()
+                for line in response.iter_lines():
+                    event = parser.line(line)
+                    if event:
+                        yield event
+                    if parser.done:
+                        return
+                raise StreamError("Connection ended before done")
+
+            yield events()
+
+
+class AsyncClient:
+    def __init__(self, base_url, token, *, timeout=120.0, transport=None):
+        self._http = httpx.AsyncClient(**_options(base_url, token, timeout, transport))
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.aclose()
+
+    async def aclose(self):
+        await self._http.aclose()
+
+    async def _request(self, method, path, **kwargs):
+        response = await self._http.request(method, path, **kwargs)
+        _check(response)
+        return response.json() if response.content else None
+
+    async def knowledge_bases(self):
+        return await self._request("GET", "knowledge-bases")
+
+    async def create_knowledge_base(
+        self, name, description="", *, idempotency_key=None
+    ):
+        return await self._request(
+            "POST",
+            "knowledge-bases",
+            json=dict(name=name, description=description),
+            headers=_headers(idempotency_key),
+        )
+
+    async def upload(self, knowledge_base_id, file, *, idempotency_key=None):
+        path = Path(file)
+        with path.open("rb") as source:
+            return await self._request(
+                "POST",
+                f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+                files={"file": (path.name, source, "application/octet-stream")},
+                headers=_headers(idempotency_key),
+            )
+
+    async def job(self, job_id):
+        return await self._request("GET", f"jobs/{_id(job_id)}")
+
+    async def index(self, version_id, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/index",
+            headers=_headers(idempotency_key),
+        )
+
+    async def publish(self, document_id, version_id, revision, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            f"documents/{_id(document_id)}/publications",
+            json=dict(version_id=_id(version_id), revision=revision),
+            headers=_headers(idempotency_key),
+        )
+
+    async def search(self, query: Query, *, idempotency_key=None):
+        return await self._request(
+            "POST",
+            "retrieval/search",
+            json=asdict(query),
+            headers=_headers(idempotency_key),
+        )
+
+    @asynccontextmanager
+    async def answer(self, query: Query, *, idempotency_key=None):
+        async with self._http.stream(
+            "POST",
+            "answers",
+            json=asdict(query),
+            headers={**_headers(idempotency_key), "Accept": "text/event-stream"},
+        ) as response:
+            if not response.is_success:
+                await response.aread()
+            _check(response)
+            _stream_type(response)
+
+            async def events():
+                parser = _SSE()
+                async for line in response.aiter_lines():
+                    event = parser.line(line)
+                    if event:
+                        yield event
+                    if parser.done:
+                        return
+                raise StreamError("Connection ended before done")
+
+            yield events()

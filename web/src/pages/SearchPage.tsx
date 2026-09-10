@@ -27,6 +27,7 @@ export default function SearchPage() {
   const k = useData<Row[]>("/knowledge-bases", []),
     [query, setQuery] = useState(""),
     [kb, setKb] = useState(""),
+    [appId, setAppId] = useState(""),
     [mode, setMode] = useState(""),
     [minimumScore, setMinimumScore] = useState(""),
     [filters, setFilters] = useState<FilterDraft[]>([]),
@@ -34,6 +35,7 @@ export default function SearchPage() {
     [error, setError] = useState(""),
     [result, setResult] = useState<Row | null>(null),
     [debug, setDebug] = useState(false);
+  const applications = useData<Row[]>("/applications/available", []);
   return (
     <>
       <div className="page-heading">
@@ -53,6 +55,7 @@ export default function SearchPage() {
               await post("/retrieval/search", {
                 query,
                 knowledge_base_ids: kb ? [kb] : [],
+                application_id: appId || null,
                 mode: mode || null,
                 limit: 6,
                 debug: true,
@@ -86,6 +89,25 @@ export default function SearchPage() {
             </button>
           </div>
         </label>
+        <label>
+          查询应用
+          <select
+            value={appId}
+            onChange={(event) => {
+              setAppId(event.target.value);
+              setMode("");
+              setResult(null);
+            }}
+          >
+            <option value="">直接访问知识库</option>
+            {applications.data.map((app) => (
+              <option key={app.id} value={app.id}>
+                {app.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <ErrorNote error={applications.error} />
         <RelevanceThreshold
           value={minimumScore}
           onChange={setMinimumScore}

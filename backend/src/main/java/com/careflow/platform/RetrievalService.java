@@ -14,6 +14,7 @@ public class RetrievalService {
   private final WorkerClient worker;
   private final TransactionTemplate tx;
   private final EntitlementService entitlements;
+  private final ApplicationConfigurationService applications;
   private final MetadataFilters metadataFilters;
   private final ConfiguredModelRouting modelRouting;
   private final EvidenceContextService contexts;
@@ -26,6 +27,7 @@ public class RetrievalService {
       WorkerClient worker,
       TransactionTemplate tx,
       EntitlementService entitlements,
+      ApplicationConfigurationService applications,
       MetadataFilters metadataFilters,
       ConfiguredModelRouting modelRouting,
       EvidenceContextService contexts,
@@ -36,6 +38,7 @@ public class RetrievalService {
     this.worker = worker;
     this.tx = tx;
     this.entitlements = entitlements;
+    this.applications = applications;
     this.metadataFilters = metadataFilters;
     this.modelRouting = modelRouting;
     this.contexts = contexts;
@@ -99,7 +102,23 @@ public class RetrievalService {
       boolean degraded,
       String application,
       long applicationRevision,
-      ConfiguredModelRouting.QueryConfiguration configuration) {
+      ConfiguredModelRouting.QueryConfiguration configuration,
+      ApplicationPolicy.Runtime applicationPolicy) {
+    public Scope(
+        List<String> versions,
+        boolean degraded,
+        String application,
+        long applicationRevision,
+        ConfiguredModelRouting.QueryConfiguration configuration) {
+      this(versions, degraded, application, applicationRevision, configuration, null);
+    }
+
+    public ApplicationPolicy.Answer answerPolicy() {
+      return applicationPolicy == null
+          ? ApplicationPolicy.Answer.defaults()
+          : applicationPolicy.answer();
+    }
+
     public Scope(
         List<String> versions, boolean degraded, String application, long applicationRevision) {
       this(versions, degraded, application, applicationRevision, null);
@@ -163,12 +182,28 @@ public class RetrievalService {
         if (e.status != 404) throw e;
       }
     }
+    var applicationPolicy =
+        app == null || app.isBlank() ? null : applications.runtime(actor.tenant(), app);
+    if (applicationPolicy != null
+        && applicationPolicy.retrieval() != null
+        && q.mode() != null
+        && !q.mode().equals(applicationPolicy.retrieval().mode()))
+      throw new ApiException(409, "APPLICATION_POLICY_MISMATCH", "请求检索模式与应用已发布策略不一致");
+    var queryConfiguration =
+        applicationPolicy != null && applicationPolicy.models() != null
+            ? new ConfiguredModelRouting.QueryConfiguration(
+                applicationPolicy.retrieval(), applicationPolicy.models())
+            : modelRouting.queryConfiguration(
+                actor.tenant(),
+                versions,
+                applicationPolicy == null ? null : applicationPolicy.retrieval());
     return new Scope(
         versions,
         degrade,
         app == null ? "" : app,
         appRevision,
-        modelRouting.queryConfiguration(actor.tenant(), versions));
+        queryConfiguration,
+        applicationPolicy);
   }
 
   public String reserve(Actor actor, String key, String app) {
@@ -353,6 +388,9 @@ public class RetrievalService {
     response.put("publication_versions", scope.versions());
     response.put("application_revision", scope.applicationRevision());
     response.put(
+        "application_configuration_id",
+        scope.applicationPolicy() == null ? "" : scope.applicationPolicy().id());
+    response.put(
         "degraded",
         Boolean.TRUE.equals(recall.get("degraded")) || Boolean.TRUE.equals(ranked.get("degraded")));
     if (q.debug() && !actor.app() && !actor.role().equals("USER")) {
@@ -434,6 +472,7 @@ public class RetrievalService {
                                     "version_until",
                                     str(c, "version_valid_until"))))
                     .toList()));
+    request.put("answer_policy", scope.answerPolicy());
     if (configuration != null)
       request.put("model_configuration", configuration.runtime().generation());
     return request;

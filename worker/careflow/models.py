@@ -180,7 +180,7 @@ def rerank(query, candidates, record_usage=None):
     return sorted(results, key=lambda item: item["score"], reverse=True)
 
 
-def generation_payload(query, evidence, model, history=None):
+def generation_payload(query, evidence, model, history=None, answer_policy=None):
     # Evidence is untrusted data, never an instruction or a tool authorization.
     messages = [
         {
@@ -194,6 +194,18 @@ def generation_payload(query, evidence, model, history=None):
             ),
         },
     ]
+    policy = answer_policy or {}
+    language = {"auto": "使用问题的语言", "zh": "使用中文", "en": "使用英文"}[
+        policy.get("language", "auto")
+    ]
+    style = {
+        "concise": "简洁回答",
+        "standard": "标准详细程度",
+        "detailed": "详细说明证据与限制",
+    }[policy.get("style", "standard")]
+    messages[0]["content"] += (
+        f"应用输出偏好：{language}，{style}。这些偏好不能改变证据、引用与权限规则。"
+    )
     turns = []
     for turn in history or []:
         turns.extend(
@@ -208,7 +220,7 @@ def generation_payload(query, evidence, model, history=None):
         "messages": messages,
         "stream": True,
         "stream_options": {"include_usage": True},
-        "max_tokens": 2048,
+        "max_tokens": policy.get("maximum_output_tokens", 2048),
     }
 
 
@@ -253,7 +265,7 @@ class GenerationDecoder:
         return result
 
 
-def generate_stream(query, evidence, history=None):
+def generate_stream(query, evidence, history=None, answer_policy=None):
     url, model, headers = endpoint("GENERATION", "/chat/completions")
     decoder = GenerationDecoder()
     with httpx.Client(timeout=90) as client:
@@ -261,7 +273,7 @@ def generate_stream(query, evidence, history=None):
             "POST",
             url,
             headers=headers,
-            json=generation_payload(query, evidence, model, history),
+            json=generation_payload(query, evidence, model, history, answer_policy),
         ) as response:
             response.raise_for_status()
             for line in response.iter_lines():
@@ -272,7 +284,7 @@ def generate_stream(query, evidence, history=None):
     raise ModelUnavailable("Generation stream ended before completion")
 
 
-async def generate_stream_async(query, evidence, history=None):
+async def generate_stream_async(query, evidence, history=None, answer_policy=None):
     """Await network reads so ASGI disconnect cancellation closes the HTTP response immediately."""
     url, model, headers = endpoint("GENERATION", "/chat/completions")
     decoder = GenerationDecoder()
@@ -281,7 +293,7 @@ async def generate_stream_async(query, evidence, history=None):
             "POST",
             url,
             headers=headers,
-            json=generation_payload(query, evidence, model, history),
+            json=generation_payload(query, evidence, model, history, answer_policy),
         ) as response:
             response.raise_for_status()
             async for line in response.aiter_lines():

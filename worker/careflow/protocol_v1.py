@@ -95,10 +95,19 @@ class GenerationEvidence(Candidate):
     applicability: dict[str, str] | None = Field(default=None, max_length=4)
 
 
+class AnswerPolicy(Contract):
+    language: Literal["auto", "zh", "en"] = "auto"
+    style: Literal["concise", "standard", "detailed"] = "standard"
+    maximum_output_tokens: int = Field(default=2048, ge=128, le=2048)
+    history_rounds: int = Field(default=6, ge=0, le=6)
+    history_tokens: int = Field(default=3000, ge=0, le=3000)
+
+
 class Generate(ConfiguredOperation):
     query: str = Field(min_length=1, max_length=4000)
     evidence: list[GenerationEvidence] = Field(min_length=1, max_length=6)
     history: list[ConversationTurn] = Field(default_factory=list, max_length=6)
+    answer_policy: AnswerPolicy = Field(default_factory=AnswerPolicy)
 
 
 class Tokenize(ConfiguredOperation):

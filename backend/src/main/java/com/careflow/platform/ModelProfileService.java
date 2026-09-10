@@ -106,6 +106,11 @@ public class ModelProfileService {
     return repository.list(actor.tenant()).stream().map(this::view).toList();
   }
 
+  public List<View> forApplication(Actor actor) {
+    auth.developer(actor);
+    return repository.list(actor.tenant()).stream().map(this::view).toList();
+  }
+
   @Transactional
   public View save(Actor actor, String profile, Input input) {
     auth.admin(actor);

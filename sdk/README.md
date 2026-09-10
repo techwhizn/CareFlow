@@ -162,3 +162,7 @@ Python `conversations()`、`conversation(id)`、`answer_history(conversation_id=
 ## 反馈与改进任务
 
 Python 使用 `submit_feedback`、`create_improvement`、`improvements`、`improvement`、`improvement_assignees`、`update_improvement`，同步/异步一致。Java 使用对应驼峰方法及 `Feedback`、`ImprovementInput`、`ImprovementUpdate`。更新须传最新修订；重复创建按来源去重。详见[反馈与改进协议](../docs/feedback-improvements.md)。
+
+## 应用配置
+
+Python 的 `ApplicationConfiguration`、`ApplicationModels`、`AnswerPolicy` 位于 `careflow_sdk.application`；使用 `create_application_configuration`、`publish_application_configuration` 和 `application_publications` 管理版本。Java 提供 `ApplicationConfiguration` 及对应驼峰方法。Query 的 `application_id` 指定应用，应用凭证自动使用自身。配置不包含真实模型密钥，详见[应用策略](../docs/application-policies.md)。

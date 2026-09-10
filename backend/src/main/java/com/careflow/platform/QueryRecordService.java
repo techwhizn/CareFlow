@@ -43,6 +43,9 @@ public class QueryRecordService {
     options.put("minimum_rerank_score", result.get("minimum_rerank_score"));
     options.put("filters", query.filters());
     options.put("publication_versions", scope.versions());
+    options.put(
+        "application_configuration_id",
+        scope.applicationPolicy() == null ? "" : scope.applicationPolicy().id());
     try {
       db.exec(
           "INSERT INTO query_records(id,tenant_id,subject_id,subject_kind,application_id,question,configuration_id,application_revision,knowledge_base_ids,query_options,evidence_status) VALUES(?,?,?,?,?,?,?,?,?,?,?)",

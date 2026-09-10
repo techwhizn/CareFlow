@@ -89,7 +89,8 @@ public class ConversationService {
             : UUID.fromString(query.conversation_id()).toString();
     var claimed =
         repository.claim(actor, id, scope.application(), query.knowledge_base_ids(), request);
-    var candidates = history.recent(actor, id);
+    var candidates =
+        history.recent(actor, id).stream().limit(scope.answerPolicy().history_rounds()).toList();
     Map<String, Long> counts = new HashMap<>();
     if (!candidates.isEmpty()) {
       if (!auth.authenticate(authorization).equals(actor)) throw ApiException.hidden();
@@ -127,7 +128,7 @@ public class ConversationService {
       Long count = counts.get(str(candidate, "id"));
       if (count == null || count < 1 || count > 100000)
         throw new IllegalStateException("Invalid conversation Token count");
-      if (total + count > 3000) break;
+      if (total + count > scope.answerPolicy().history_tokens()) break;
       history.validate(actor, candidate);
       selected.add(candidate);
       total += count.intValue();

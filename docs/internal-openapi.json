@@ -606,6 +606,54 @@
   },
   "components": {
     "schemas": {
+      "AnswerPolicy": {
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "zh",
+              "en"
+            ],
+            "title": "Language",
+            "default": "auto"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "concise",
+              "standard",
+              "detailed"
+            ],
+            "title": "Style",
+            "default": "standard"
+          },
+          "maximum_output_tokens": {
+            "type": "integer",
+            "maximum": 2048.0,
+            "minimum": 128.0,
+            "title": "Maximum Output Tokens",
+            "default": 2048
+          },
+          "history_rounds": {
+            "type": "integer",
+            "maximum": 6.0,
+            "minimum": 0.0,
+            "title": "History Rounds",
+            "default": 6
+          },
+          "history_tokens": {
+            "type": "integer",
+            "maximum": 3000.0,
+            "minimum": 0.0,
+            "title": "History Tokens",
+            "default": 3000
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "AnswerPolicy"
+      },
       "CachePurge": {
         "properties": {
           "tenant_id": {
@@ -907,6 +955,9 @@
             "type": "array",
             "maxItems": 6,
             "title": "History"
+          },
+          "answer_policy": {
+            "$ref": "#/components/schemas/AnswerPolicy"
           }
         },
         "additionalProperties": false,

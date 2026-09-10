@@ -1,0 +1,46 @@
+{
+  "synthetic_input": true,
+  "real_deepseek": true,
+  "complete": true,
+  "applications": [
+    {
+      "id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+      "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+      "policy": {
+        "language": "en",
+        "style": "concise",
+        "maximum_output_tokens": 1536,
+        "history_rounds": 0,
+        "history_tokens": 0
+      },
+      "answer_id": "e3d64009-8313-4dfb-b53f-475c7a18c8ed",
+      "answer": "CF-900’s whole-machine warranty period conflicts between two manuals:\n\n- CF-900 维保手册A states **1 year**, applicable from 2025-01-01 to 2027-12-31 [b430a703-eefa-4109-8431-c0647eca01c4].\n- CF-900 维保手册B states **2 years**, applicable from 2026-01-01 to 2027-12-31 [14a7fc87-9995-41a2-8aa8-da9f51bd7a75].\n\nBoth target the standard CF-900, and their applicability periods overlap from 2026-01-01 through 2027-12-31, so there is a direct conflict for that period: 1 year vs. 2 years. The provided evidence does not resolve which one governs.",
+      "evidence_count": 3,
+      "publication_count": 6
+    },
+    {
+      "id": "6e0cdbd6-0391-4473-99c0-1c6f17b5dec1",
+      "configuration_id": "74ee1db5-e7db-406a-a86e-9133f093c1cc",
+      "policy": {
+        "language": "zh",
+        "style": "detailed",
+        "maximum_output_tokens": 2048,
+        "history_rounds": 2,
+        "history_tokens": 600
+      },
+      "answer_id": "5c37fed8-d114-4432-a56f-84aa63b55647",
+      "answer": "CF-900 整机保修期的冲突在于：两份资料对同一对象“CF-900 标准型号”的整机保修期给出了不同期限。\n\n- 《CF-900 维保手册A》写明：CF-900 的整机保修期为 **1 年**，适用于 CF-900 标准型号；该文件的适用期为 2025-01-01 至 2027-12-31 [b430a703-eefa-4109-8431-c0647eca01c4]。\n- 《CF-900 维保手册B》写明：CF-900 的整机保修期为 **2 年**，适用于 CF-900 标准型号；该文件的适用期为 2026-01-01 至 2027-12-31 [14a7fc87-9995-41a2-8aa8-da9f51bd7a75]。\n\n因此，冲突点是：同样是 CF-900 标准型号整机保修期，手册A为 1 年 [b430a703-eefa-4109-8431-c0647eca01c4]，手册B为 2 年 [14a7fc87-9995-41a2-8aa8-da9f51bd7a75]。\n\n按证据中的适用时间看，2025-01-01 至 2025-12-31 只有手册A声明适用 [b430a703-eefa-4109-8431-c0647eca01c4]；但 2026-01-01 至 2027-12-31 期间，两份手册均声明适用 [b430a703-eefa-4109-8431-c0647eca01c4] [14a7fc87-9995-41a2-8aa8-da9f51bd7a75]，所以这一重叠期内存在直接冲突。\n\n限制：本次证据没有说明哪份手册优先、是否替代、是否针对不同销售批次或合同版本，因此不能擅自认定 1 年或 2 年为唯一正确事实。需要额外权威依据或优先级规则才能确定实际适用版本。",
+      "evidence_count": 2,
+      "publication_count": 2
+    }
+  ],
+  "shared_knowledge_independent_policies": true,
+  "heterogeneous_kb_query_configurations_supported": true,
+  "draft_does_not_change_publication": true,
+  "rollback_rechecks_current_grants": true,
+  "publication_revisions": [
+    3,
+    2,
+    1
+  ]
+}

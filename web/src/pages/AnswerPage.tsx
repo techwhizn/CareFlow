@@ -14,6 +14,7 @@ import { Empty, ErrorNote, useData } from "../ui";
 export default function AnswerPage() {
   const [query, setQuery] = useState(""),
     [kb, setKb] = useState(""),
+    [appId, setAppId] = useState(""),
     [answer, setAnswer] = useState(""),
     [minimumScore, setMinimumScore] = useState(""),
     [filters, setFilters] = useState<FilterDraft[]>([]),
@@ -27,6 +28,7 @@ export default function AnswerPage() {
     [usage, setUsage] = useState<Row | null>(null);
   const history = useData<Row[]>("/answers", []);
   const knowledge = useData<Row[]>("/knowledge-bases", []);
+  const applications = useData<Row[]>("/applications/available", []);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
   function resetConversation() {
@@ -70,6 +72,7 @@ export default function AnswerPage() {
                   {
                     query,
                     conversation_id: conversationId || null,
+                    application_id: appId || null,
                     knowledge_base_ids: kb ? [kb] : [],
                     mode: null,
                     limit: 6,
@@ -87,7 +90,7 @@ export default function AnswerPage() {
                     if (name === "start") {
                       setConversationId(data.conversation_id);
                       setContextInfo(
-                        `已带入 ${data.context_rounds} 轮上下文 · ${data.context_tokens} / 3000 Token`,
+                        `已带入 ${data.context_rounds} 轮上下文 · ${data.context_tokens} / ${data.context_token_limit ?? 3000} Token`,
                       );
                     }
                     if (name === "status")
@@ -124,6 +127,26 @@ export default function AnswerPage() {
               }
             }}
           >
+            <label>
+              问答应用
+              <select
+                value={appId}
+                disabled={busy}
+                onChange={(event) => {
+                  resetConversation();
+                  setAppId(event.target.value);
+                  setKb("");
+                }}
+              >
+                <option value="">直接访问知识库</option>
+                {applications.data.map((app) => (
+                  <option key={app.id} value={app.id}>
+                    {app.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <ErrorNote error={applications.error} />
             <label>
               知识范围
               <select
@@ -276,8 +299,9 @@ export default function AnswerPage() {
                       conversation.knowledge_base_ids,
                     ) as string[];
                     // Multi-base and application sessions remain available through their API scope.
-                    if (!conversation.application_id && bases.length <= 1) {
+                    if (bases.length <= 1) {
                       setConversationId(saved.conversation_id);
+                      setAppId(conversation.application_id || "");
                       setKb(bases[0] || "");
                       setContextInfo(
                         `会话已有 ${conversation.revision} 轮回答`,

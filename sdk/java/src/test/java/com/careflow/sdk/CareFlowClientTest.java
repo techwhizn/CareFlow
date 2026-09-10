@@ -59,6 +59,24 @@ class CareFlowClientTest {
   }
 
   @Test
+  void applicationPolicyKeepsModelRevisionsAndHistoryLimits() throws Exception {
+    var input =
+        new ApplicationConfiguration(
+            List.of(ID),
+            2,
+            false,
+            ID,
+            new KnowledgeConfiguration.Retrieval("keyword", 3, null, false),
+            new ApplicationConfiguration.Models(ID, 3, ID, 4),
+            new ApplicationConfiguration.AnswerPolicy("en", "concise", 512, 1, 300));
+    client.createApplicationConfiguration(ID, input);
+    client.publishApplicationConfiguration(ID, ID, 2);
+    assertTrue(bodies.get(0).contains("\"history_tokens\":300"));
+    assertTrue(bodies.get(0).contains("\"generation_profile_revision\":4"));
+    assertTrue(bodies.get(1).contains("\"revision\":2"));
+  }
+
+  @Test
   void feedbackAndImprovementRequestsPreserveObservedRevision() throws Exception {
     client.submitFeedback(ID, new CareFlowClient.Feedback("incorrect", "WRONG_SOURCE", "合成说明", 2));
     client.createImprovement(new CareFlowClient.ImprovementInput("ANSWER", ID, ID, ""));

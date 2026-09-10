@@ -3447,6 +3447,36 @@
         }
       }
     },
+    "/api/v1/applications/{id}/publications": {
+      "get": {
+        "tags": [
+          "application-controller"
+        ],
+        "operationId": "publications",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/applications/{id}/bindings": {
       "get": {
         "tags": [
@@ -3463,6 +3493,66 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/applications/owner-options": {
+      "get": {
+        "tags": [
+          "application-controller"
+        ],
+        "operationId": "owners",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/applications/model-options": {
+      "get": {
+        "tags": [
+          "application-controller"
+        ],
+        "operationId": "models_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/applications/available": {
+      "get": {
+        "tags": [
+          "application-controller"
+        ],
+        "operationId": "available",
         "responses": {
           "200": {
             "description": "OK",
@@ -4215,25 +4305,131 @@
           "reason"
         ]
       },
+      "Answer": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "pattern": "auto|zh|en"
+          },
+          "style": {
+            "type": "string",
+            "pattern": "concise|standard|detailed"
+          },
+          "maximum_output_tokens": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2048,
+            "minimum": 128
+          },
+          "history_rounds": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 6,
+            "minimum": 0
+          },
+          "history_tokens": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 3000,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "language",
+          "style"
+        ]
+      },
       "Bind": {
         "type": "object",
         "properties": {
           "knowledge_base_ids": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1
+            },
+            "maxItems": 20,
+            "minItems": 1
           },
           "revision": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 0
+          },
+          "allow_degraded": {
+            "type": "boolean"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "retrieval": {
+            "$ref": "#/components/schemas/KnowledgeRetrieval"
+          },
+          "models": {
+            "$ref": "#/components/schemas/Models"
+          },
+          "answer_policy": {
+            "$ref": "#/components/schemas/Answer"
+          }
+        },
+        "required": [
+          "knowledge_base_ids"
+        ]
+      },
+      "KnowledgeRetrieval": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "pattern": "hybrid|semantic|keyword"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 6,
+            "minimum": 1
+          },
+          "minimum_rerank_score": {
+            "type": "number",
+            "format": "double"
           },
           "allow_degraded": {
             "type": "boolean"
           }
         },
         "required": [
-          "knowledge_base_ids"
+          "mode"
+        ]
+      },
+      "Models": {
+        "type": "object",
+        "properties": {
+          "rerank_profile_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "rerank_profile_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "generation_profile_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          "generation_profile_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "generation_profile_id",
+          "rerank_profile_id"
         ]
       },
       "TaskFailure": {
@@ -4741,31 +4937,6 @@
           "embedding_profile_id",
           "generation_profile_id",
           "rerank_profile_id"
-        ]
-      },
-      "KnowledgeRetrieval": {
-        "type": "object",
-        "properties": {
-          "mode": {
-            "type": "string",
-            "pattern": "hybrid|semantic|keyword"
-          },
-          "limit": {
-            "type": "integer",
-            "format": "int32",
-            "maximum": 6,
-            "minimum": 1
-          },
-          "minimum_rerank_score": {
-            "type": "number",
-            "format": "double"
-          },
-          "allow_degraded": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "mode"
         ]
       },
       "KnowledgePublish": {

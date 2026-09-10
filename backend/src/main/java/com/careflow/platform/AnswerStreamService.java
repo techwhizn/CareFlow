@@ -81,7 +81,11 @@ public class AnswerStreamService {
                             "context_rounds",
                             context.turns().size(),
                             "context_tokens",
-                            context.tokens())));
+                            context.tokens(),
+                            "context_token_limit",
+                            scope.answerPolicy().history_tokens(),
+                            "context_round_limit",
+                            scope.answerPolicy().history_rounds())));
             emitter.send(SseEmitter.event().name("status").data(Map.of("stage", "retrieval")));
             var result =
                 retrieval.search(

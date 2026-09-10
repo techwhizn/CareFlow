@@ -31,6 +31,11 @@ public class ConfiguredModelRouting {
   }
 
   public QueryConfiguration queryConfiguration(String tenant, List<String> versions) {
+    return queryConfiguration(tenant, versions, null);
+  }
+
+  public QueryConfiguration queryConfiguration(
+      String tenant, List<String> versions, KnowledgeConfiguration.Retrieval override) {
     QueryConfiguration selected = null;
     Set<String> checked = new HashSet<>();
     for (String version : versions) {
@@ -42,7 +47,10 @@ public class ConfiguredModelRouting {
       String id = str(row, "published_configuration");
       if (id.isBlank() || !checked.add(id)) continue;
       var runtime = configurations.runtime(tenant, id);
-      var next = new QueryConfiguration(configurations.definition(tenant, id).retrieval(), runtime);
+      var next =
+          new QueryConfiguration(
+              override == null ? configurations.definition(tenant, id).retrieval() : override,
+              runtime);
       if (selected != null
           && (!selected.runtime().rerank().equals(next.runtime().rerank())
               || !selected.runtime().generation().equals(next.runtime().generation())

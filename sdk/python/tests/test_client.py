@@ -603,3 +603,37 @@ def test_feedback_improvement_requests_preserve_revision_and_source():
     assert json.loads(seen[1].content)["source_id"] == ID
     assert seen[4].url.path.endswith("/assignees")
     assert json.loads(seen[5].content)["revision"] == 4
+
+
+def test_application_policy_serializes_model_revisions_and_answer_constraints():
+    from careflow_sdk.application import (
+        AnswerPolicy,
+        ApplicationConfiguration,
+        ApplicationModels,
+    )
+    from careflow_sdk.configuration import RetrievalConfiguration
+
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"id": ID})
+
+    definition = ApplicationConfiguration(
+        (ID,),
+        2,
+        retrieval=RetrievalConfiguration(mode="keyword"),
+        models=ApplicationModels(ID, ID, 3, 4),
+        answer_policy=AnswerPolicy(language="en", history_rounds=1, history_tokens=300),
+    )
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.create_application("Synthetic", owner_id=ID)
+        client.create_application_configuration(ID, definition)
+        client.publish_application_configuration(ID, ID, 2)
+        client.application_publications(ID)
+        client.available_applications()
+    body = json.loads(seen[1].content)
+    assert body["models"]["generation_profile_revision"] == 4
+    assert body["answer_policy"]["history_tokens"] == 300
+    assert "api_key" not in body
+    assert json.loads(seen[2].content)["revision"] == 2

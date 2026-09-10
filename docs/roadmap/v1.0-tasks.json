@@ -567,7 +567,8 @@
       "V1-27"
     ],
     "acceptance": "补负责人及模型/策略/问答约束绑定；草稿/发布/回滚完整；两应用共享知识但配置独立；应用回滚重新校验授权，首版不增加Agent执行。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-33-applications.md"
   },
   {
     "id": "V1-34",

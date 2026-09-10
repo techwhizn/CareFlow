@@ -99,9 +99,11 @@ public final class WorkerProtocolV1 {
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid GenerationEvidence> evidence,
       @Valid ModelConfiguration model_configuration,
-      @Size(max = 6) List<@Valid @NotNull ConversationTurn> history) {
+      @Size(max = 6) List<@Valid @NotNull ConversationTurn> history,
+      @Valid ApplicationPolicy.Answer answer_policy) {
     public GenerateRequest {
       history = history == null ? List.of() : List.copyOf(history);
+      answer_policy = answer_policy == null ? ApplicationPolicy.Answer.defaults() : answer_policy;
     }
   }
 

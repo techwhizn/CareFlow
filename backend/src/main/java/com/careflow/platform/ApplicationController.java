@@ -8,9 +8,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class ApplicationController {
   private final ApplicationService service;
+  private final ModelProfileService models;
 
-  public ApplicationController(ApplicationService service) {
+  public ApplicationController(ApplicationService service, ModelProfileService models) {
     this.service = service;
+    this.models = models;
+  }
+
+  @GetMapping("/applications/model-options")
+  public Object models(@RequestAttribute Actor actor) {
+    return models.forApplication(actor);
+  }
+
+  @GetMapping("/applications/owner-options")
+  public Object owners(@RequestAttribute Actor actor) {
+    return service.owners(actor);
+  }
+
+  @GetMapping("/applications/{id}/publications")
+  public Object publications(@RequestAttribute Actor actor, @PathVariable String id) {
+    return service.publications(actor, id);
+  }
+
+  @GetMapping("/applications/available")
+  public Object available(@RequestAttribute Actor actor) {
+    return service.available(actor);
   }
 
   @GetMapping("/applications")

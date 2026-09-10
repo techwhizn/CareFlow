@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from .application import ApplicationConfiguration as ApplicationConfiguration
 from .configuration import KnowledgeConfiguration as KnowledgeConfiguration
 from .content import ChunkEdit as ChunkEdit
 from .content import ChunkOperation as ChunkOperation
@@ -173,6 +174,52 @@ class Client:
         response = self._http.request(method, path, **kwargs)
         _check(response)
         return response.json() if response.content else None
+
+    def applications(self):
+        return self._request("GET", "applications")
+
+    def available_applications(self):
+        return self._request("GET", "applications/available")
+
+    def application_models(self):
+        return self._request("GET", "applications/model-options")
+
+    def create_application(self, name, description="", *, owner_id=None):
+        return self._request(
+            "POST",
+            "applications",
+            json=dict(
+                name=name,
+                description=description,
+                owner_id=_id(owner_id) if owner_id else None,
+            ),
+        )
+
+    def application_configurations(self, application_id):
+        return self._request(
+            "GET", f"applications/{_id(application_id)}/configurations"
+        )
+
+    def create_application_configuration(
+        self, application_id, configuration: ApplicationConfiguration
+    ):
+        return self._request(
+            "POST",
+            f"applications/{_id(application_id)}/configurations",
+            json=asdict(configuration),
+        )
+
+    def publish_application_configuration(
+        self, application_id, configuration_id, revision
+    ):
+        return self._request(
+            "POST",
+            f"applications/{_id(application_id)}/configuration-publications",
+            json=dict(configuration_id=_id(configuration_id), revision=revision),
+        )
+
+    def application_publications(self, application_id):
+        return self._request("GET", f"applications/{_id(application_id)}/publications")
 
     def create_conversation(self, *, application_id=None, knowledge_base_ids=()):
         return self._request(
@@ -542,6 +589,54 @@ class AsyncClient:
         response = await self._http.request(method, path, **kwargs)
         _check(response)
         return response.json() if response.content else None
+
+    async def applications(self):
+        return await self._request("GET", "applications")
+
+    async def available_applications(self):
+        return await self._request("GET", "applications/available")
+
+    async def application_models(self):
+        return await self._request("GET", "applications/model-options")
+
+    async def create_application(self, name, description="", *, owner_id=None):
+        return await self._request(
+            "POST",
+            "applications",
+            json=dict(
+                name=name,
+                description=description,
+                owner_id=_id(owner_id) if owner_id else None,
+            ),
+        )
+
+    async def application_configurations(self, application_id):
+        return await self._request(
+            "GET", f"applications/{_id(application_id)}/configurations"
+        )
+
+    async def create_application_configuration(
+        self, application_id, configuration: ApplicationConfiguration
+    ):
+        return await self._request(
+            "POST",
+            f"applications/{_id(application_id)}/configurations",
+            json=asdict(configuration),
+        )
+
+    async def publish_application_configuration(
+        self, application_id, configuration_id, revision
+    ):
+        return await self._request(
+            "POST",
+            f"applications/{_id(application_id)}/configuration-publications",
+            json=dict(configuration_id=_id(configuration_id), revision=revision),
+        )
+
+    async def application_publications(self, application_id):
+        return await self._request(
+            "GET", f"applications/{_id(application_id)}/publications"
+        )
 
     async def create_conversation(self, *, application_id=None, knowledge_base_ids=()):
         return await self._request(

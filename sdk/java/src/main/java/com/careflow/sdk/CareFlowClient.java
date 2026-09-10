@@ -192,6 +192,49 @@ public final class CareFlowClient {
     }
   }
 
+  public JsonNode applications() throws IOException {
+    return request("GET", "applications", null, null);
+  }
+
+  public JsonNode availableApplications() throws IOException {
+    return request("GET", "applications/available", null, null);
+  }
+
+  public JsonNode applicationModels() throws IOException {
+    return request("GET", "applications/model-options", null, null);
+  }
+
+  public JsonNode createApplication(String name, String description, String ownerId)
+      throws IOException {
+    var body = new java.util.LinkedHashMap<String, Object>();
+    body.put("name", name);
+    body.put("description", description);
+    body.put("owner_id", ownerId);
+    return request("POST", "applications", body, null);
+  }
+
+  public JsonNode applicationConfigurations(String app) throws IOException {
+    return request("GET", "applications/" + id(app) + "/configurations", null, null);
+  }
+
+  public JsonNode createApplicationConfiguration(String app, ApplicationConfiguration input)
+      throws IOException {
+    return request("POST", "applications/" + id(app) + "/configurations", input, null);
+  }
+
+  public JsonNode publishApplicationConfiguration(String app, String configuration, long revision)
+      throws IOException {
+    return request(
+        "POST",
+        "applications/" + id(app) + "/configuration-publications",
+        Map.of("configuration_id", id(configuration), "revision", revision),
+        null);
+  }
+
+  public JsonNode applicationPublications(String app) throws IOException {
+    return request("GET", "applications/" + id(app) + "/publications", null, null);
+  }
+
   public JsonNode createConversation(String applicationId, List<String> knowledgeBaseIds)
       throws IOException {
     var body = new java.util.LinkedHashMap<String, Object>();

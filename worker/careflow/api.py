@@ -154,7 +154,11 @@ def rerank(body: Rerank):
 def stream(body: Generate):
     from careflow.chunking import tokens
 
-    if sum(tokens(turn.question + "\n" + turn.answer) for turn in body.history) > 3000:
+    if (
+        len(body.history) > body.answer_policy.history_rounds
+        or sum(tokens(turn.question + "\n" + turn.answer) for turn in body.history)
+        > body.answer_policy.history_tokens
+    ):
         raise HTTPException(422, "CONVERSATION_TOKEN_LIMIT")
     if sum(tokens(item.content) for item in body.evidence) > 6000:
         raise HTTPException(422, "EVIDENCE_TOKEN_LIMIT")
@@ -172,6 +176,7 @@ def stream(body: Generate):
                     body.query,
                     [c.model_dump() for c in body.evidence],
                     [turn.model_dump() for turn in body.history],
+                    body.answer_policy.model_dump(),
                 )
                 async for line in upstream:
                     event = GenerationEvent.model_validate_json(line)

@@ -14,13 +14,19 @@ public class DocumentDraftService {
   private final Identity auth;
   private final WorkerClient worker;
   private final KnowledgeConfigurationService configurations;
+  private final ParsedContentService parsedContent;
 
   public DocumentDraftService(
-      Db db, Identity auth, WorkerClient worker, KnowledgeConfigurationService configurations) {
+      Db db,
+      Identity auth,
+      WorkerClient worker,
+      KnowledgeConfigurationService configurations,
+      ParsedContentService parsedContent) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
     this.configurations = configurations;
+    this.parsedContent = parsedContent;
   }
 
   public record Edit(
@@ -34,6 +40,8 @@ public class DocumentDraftService {
     auth.lock(actor);
     var c = db.one("SELECT * FROM chunks WHERE tenant_id=? AND id=?", actor.tenant(), id);
     var v = auth.version(actor, str(c, "version_id"), "edit");
+    if (!str(c, "context_id").isBlank())
+      throw new ApiException(409, "CONTEXT_EDIT_REQUIRED", "此片段属于父子或FAQ分组，请先解除分组关联再单独修订");
     if (bool(v, "ever_published"))
       throw new ApiException(409, "IMMUTABLE_PUBLICATION", "已发布版本不可修改，请先复制为草稿");
     if (!Set.of("PARSED", "READY", "FAILED").contains(str(v, "state")))
@@ -57,7 +65,7 @@ public class DocumentDraftService {
         && num(tokenized, "model_token_count") > num(tokenized, "model_limit"))
       throw new ApiException(400, "MODEL_INPUT_TOO_LONG", "切片超过模型实际输入窗口，请拆分后保存");
     if (db.exec(
-            "UPDATE chunks SET content=?,token_count=?,enabled=?,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
+            "UPDATE chunks SET content=?,token_count=?,enabled=?,revision=revision+1,origin='MANUAL_EDIT' WHERE tenant_id=? AND id=? AND revision=?",
             body.content(),
             tokens,
             body.enabled(),
@@ -104,10 +112,11 @@ public class DocumentDraftService {
         str(v, "digest"),
         v.get("size_bytes"),
         v.get("configuration_id"));
+    var contexts = parsedContent.copyContexts(actor.tenant(), id, next);
     for (var c :
         db.list("SELECT * FROM chunks WHERE tenant_id=? AND version_id=?", actor.tenant(), id))
       db.exec(
-          "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count,enabled) VALUES(?,?,?,?,?,?,?,?,?)",
+          "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count,enabled,context_id,origin) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
           id(),
           actor.tenant(),
           next,
@@ -116,7 +125,9 @@ public class DocumentDraftService {
           c.get("content"),
           c.get("location"),
           c.get("token_count"),
-          c.get("enabled"));
+          c.get("enabled"),
+          contexts.get(str(c, "context_id")),
+          c.get("origin"));
     auth.audit(actor, "DRAFT_CREATE", next, id);
     return Map.of("id", next);
   }

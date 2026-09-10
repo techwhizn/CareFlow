@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Row } from "../../api";
 import { Dialog, Empty, ErrorNote, Loading, useData } from "../../ui";
 import { knowledgeClient, knowledgePaths } from "./client";
+import ContextPanel, { FaqForm } from "./ContextPanel";
 
 function sourceLocation(raw: unknown): Record<string, unknown> {
   try {
@@ -37,7 +38,7 @@ export default function ChunkWorkspace({
     [selected, setSelected] = useState<Row | null>(null),
     [edit, setEdit] = useState(""),
     [reason, setReason] = useState(""),
-    [editing, setEditing] = useState(false);
+    [editing, setEditing] = useState(false), [addingFaq,setAddingFaq]=useState(false);
   useEffect(() => {
     setSelected(chunks.data[0] || null);
   }, [chunks.data]);
@@ -50,6 +51,7 @@ export default function ChunkWorkspace({
           <p className="muted">核对原文、修订知识，再发布给应用使用。</p>
         </div>
         <div className="button-row">
+          {!version.ever_published && ["PARSED","READY"].includes(version.state) && <button onClick={()=>setAddingFaq(true)}>人工补充FAQ</button>}
           <button
             onClick={() =>
               void action(() => knowledgeClient.download(version.id, version.filename))
@@ -122,7 +124,7 @@ export default function ChunkWorkspace({
             </header>
             {selected && (
               <>
-                <pre>{selected.source_text}</pre>
+                {selected.origin==="MANUAL" ? <p className="notice">此内容由人工补充或修订，不对应原文件中的位置。</p> : <pre>{selected.source_text}</pre>}
                 <div className="source-location">
                   <b>来源定位</b>
                   <pre>
@@ -154,11 +156,11 @@ export default function ChunkWorkspace({
                     </span>
                   </div>
                   <p>{c.content}</p>
-                  <small>修订 {c.revision}</small>
+                  <small>修订 {c.revision}{c.context_id ? " · 有关联上下文" : ""}{c.origin==="MANUAL" ? " · 人工补充" : c.origin==="MANUAL_EDIT" ? " · 人工修订" : ""}</small>
                 </button>
               ))}
             </div>
-            {selected && !version.ever_published && (
+            {selected && !version.ever_published && !selected.context_id && (
               <div className="chunk-actions">
                 <button
                   onClick={() => {
@@ -175,6 +177,8 @@ export default function ChunkWorkspace({
           </div>
         </div>
       )}
+      {selected?.context_id && <ContextPanel key={selected.context_id} version={version} contextId={selected.context_id} saved={async()=>{await chunks.reload();await action(async()=>{});}}/>}
+      {addingFaq && <FaqForm version={version} close={()=>setAddingFaq(false)} saved={async()=>{await chunks.reload();await action(async()=>{});}}/>}
       <div className="pagination">
         <button disabled={!page} onClick={() => setPage(page - 1)}>
           上一页

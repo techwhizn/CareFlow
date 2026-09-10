@@ -280,7 +280,8 @@
       "V1-16"
     ],
     "acceptance": "保存同版本父子关系；FAQ问题、相似问法、答案关联；策略可预览和选择；人工补充明确标识且不伪造原文定位。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-17-contexts.md"
   },
   {
     "id": "V1-18",

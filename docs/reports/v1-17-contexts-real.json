@@ -1,0 +1,63 @@
+{
+  "started_at": "2026-09-10T12:15:15Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "real_parse_parent_child_persists_same_version_contexts",
+      "passed": true,
+      "knowledge_base_id": "317ce3a3-656d-4e84-a7d6-f17a211f976a",
+      "version_id": "713c62a1-74a3-4b7d-904b-8bfd15118e04",
+      "contexts": 3,
+      "children": 14
+    },
+    {
+      "name": "draft_parent_child_owns_new_context_ids",
+      "passed": true
+    },
+    {
+      "name": "real_index_publish_and_retrieve_parent_child",
+      "passed": true,
+      "evidence_count": 3
+    },
+    {
+      "name": "real_parse_faq_persists_same_version_contexts",
+      "passed": true,
+      "knowledge_base_id": "aff4e872-5d9a-4bad-b0e2-dbcb52a1e380",
+      "version_id": "cf322226-5e8a-4d85-a987-73b19115482a",
+      "contexts": 2,
+      "children": 2
+    },
+    {
+      "name": "draft_faq_owns_new_context_ids",
+      "passed": true
+    },
+    {
+      "name": "manual_faq_create_update_and_stale_revision_with_explicit_provenance",
+      "passed": true
+    },
+    {
+      "name": "real_index_publish_and_retrieve_faq",
+      "passed": true,
+      "evidence_count": 3
+    },
+    {
+      "name": "published_faq_cannot_be_mutated",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "fixtures": [
+    {
+      "knowledge_base_id": "317ce3a3-656d-4e84-a7d6-f17a211f976a",
+      "document_id": "473874f3-6a00-4d8f-b8b0-66e88bfdbff5",
+      "version_id": "713c62a1-74a3-4b7d-904b-8bfd15118e04",
+      "layout": "parent_child"
+    },
+    {
+      "knowledge_base_id": "aff4e872-5d9a-4bad-b0e2-dbcb52a1e380",
+      "document_id": "72bb5dda-09f1-4629-8a25-4e0871fbb962",
+      "version_id": "cf322226-5e8a-4d85-a987-73b19115482a",
+      "layout": "faq"
+    }
+  ]
+}

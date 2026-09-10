@@ -97,6 +97,8 @@ class ChunkingConfiguration(Contract):
     include_context: bool = True
     model_tokenizer: Literal["cl100k_base", "provider"] = "cl100k_base"
     model_maximum: int = Field(default=600, ge=1, le=131072)
+    layout: Literal["standard", "parent_child", "faq"] = "standard"
+    parent_maximum: int = Field(default=1600, ge=1, le=1600)
 
     @model_validator(mode="after")
     def bounded_overlap(self):
@@ -140,10 +142,31 @@ class ParsedChunk(Contract):
     content: str = Field(min_length=1, max_length=10000)
     location: str = Field(min_length=1, max_length=20000)
     token_count: int = Field(ge=1, le=600)
+    context_ordinal: int | None = Field(default=None, ge=0, le=49999)
+
+
+class ParsedContext(Contract):
+    ordinal: int = Field(ge=0, le=49999)
+    kind: Literal["PARENT", "FAQ"]
+    source_text: str = Field(max_length=100000)
+    content: str = Field(min_length=1, max_length=10000)
+    location: str = Field(min_length=1, max_length=20000)
+    token_count: int = Field(ge=1, le=1600)
+    question: str | None = Field(default=None, max_length=1000)
+    alternatives: list[str] = Field(default_factory=list, max_length=20)
+    answer: str | None = Field(default=None, max_length=8000)
 
 
 class ParseCompletion(Contract):
     chunks: list[ParsedChunk] = Field(min_length=1, max_length=50000)
+    contexts: list[ParsedContext] = Field(default_factory=list, max_length=50000)
+
+
+class ManualFaq(ConfiguredOperation):
+    question: str = Field(min_length=1, max_length=1000)
+    alternatives: list[str] = Field(default_factory=list, max_length=20)
+    answer: str = Field(min_length=1, max_length=8000)
+    chunking: ChunkingConfiguration
 
 
 class IndexCompletion(Contract):

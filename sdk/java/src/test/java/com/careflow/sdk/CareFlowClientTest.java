@@ -100,6 +100,21 @@ class CareFlowClientTest {
   }
 
   @Test
+  void faqAndContextRoutesPreserveObservedRevisionAndAlternatives() throws Exception {
+    client.documentContexts(ID, 2);
+    client.documentContext(ID, ID);
+    var faq = new CareFlowClient.FaqInput(9, "question", List.of("similar"), "answer", "manual");
+    client.saveFaq(ID, faq, null, "create-faq");
+    client.saveFaq(ID, faq, ID, "update-faq");
+    client.detachContext(ID, ID, 9, "separate", "detach");
+    assertEquals("/api/v1/document-versions/" + ID + "/faqs", paths.get(2));
+    assertEquals("/api/v1/document-versions/" + ID + "/faqs/" + ID, paths.get(3));
+    assertTrue(bodies.get(2).contains("\"revision\":9"));
+    assertTrue(bodies.get(3).contains("\"alternatives\":[\"similar\"]"));
+    assertEquals("detach", keys.get(4));
+  }
+
+  @Test
   void documentVersionsPreservesContentRevision() throws Exception {
     response = "[{\"id\":\"" + ID + "\",\"revision\":7}]";
     assertEquals(7, client.documentVersions(ID).get(0).get("revision").asInt());

@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from .configuration import KnowledgeConfiguration as KnowledgeConfiguration
+from .content import FaqInput as FaqInput
 
 
 class ApiError(RuntimeError):
@@ -256,6 +257,41 @@ class Client:
     def document_versions(self, document_id):
         return self._request("GET", f"documents/{_id(document_id)}/versions")
 
+    def document_contexts(self, version_id, *, page=0):
+        return self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/contexts",
+            params={"page": page},
+        )
+
+    def document_context(self, version_id, context_id):
+        return self._request(
+            "GET", f"document-versions/{_id(version_id)}/contexts/{_id(context_id)}"
+        )
+
+    def save_faq(
+        self, version_id, faq: FaqInput, *, context_id=None, idempotency_key=None
+    ):
+        path = f"document-versions/{_id(version_id)}/faqs"
+        if context_id is not None:
+            path += "/" + _id(context_id)
+        return self._request(
+            "POST" if context_id is None else "PUT",
+            path,
+            json=asdict(faq),
+            headers=_headers(idempotency_key),
+        )
+
+    def detach_context(
+        self, version_id, context_id, revision, reason, *, idempotency_key=None
+    ):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/contexts/{_id(context_id)}/detach",
+            json={"revision": revision, "reason": reason},
+            headers=_headers(idempotency_key),
+        )
+
     def job(self, job_id):
         return self._request("GET", f"jobs/{_id(job_id)}")
 
@@ -429,6 +465,41 @@ class AsyncClient:
 
     async def document_versions(self, document_id):
         return await self._request("GET", f"documents/{_id(document_id)}/versions")
+
+    async def document_contexts(self, version_id, *, page=0):
+        return await self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/contexts",
+            params={"page": page},
+        )
+
+    async def document_context(self, version_id, context_id):
+        return await self._request(
+            "GET", f"document-versions/{_id(version_id)}/contexts/{_id(context_id)}"
+        )
+
+    async def save_faq(
+        self, version_id, faq: FaqInput, *, context_id=None, idempotency_key=None
+    ):
+        path = f"document-versions/{_id(version_id)}/faqs"
+        if context_id is not None:
+            path += "/" + _id(context_id)
+        return await self._request(
+            "POST" if context_id is None else "PUT",
+            path,
+            json=asdict(faq),
+            headers=_headers(idempotency_key),
+        )
+
+    async def detach_context(
+        self, version_id, context_id, revision, reason, *, idempotency_key=None
+    ):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/contexts/{_id(context_id)}/detach",
+            json={"revision": revision, "reason": reason},
+            headers=_headers(idempotency_key),
+        )
 
     async def job(self, job_id):
         return await self._request("GET", f"jobs/{_id(job_id)}")

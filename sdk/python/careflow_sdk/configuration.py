@@ -18,6 +18,8 @@ class ChunkingConfiguration:
     include_context: bool = True
     model_tokenizer: Literal["cl100k_base", "provider"] = "cl100k_base"
     model_maximum: int = 600
+    layout: Literal["standard", "parent_child", "faq"] = "standard"
+    parent_maximum: int = 1600
 
 
 @dataclass(frozen=True)

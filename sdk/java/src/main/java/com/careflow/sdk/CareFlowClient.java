@@ -235,6 +235,36 @@ public final class CareFlowClient {
     return request("GET", "documents/" + id(documentId) + "/versions", null, null);
   }
 
+  public record FaqInput(
+      long revision, String question, List<String> alternatives, String answer, String reason) {}
+
+  public JsonNode documentContexts(String versionId, int page) throws IOException {
+    return request(
+        "GET", "document-versions/" + id(versionId) + "/contexts?page=" + page, null, null);
+  }
+
+  public JsonNode documentContext(String versionId, String contextId) throws IOException {
+    return request(
+        "GET", "document-versions/" + id(versionId) + "/contexts/" + id(contextId), null, null);
+  }
+
+  public JsonNode saveFaq(String versionId, FaqInput input, String contextId, String key)
+      throws IOException {
+    String path = "document-versions/" + id(versionId) + "/faqs";
+    if (contextId != null) path += "/" + id(contextId);
+    return request(contextId == null ? "POST" : "PUT", path, input, key);
+  }
+
+  public JsonNode detachContext(
+      String versionId, String contextId, long revision, String reason, String key)
+      throws IOException {
+    return request(
+        "POST",
+        "document-versions/" + id(versionId) + "/contexts/" + id(contextId) + "/detach",
+        Map.of("revision", revision, "reason", reason),
+        key);
+  }
+
   public JsonNode job(String jobId) throws IOException {
     return request("GET", "jobs/" + id(jobId), null, null);
   }

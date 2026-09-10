@@ -223,6 +223,11 @@ def test_routes_and_query_fields_exist_in_openapi():
         ("/knowledge-bases/{kb}/configuration-publications", "post"),
         ("/document-versions/{id}/reprocess", "post"),
         ("/document-versions/{id}/configuration-binding", "post"),
+        ("/document-versions/{id}/contexts", "get"),
+        ("/document-versions/{id}/contexts/{context}", "get"),
+        ("/document-versions/{version}/faqs", "post"),
+        ("/document-versions/{version}/faqs/{context}", "put"),
+        ("/document-versions/{version}/contexts/{context}/detach", "post"),
     ]:
         assert method in schema["paths"]["/api/v1" + path]
     assert set(Query.__dataclass_fields__) <= set(
@@ -333,3 +338,41 @@ def test_configuration_binding_preserves_reviewed_revision_sync_and_async():
             ] == 10
 
     asyncio.run(run())
+
+
+def test_context_and_faq_management_use_reviewed_revision_in_both_clients():
+    from careflow_sdk import FaqInput
+
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(200, json={"id": ID})
+
+    entry = FaqInput(9, "question", "answer", "manual", ("similar",))
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.document_contexts(ID, page=2)
+        client.document_context(ID, ID)
+        client.save_faq(ID, entry, idempotency_key="create-faq")
+        client.save_faq(ID, entry, context_id=ID, idempotency_key="update-faq")
+        client.detach_context(ID, ID, 9, "separate", idempotency_key="detach")
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.document_contexts(ID, page=2)
+            await client.document_context(ID, ID)
+            await client.save_faq(ID, entry, idempotency_key="create-faq")
+            await client.save_faq(
+                ID, entry, context_id=ID, idempotency_key="update-faq"
+            )
+            await client.detach_context(ID, ID, 9, "separate", idempotency_key="detach")
+
+    asyncio.run(run())
+    for group in [requests[:5], requests[5:]]:
+        assert group[0].url.params["page"] == "2"
+        assert group[2].method == "POST" and group[3].method == "PUT"
+        assert json.loads(group[2].content)["revision"] == 9
+        assert json.loads(group[3].content)["alternatives"] == ["similar"]
+        assert group[4].url.path.endswith("/detach")

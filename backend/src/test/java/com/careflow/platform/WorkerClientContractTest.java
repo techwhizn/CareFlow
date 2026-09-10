@@ -96,6 +96,28 @@ class WorkerClientContractTest {
   }
 
   @Test
+  void faqInputBudgetFailureIsActionableAndDoesNotExposeWorkerBody() {
+    status = 422;
+    response = "{\"detail\":\"sensitive fixture\"}";
+    var body =
+        new WorkerProtocolV1.ManualFaqRequest(
+            "question",
+            List.of(),
+            "answer",
+            new KnowledgeConfiguration.Chunking(100, 200, 10),
+            new WorkerProtocolV1.ModelConfiguration(
+                "EMBEDDING", "https://model.invalid/v1", "fixture", "fixed", 512, ""));
+    assertThatThrownBy(() -> client.call("/internal/v1/faq/chunk", body))
+        .isInstanceOfSatisfying(
+            ApiException.class,
+            error -> {
+              assertThat(error.status).isEqualTo(400);
+              assertThat(error.code).isEqualTo("FAQ_CONTEXT_TOO_LONG");
+              assertThat(error.getMessage()).doesNotContain("sensitive");
+            });
+  }
+
+  @Test
   void emptyMalformedAndUpstreamErrorsAreSafeUnavailableErrors() {
     for (String body : List.of("", "not-json", "{\"token_count\":null}")) {
       response = body;

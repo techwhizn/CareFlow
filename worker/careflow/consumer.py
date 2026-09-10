@@ -66,22 +66,20 @@ def run_job(job_id):
                 source = client.get(base + "/source", headers=headers)
                 source.raise_for_status()
                 checkpoint("SOURCE_READY")
-                result = {
-                    "chunks": parse_document(
-                        source.content,
-                        job["filename"],
-                        cancelled=lease_lost.is_set,
-                        pdf_page_limit=min(
-                            job["pdf_page_limit"], configuration.parsing.pdf_page_limit
-                        )
-                        if configuration
-                        else job["pdf_page_limit"],
-                        chunking=configuration.chunking.model_dump()
-                        if configuration
-                        else None,
-                        embedding=configuration.embedding if configuration else None,
+                result = parse_document(
+                    source.content,
+                    job["filename"],
+                    cancelled=lease_lost.is_set,
+                    pdf_page_limit=min(
+                        job["pdf_page_limit"], configuration.parsing.pdf_page_limit
                     )
-                }
+                    if configuration
+                    else job["pdf_page_limit"],
+                    chunking=configuration.chunking.model_dump()
+                    if configuration
+                    else None,
+                    embedding=configuration.embedding if configuration else None,
+                )
                 result = ParseCompletion.model_validate(result).model_dump()
                 checkpoint("PARSED")
             else:

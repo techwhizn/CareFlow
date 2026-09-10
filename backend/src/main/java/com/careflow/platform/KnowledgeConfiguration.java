@@ -19,18 +19,33 @@ public final class KnowledgeConfiguration {
       @Pattern(regexp = "recursive|token") String strategy,
       Boolean include_context,
       @Pattern(regexp = "cl100k_base|provider") String model_tokenizer,
-      @Min(1) @Max(131072) Integer model_maximum) {
+      @Min(1) @Max(131072) Integer model_maximum,
+      @Pattern(regexp = "standard|parent_child|faq") String layout,
+      @Min(1) @Max(1600) Integer parent_maximum) {
     public Chunking {
       strategy = strategy == null ? "recursive" : strategy;
       include_context = include_context == null ? true : include_context;
       model_tokenizer = model_tokenizer == null ? "cl100k_base" : model_tokenizer;
       model_maximum = model_maximum == null ? 600 : model_maximum;
+      layout = layout == null ? "standard" : layout;
+      parent_maximum = parent_maximum == null ? 1600 : parent_maximum;
       if (!(0 <= overlap && overlap < target && target <= maximum && maximum <= 600))
         throw new IllegalArgumentException("Expected overlap < target <= maximum <= 600");
     }
 
     public Chunking(int target, int maximum, int overlap) {
-      this(target, maximum, overlap, "recursive", true, "cl100k_base", 600);
+      this(target, maximum, overlap, "recursive", true, "cl100k_base", 600, "standard", 1600);
+    }
+
+    public Chunking(
+        int target,
+        int maximum,
+        int overlap,
+        String strategy,
+        Boolean context,
+        String tokenizer,
+        Integer modelMaximum) {
+      this(target, maximum, overlap, strategy, context, tokenizer, modelMaximum, "standard", 1600);
     }
   }
 

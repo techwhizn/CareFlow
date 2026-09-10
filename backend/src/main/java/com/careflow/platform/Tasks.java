@@ -17,18 +17,21 @@ public class Tasks {
   private final Identity auth;
   private final EntitlementService entitlements;
   private final KnowledgeConfigurationService configurations;
+  private final ParsedContentService parsedContent;
 
   public Tasks(
       Db db,
       TransactionTemplate tx,
       Identity auth,
       EntitlementService entitlements,
-      KnowledgeConfigurationService configurations) {
+      KnowledgeConfigurationService configurations,
+      ParsedContentService parsedContent) {
     this.db = db;
     this.tx = tx;
     this.auth = auth;
     this.entitlements = entitlements;
     this.configurations = configurations;
+    this.parsedContent = parsedContent;
   }
 
   @Bean
@@ -202,27 +205,14 @@ public class Tasks {
           var j = validate(id, lease);
           String tenant = str(j, "tenant_id"), version = str(j, "version_id");
           if (str(j, "kind").equals("PARSE")) {
-            Object raw = body.get("chunks");
-            if (!(raw instanceof List<?> chunks) || chunks.isEmpty() || chunks.size() > 50000)
-              throw new IllegalArgumentException();
-            db.exec("DELETE FROM chunks WHERE tenant_id=? AND version_id=?", tenant, version);
-            int ordinal = 0;
-            for (Object entry : chunks) {
-              if (!(entry instanceof Map<?, ?> c)) throw new IllegalArgumentException();
-              String content = Objects.toString(c.get("content"), "");
-              if (content.isBlank() || content.length() > 10000)
-                throw new IllegalArgumentException();
-              db.exec(
-                  "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count) VALUES(?,?,?,?,?,?,?,?)",
-                  id(),
-                  tenant,
-                  version,
-                  ordinal++,
-                  c.get("source_text"),
-                  content,
-                  c.get("location"),
-                  c.get("token_count"));
-            }
+            String configuration = str(j, "configuration_id");
+            parsedContent.replace(
+                tenant,
+                version,
+                body,
+                configuration.isBlank()
+                    ? new KnowledgeConfiguration.Chunking(400, 600, 60)
+                    : configurations.definition(tenant, configuration).chunking());
             db.exec("UPDATE document_versions SET state='PARSED' WHERE id=?", version);
           } else {
             if (!Boolean.TRUE.equals(body.get("verified")) || str(body, "model_identity").isBlank())

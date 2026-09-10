@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8080",
+      "url": "http://localhost:8080",
       "description": "Generated server url"
     }
   ],
@@ -469,6 +469,62 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/Metadata"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{version}/faqs/{context}": {
+      "put": {
+        "tags": [
+          "document-context-controller"
+        ],
+        "operationId": "update_4",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "context",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Faq"
               }
             }
           },
@@ -1420,6 +1476,110 @@
         }
       }
     },
+    "/api/v1/document-versions/{version}/faqs": {
+      "post": {
+        "tags": [
+          "document-context-controller"
+        ],
+        "operationId": "create_5",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Faq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{version}/contexts/{context}/detach": {
+      "post": {
+        "tags": [
+          "document-context-controller"
+        ],
+        "operationId": "detach",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "context",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Change"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/document-versions/{id}/reprocess": {
       "post": {
         "tags": [
@@ -1689,7 +1849,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "create_5",
+        "operationId": "create_6",
         "parameters": [
           {
             "name": "id",
@@ -2409,6 +2569,85 @@
         }
       }
     },
+    "/api/v1/document-versions/{id}/contexts": {
+      "get": {
+        "tags": [
+          "document-read-controller"
+        ],
+        "operationId": "contexts",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/document-versions/{id}/contexts/{context}": {
+      "get": {
+        "tags": [
+          "document-read-controller"
+        ],
+        "operationId": "context",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "context",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/document-versions/{id}/chunks": {
       "get": {
         "tags": [
@@ -3069,6 +3308,48 @@
           "title"
         ]
       },
+      "Faq": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "question": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 400,
+              "minLength": 0
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 0
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "alternatives",
+          "answer",
+          "question",
+          "reason",
+          "revision"
+        ]
+      },
       "Edit": {
         "type": "object",
         "properties": {
@@ -3155,11 +3436,81 @@
             "format": "int32",
             "maximum": 600,
             "minimum": 1
+          },
+          "context_ordinal": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 49999,
+            "minimum": 0
           }
         },
         "required": [
           "content",
           "location",
+          "source_text",
+          "token_count"
+        ]
+      },
+      "ParsedContext": {
+        "type": "object",
+        "properties": {
+          "ordinal": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 49999,
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "pattern": "PARENT|FAQ"
+          },
+          "source_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 0
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "token_count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1600,
+            "minimum": 1
+          },
+          "question": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 400,
+              "minLength": 0
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "content",
+          "kind",
+          "location",
+          "ordinal",
           "source_text",
           "token_count"
         ]
@@ -3171,6 +3522,14 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ParsedChunk"
+            },
+            "maxItems": 50000,
+            "minItems": 0
+          },
+          "contexts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedContext"
             },
             "maxItems": 50000,
             "minItems": 0
@@ -3226,6 +3585,16 @@
             "type": "integer",
             "format": "int32",
             "maximum": 131072,
+            "minimum": 1
+          },
+          "layout": {
+            "type": "string",
+            "pattern": "standard|parent_child|faq"
+          },
+          "parent_maximum": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1600,
             "minimum": 1
           }
         }

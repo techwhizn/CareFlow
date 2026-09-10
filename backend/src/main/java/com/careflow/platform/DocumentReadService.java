@@ -68,6 +68,24 @@ public class DocumentReadService {
         Math.max(0, page) * 100);
   }
 
+  public Object contexts(Actor actor, String id, int page) {
+    auth.version(actor, id, "read");
+    return db.list(
+        "SELECT x.* FROM chunk_contexts x WHERE x.tenant_id=? AND x.version_id=? AND EXISTS(SELECT 1 FROM chunks c WHERE c.tenant_id=x.tenant_id AND c.version_id=x.version_id AND c.context_id=x.id) ORDER BY x.ordinal_no LIMIT 100 OFFSET ?",
+        actor.tenant(),
+        id,
+        Math.max(0, page) * 100);
+  }
+
+  public Object context(Actor actor, String id, String context) {
+    auth.version(actor, id, "read");
+    return db.one(
+        "SELECT * FROM chunk_contexts WHERE tenant_id=? AND version_id=? AND id=?",
+        actor.tenant(),
+        id,
+        context);
+  }
+
   public record SourceFile(String filename, byte[] content) {}
 
   public SourceFile download(Actor actor, String id) {

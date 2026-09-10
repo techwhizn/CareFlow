@@ -10,6 +10,8 @@ from careflow.model_configuration import use_configuration
 from careflow.protocol_v1 import (
     Generate,
     GenerationEvent,
+    ManualFaq,
+    ParseCompletion,
     Recall,
     RecallResponse,
     Rerank,
@@ -26,6 +28,30 @@ def internal(x_internal_token: str = Header(default="")):
 
 
 app = FastAPI(title="CareFlow Internal Worker", dependencies=[Depends(internal)])
+
+
+@app.post("/internal/v1/faq/chunk", response_model=ParseCompletion)
+def faq_chunk(body: ManualFaq):
+    from careflow.context_chunking import manual_faq
+    from careflow.parsing_types import InvalidFile
+
+    try:
+        if (
+            body.model_configuration is not None
+            and body.model_configuration.kind != "EMBEDDING"
+        ):
+            raise ValueError("Embedding configuration required")
+        with use_configuration(body.model_configuration):
+            return manual_faq(
+                body.question,
+                body.alternatives,
+                body.answer,
+                body.chunking.model_dump(),
+            )
+    except InvalidFile as exc:
+        raise HTTPException(422, "FAQ_EXCEEDS_CONTEXT_BUDGET") from exc
+    except Exception as exc:
+        raise HTTPException(503, "FAQ_PROCESSING_UNAVAILABLE") from exc
 
 
 @app.post("/internal/v1/recall", response_model=RecallResponse)

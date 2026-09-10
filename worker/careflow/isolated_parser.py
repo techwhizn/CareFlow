@@ -33,11 +33,12 @@ def _child(connection, data, filename, pdf_page_limit, chunking, embedding):
                 min(Limits.environment().pdf_pages, pdf_page_limit)
             )
         _limit_process()
+        from careflow.context_chunking import process_blocks
         from careflow.model_configuration import use_configuration
-        from careflow.parsing import chunk, parse
+        from careflow.parsing import parse
 
         with use_configuration(embedding):
-            connection.send(("OK", chunk(parse(data, filename), **(chunking or {}))))
+            connection.send(("OK", process_blocks(parse(data, filename), chunking)))
     except MemoryError:
         connection.send(("PARSE_RESOURCE_LIMIT", None))
     except ModelUnavailable:
@@ -58,7 +59,7 @@ def parse_document(
     pdf_page_limit=None,
     chunking=None,
     embedding=None,
-) -> list[dict]:
+) -> dict:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)

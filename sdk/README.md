@@ -9,6 +9,9 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 | 列出、创建知识库 | knowledge_bases / create_knowledge_base | knowledgeBases / createKnowledgeBase |
 | 上传文件 | upload | upload |
 | 查询文档版本与内容修订 | document_versions | documentVersions |
+| 父子/FAQ上下文预览 | document_contexts / document_context | documentContexts / documentContext |
+| 整组FAQ新增与修订 | save_faq（FaqInput） | saveFaq（FaqInput） |
+| 解除组关联 | detach_context | detachContext |
 | 查询任务 | job | job |
 | 配置版本与可用模型 | knowledge_configurations / configuration_models | knowledgeConfigurations / configurationModels |
 | 保存、影响检查、发布配置 | create_knowledge_configuration / configuration_impact / publish_knowledge_configuration | createKnowledgeConfiguration / configurationImpact / publishKnowledgeConfiguration |
@@ -22,6 +25,8 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 创建、上传、索引与发布需具备相应权限的个人凭证；应用 API Key 主要用于已授权知识库的搜索和问答。SDK 不提升权限。发布需传当前文档 revision 及用户核对过的内容版本 version_revision，版本必须 READY；SDK 不自动发布、不自动轮询任务，也不绕过失败状态。
 
 base_url 是服务根地址，例如 `http://localhost:8080`，不含 `/api/v1`。令牌从环境变量或密钥管理服务注入；不要把令牌写进示例源码。生产接入使用 HTTPS。
+
+FAQ保存与解除关联需传入核对内容时取得的版本 `revision`，并填写原因；遇到409需重新预览。人工FAQ不声明原文件位置，已发布版本须先复制草稿。策略、预算与迁移说明见[上下文切片](../docs/context-chunking.md)。
 
 ## Python
 

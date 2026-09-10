@@ -99,10 +99,38 @@ public final class WorkerProtocolV1 {
       @NotNull @Size(max = 100000) String source_text,
       @NotBlank @Size(max = 10000) String content,
       @NotBlank @Size(max = 20000) String location,
-      @NotNull @Min(1) @Max(600) Integer token_count) {}
+      @NotNull @Min(1) @Max(600) Integer token_count,
+      @Min(0) @Max(49999) Integer context_ordinal) {}
+
+  public record ParsedContext(
+      @NotNull @Min(0) @Max(49999) Integer ordinal,
+      @NotNull @Pattern(regexp = "PARENT|FAQ") String kind,
+      @NotNull @Size(max = 100000) String source_text,
+      @NotBlank @Size(max = 10000) String content,
+      @NotBlank @Size(max = 20000) String location,
+      @NotNull @Min(1) @Max(1600) Integer token_count,
+      @Size(max = 1000) String question,
+      @Size(max = 20) List<@NotBlank @Size(max = 400) String> alternatives,
+      @Size(max = 8000) String answer) {}
+
+  public record ParsedDocument(
+      @NotNull @Size(min = 1, max = 50000) List<@NotNull @Valid ParsedChunk> chunks,
+      @Size(max = 50000) List<@NotNull @Valid ParsedContext> contexts) {
+    public ParsedDocument {
+      contexts = contexts == null ? List.of() : List.copyOf(contexts);
+    }
+  }
+
+  public record ManualFaqRequest(
+      @NotBlank @Size(max = 1000) String question,
+      @NotNull @Size(max = 20) List<@NotBlank @Size(max = 400) String> alternatives,
+      @NotBlank @Size(max = 8000) String answer,
+      @NotNull @Valid KnowledgeConfiguration.Chunking chunking,
+      @NotNull @Valid ModelConfiguration model_configuration) {}
 
   public record TaskCompletion(
       @Size(max = 50000) List<@NotNull @Valid ParsedChunk> chunks,
+      @Size(max = 50000) List<@NotNull @Valid ParsedContext> contexts,
       Boolean verified,
       @Size(max = 500) String model_identity,
       @Min(0) Long embedding_tokens) {}

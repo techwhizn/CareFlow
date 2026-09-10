@@ -12,9 +12,22 @@ public record KnowledgeConfiguration(
       String strategy,
       boolean include_context,
       String model_tokenizer,
-      int model_maximum) {
+      int model_maximum,
+      String layout,
+      int parent_maximum) {
     public Chunking(int target, int maximum, int overlap) {
-      this(target, maximum, overlap, "recursive", true, "cl100k_base", 600);
+      this(target, maximum, overlap, "recursive", true, "cl100k_base", 600, "standard", 1600);
+    }
+
+    public Chunking(
+        int target,
+        int maximum,
+        int overlap,
+        String strategy,
+        boolean context,
+        String tokenizer,
+        int modelMaximum) {
+      this(target, maximum, overlap, strategy, context, tokenizer, modelMaximum, "standard", 1600);
     }
   }
 

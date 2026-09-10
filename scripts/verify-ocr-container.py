@@ -39,7 +39,7 @@ def main():
     assert {"chi_sim", "eng"} <= set(pytesseract.get_languages())
     root = Path(sys.argv[1])
     for name in ("synthetic-ocr.png", "synthetic-ocr.jpg", "synthetic-scan.pdf"):
-        chunks = parse_document((root / name).read_bytes(), name)
+        chunks = parse_document((root / name).read_bytes(), name)["chunks"]
         text = " ".join(chunk["content"] for chunk in chunks).lower()
         assert "careflow" in text and "cf-100" in text, name
         assert any(
@@ -49,7 +49,7 @@ def main():
     if (root / "synthetic-chinese.png").exists():
         chunks = parse_document(
             (root / "synthetic-chinese.png").read_bytes(), "synthetic-chinese.png"
-        )
+        )["chunks"]
         text = "".join("".join(chunk["content"].split()) for chunk in chunks)
         assert "知识库" in text, "Chinese OCR mismatch"
         print("PASS Chinese OCR", flush=True)

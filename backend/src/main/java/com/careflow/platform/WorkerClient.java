@@ -73,10 +73,23 @@ public class WorkerClient {
           request = checked(body, WorkerProtocolV1.TokenizeRequest.class);
           response = WorkerProtocolV1.TokenizeResponse.class;
         }
+        case "/internal/v1/faq/chunk" -> {
+          request = checked(body, WorkerProtocolV1.ManualFaqRequest.class);
+          response = WorkerProtocolV1.ParsedDocument.class;
+        }
         default -> throw new IllegalArgumentException("Unknown worker operation");
       }
-      var result = client.post().uri(path).body(request).retrieve().body(response);
+      var retrieval = client.post().uri(path).body(request).retrieve();
+      if (path.equals("/internal/v1/faq/chunk"))
+        retrieval.onStatus(
+            status -> status.value() == 422,
+            (sent, failed) -> {
+              throw new ApiException(400, "FAQ_CONTEXT_TOO_LONG", "FAQ组或问题上下文超过配置预算，请缩短内容或拆为多个FAQ");
+            });
+      var result = retrieval.body(response);
       return mapper.convertValue(checked(result, response), Map.class);
+    } catch (ApiException e) {
+      throw e;
     } catch (Exception e) {
       throw unavailable();
     }

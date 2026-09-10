@@ -5,6 +5,56 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/internal/v1/faq/chunk": {
+      "post": {
+        "summary": "Faq Chunk",
+        "operationId": "faq_chunk_internal_v1_faq_chunk_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualFaq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParseCompletion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/v1/recall": {
       "post": {
         "summary": "Recall",
@@ -229,6 +279,83 @@
         ],
         "title": "Candidate"
       },
+      "ChunkingConfiguration": {
+        "properties": {
+          "target": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Target"
+          },
+          "maximum": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Maximum"
+          },
+          "overlap": {
+            "type": "integer",
+            "maximum": 599.0,
+            "minimum": 0.0,
+            "title": "Overlap"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "recursive",
+              "token"
+            ],
+            "title": "Strategy",
+            "default": "recursive"
+          },
+          "include_context": {
+            "type": "boolean",
+            "title": "Include Context",
+            "default": true
+          },
+          "model_tokenizer": {
+            "type": "string",
+            "enum": [
+              "cl100k_base",
+              "provider"
+            ],
+            "title": "Model Tokenizer",
+            "default": "cl100k_base"
+          },
+          "model_maximum": {
+            "type": "integer",
+            "maximum": 131072.0,
+            "minimum": 1.0,
+            "title": "Model Maximum",
+            "default": 600
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "parent_child",
+              "faq"
+            ],
+            "title": "Layout",
+            "default": "standard"
+          },
+          "parent_maximum": {
+            "type": "integer",
+            "maximum": 1600.0,
+            "minimum": 1.0,
+            "title": "Parent Maximum",
+            "default": 1600
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "maximum",
+          "overlap"
+        ],
+        "title": "ChunkingConfiguration"
+      },
       "Generate": {
         "properties": {
           "model_configuration": {
@@ -305,6 +432,51 @@
         ],
         "title": "Hit"
       },
+      "ManualFaq": {
+        "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "question": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "alternatives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Alternatives"
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Answer"
+          },
+          "chunking": {
+            "$ref": "#/components/schemas/ChunkingConfiguration"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question",
+          "answer",
+          "chunking"
+        ],
+        "title": "ManualFaq"
+      },
       "ModelConfiguration": {
         "properties": {
           "kind": {
@@ -363,6 +535,166 @@
           "model"
         ],
         "title": "ModelConfiguration"
+      },
+      "ParseCompletion": {
+        "properties": {
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/ParsedChunk"
+            },
+            "type": "array",
+            "maxItems": 50000,
+            "minItems": 1,
+            "title": "Chunks"
+          },
+          "contexts": {
+            "items": {
+              "$ref": "#/components/schemas/ParsedContext"
+            },
+            "type": "array",
+            "maxItems": 50000,
+            "title": "Contexts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "chunks"
+        ],
+        "title": "ParseCompletion"
+      },
+      "ParsedChunk": {
+        "properties": {
+          "source_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Source Text"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Content"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Location"
+          },
+          "token_count": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Token Count"
+          },
+          "context_ordinal": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 49999.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Ordinal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_text",
+          "content",
+          "location",
+          "token_count"
+        ],
+        "title": "ParsedChunk"
+      },
+      "ParsedContext": {
+        "properties": {
+          "ordinal": {
+            "type": "integer",
+            "maximum": 49999.0,
+            "minimum": 0.0,
+            "title": "Ordinal"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PARENT",
+              "FAQ"
+            ],
+            "title": "Kind"
+          },
+          "source_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "title": "Source Text"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Content"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Location"
+          },
+          "token_count": {
+            "type": "integer",
+            "maximum": 1600.0,
+            "minimum": 1.0,
+            "title": "Token Count"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          },
+          "alternatives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Alternatives"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ordinal",
+          "kind",
+          "source_text",
+          "content",
+          "location",
+          "token_count"
+        ],
+        "title": "ParsedContext"
       },
       "Recall": {
         "properties": {

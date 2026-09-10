@@ -7,7 +7,7 @@ type Model = { id: string; name: string; kind: Kind; model: string; revision: nu
 type Definition = {
   name: string;
   parsing: { pdf_page_limit: number };
-  chunking: { target: number; maximum: number; overlap: number; strategy: string; include_context: boolean; model_tokenizer: string; model_maximum: number };
+  chunking: { target: number; maximum: number; overlap: number; strategy: string; include_context: boolean; model_tokenizer: string; model_maximum: number; layout: string; parent_maximum: number };
   retrieval: { mode: string; limit: number; minimum_rerank_score: number | null; allow_degraded: boolean };
   models: { embedding_profile_id: string; rerank_profile_id: string; generation_profile_id: string;
     embedding_profile_revision: number; rerank_profile_revision: number; generation_profile_revision: number };
@@ -66,7 +66,7 @@ function DefinitionForm({ models, initial, close, save }: { models: Model[]; ini
       const revision = (kind: string) => models.find(model => model.id === id(kind))!.revision;
       const score = String(data.get("minimum_rerank_score"));
       try { await save({ name: String(data.get("name")), parsing: { pdf_page_limit: number("pdf_page_limit") },
-        chunking: { target: number("target"), maximum: number("maximum"), overlap: number("overlap"), strategy: String(data.get("strategy")), include_context: data.has("include_context"), model_tokenizer: String(data.get("model_tokenizer")), model_maximum: number("model_maximum") },
+        chunking: { target: number("target"), maximum: number("maximum"), overlap: number("overlap"), strategy: String(data.get("strategy")), include_context: data.has("include_context"), model_tokenizer: String(data.get("model_tokenizer")), model_maximum: number("model_maximum"), layout: String(data.get("layout")), parent_maximum: number("parent_maximum") },
         retrieval: { mode: String(data.get("mode")), limit: number("limit"), minimum_rerank_score: score === "" ? null : Number(score), allow_degraded: data.has("allow_degraded") },
         models: { embedding_profile_id: id("embedding"), rerank_profile_id: id("rerank"), generation_profile_id: id("generation"),
           embedding_profile_revision: revision("embedding"), rerank_profile_revision: revision("rerank"), generation_profile_revision: revision("generation") } });
@@ -83,6 +83,9 @@ function DefinitionForm({ models, initial, close, save }: { models: Model[]; ini
       <label>切片Token上限<input name="maximum" type="number" required min={1} max={600} defaultValue={initial?.chunking.maximum ?? 300} /></label>
       <label>重叠Token<input name="overlap" type="number" required min={0} max={599} defaultValue={initial?.chunking.overlap ?? 30} /></label>
       <label>切片方式<select name="strategy" defaultValue={initial?.chunking.strategy ?? "recursive"}><option value="recursive">按段落和句子递归细分</option><option value="token">按Token预算细分</option></select></label>
+      <label>知识组织策略<select name="layout" defaultValue={initial?.chunking.layout ?? "standard"}><option value="standard">普通切片</option><option value="parent_child">父子切片：子片匹配，父片补充上下文</option><option value="faq">FAQ：显式问题、相似问法与答案</option></select></label>
+      <label>父片段或FAQ组Token上限<input name="parent_maximum" type="number" required min={1} max={1600} defaultValue={initial?.chunking.parent_maximum ?? 1600} /></label>
+      <p className="muted">FAQ源文件使用“问题：… / 相似问法：…|… / 答案：…”分行标记。发布配置后创建新的处理草稿，在工作台预览父片段及FAQ关联；核对并发布文档后才影响线上。</p>
       <label><input name="include_context" type="checkbox" defaultChecked={initial?.chunking.include_context ?? true} />每个片段保留标题和表头上下文</label>
       <label>模型输入计数<select name="model_tokenizer" defaultValue={initial?.chunking.model_tokenizer ?? "cl100k_base"}><option value="cl100k_base">cl100k_base（模型须使用相同计数方式）</option><option value="provider">模型原生计数（服务须支持）</option></select></label>
       <label>模型输入Token上限<input name="model_maximum" type="number" required min={1} max={131072} defaultValue={initial?.chunking.model_maximum ?? 600} /></label>

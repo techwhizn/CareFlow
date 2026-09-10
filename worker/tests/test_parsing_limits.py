@@ -56,7 +56,7 @@ def test_image_pixel_limit_rejects_before_ocr(monkeypatch):
 
 def test_isolated_real_parse_and_invalid_input_have_safe_errors():
     result = parse_document(b"Synthetic isolated parse fixture.", "fixture.txt")
-    assert result[0]["content"] == "Synthetic isolated parse fixture."
+    assert result["chunks"][0]["content"] == "Synthetic isolated parse fixture."
     with pytest.raises(ParseFailure) as error:
         parse_document(b"secret invalid file", "fixture.exe")
     assert error.value.code == "INVALID_FILE"
@@ -102,5 +102,5 @@ def test_task_chunk_configuration_is_applied_inside_isolated_process():
     result = parse_document(
         text, "snapshot.txt", chunking={"target": 40, "maximum": 60, "overlap": 5}
     )
-    assert len(result) > 5
-    assert all(0 < row["token_count"] <= 60 for row in result)
+    assert len(result["chunks"]) > 5
+    assert all(0 < row["token_count"] <= 60 for row in result["chunks"])

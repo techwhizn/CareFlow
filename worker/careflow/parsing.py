@@ -4,20 +4,12 @@ import csv
 import json
 import re
 import zipfile
-from dataclasses import dataclass
 from io import BytesIO, StringIO
 from pathlib import PurePath
 
-
-class InvalidFile(ValueError):
-    pass
-
-
-@dataclass(frozen=True)
-class Block:
-    text: str
-    location: dict
-    warning: str = ""
+from careflow.office_parsing import docx_blocks, xlsx_blocks
+from careflow.parsing_types import Block, InvalidFile
+from careflow.text_parsing import clean_segment, markdown_blocks, repeated_page_margins
 
 
 def _zip_guard(data: bytes, expected: str):
@@ -69,31 +61,14 @@ def parse(data: bytes, filename: str) -> list[Block]:
                             "sheet": "CSV",
                             "row": row_num,
                             "columns": len(row),
+                            "column_start": 1,
+                            "column_end": len(row),
                         },
+                        "列数与表头不一致，请核对" if len(row) != len(header) else "",
                     )
                 )
         elif ext == ".md":
-            headings = list(re.finditer(r"^#{1,6}[^\S\n]+[^\n]+", text, re.MULTILINE))
-            starts = sorted(set([0] + [m.start() for m in headings]))
-            path = []
-            for index, start in enumerate(starts):
-                end = starts[index + 1] if index + 1 < len(starts) else len(text)
-                raw = text[start:end]
-                heading = re.match(r"(#{1,6})[^\S\n]+([^\n]+)", raw)
-                if heading:
-                    depth = len(heading.group(1))
-                    path = path[: depth - 1] + [heading.group(2)]
-                blocks.append(
-                    Block(
-                        raw,
-                        {
-                            "type": "text",
-                            "start": start,
-                            "end": end,
-                            "title_path": list(path),
-                        },
-                    )
-                )
+            blocks.extend(markdown_blocks(text))
         else:
             for match in re.finditer(r"[^\n]+(?:\n(?!\n)[^\n]+)*", text):
                 blocks.append(
@@ -104,52 +79,10 @@ def parse(data: bytes, filename: str) -> list[Block]:
                 )
     elif ext == ".docx":
         _zip_guard(data, "word/document.xml")
-        from docx import Document
-
-        doc = Document(BytesIO(data))
-        for i, paragraph in enumerate(doc.paragraphs):
-            if paragraph.text.strip():
-                blocks.append(
-                    Block(paragraph.text, {"type": "paragraph", "paragraph": i + 1})
-                )
-        for index, table in enumerate(doc.tables):
-            header = [cell.text for cell in table.rows[0].cells]
-            for row_num, row in enumerate(table.rows[1:], 2):
-                blocks.append(
-                    Block(
-                        " | ".join(
-                            f"{header[i]}: {cell.text}"
-                            for i, cell in enumerate(row.cells)
-                        ),
-                        {"type": "table", "table": index + 1, "row": row_num},
-                    )
-                )
+        blocks.extend(docx_blocks(data))
     elif ext == ".xlsx":
         _zip_guard(data, "xl/workbook.xml")
-        from openpyxl import load_workbook
-
-        wb = load_workbook(
-            BytesIO(data), read_only=True, data_only=True, keep_links=False
-        )
-        try:
-            for sheet in wb:
-                rows = sheet.iter_rows(values_only=True)
-                header = next(rows, ())
-                for row_num, row in enumerate(rows, 2):
-                    if row_num > 100_001:
-                        raise InvalidFile("Table exceeds 100000 rows")
-                    blocks.append(
-                        Block(
-                            " | ".join(
-                                f"{header[i] if i < len(header) else i + 1}: {value}"
-                                for i, value in enumerate(row)
-                                if value is not None
-                            ),
-                            {"type": "table", "sheet": sheet.title, "row": row_num},
-                        )
-                    )
-        finally:
-            wb.close()
+        blocks.extend(xlsx_blocks(data))
     elif ext == ".pdf":
         if not data.startswith(b"%PDF-"):
             raise InvalidFile("Invalid PDF signature")
@@ -161,8 +94,8 @@ def parse(data: bytes, filename: str) -> list[Block]:
         rendered = None
         try:
             for i, page in enumerate(pdf.pages):
-                text = page.extract_text() or ""
-                warning = ""
+                text = page.extract_text(extraction_mode="layout") or ""
+                warning = "PDF布局文本保留基础列间距；复杂表格与阅读顺序需人工核对"
                 if len(text.strip()) < 30:
                     import pypdfium2
 
@@ -199,7 +132,7 @@ def parse(data: bytes, filename: str) -> list[Block]:
         raise InvalidFile("No readable content; inspect OCR or document structure")
     if sum(len(b.text) for b in blocks) > 10_000_000:
         raise InvalidFile("Extracted text exceeds processing limit")
-    return blocks
+    return repeated_page_margins(blocks)
 
 
 def chunk(blocks: list[Block], target=400, maximum=600, overlap=60) -> list[dict]:
@@ -230,12 +163,16 @@ def chunk(blocks: list[Block], target=400, maximum=600, overlap=60) -> list[dict
                 if cut > start + (end - start) // 2:
                     end = cut + 1
             raw = block.text[start:end]
-            cleaned = re.sub(r"[ \t]+", " ", raw).strip()
+            cleaned = clean_segment(block, start, end)
             if cleaned:
                 location = {
                     **block.location,
                     "block_start": start,
                     "block_end": end,
+                    "cleaning": {
+                        "whitespace_normalized": cleaned != raw,
+                        "ignored_spans": block.ignored_spans,
+                    },
                     "warning": block.warning
                     or (
                         "切片较短，请检查上下文是否完整"

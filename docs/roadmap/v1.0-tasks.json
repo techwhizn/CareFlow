@@ -194,7 +194,8 @@
       "V1-10"
     ],
     "acceptance": "PDF/DOCX/MD/TXT/CSV/XLSX解析正文、标题、列表和基础表格；清洗前后可对照；页码/段落/工作表行列/偏移可定位；复杂表格警告而非假成功。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-12-structured-parsing.md"
   },
   {
     "id": "V1-13",

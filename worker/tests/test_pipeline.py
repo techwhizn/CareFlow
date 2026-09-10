@@ -64,7 +64,8 @@ def test_xlsx_preserves_sheet_coordinates():
     stream = BytesIO()
     wb.save(stream)
     blocks = parse(stream.getvalue(), "codes.xlsx")
-    assert blocks[0].location == {"type": "table", "sheet": "故障码", "row": 2}
+    assert blocks[0].location["sheet"] == "故障码"
+    assert blocks[0].location["cell_range"] == "A2:B2"
     assert "E404" in blocks[0].text
 
 

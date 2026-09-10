@@ -37,11 +37,16 @@ def _ocr(image):
     limits = Limits.environment()
     if image.width * image.height > limits.image_pixels:
         raise InvalidFile("Image dimensions exceed OCR limit")
-    return counted_ocr(
-        lambda: pytesseract.image_to_string(
-            image, lang="chi_sim+eng", timeout=limits.ocr_seconds
+    # Tesseract receives only newly encoded pixels, never original metadata or
+    # a caller-controlled image format, filename, archive or traineddata path.
+    with image.convert("RGB") as pixels:
+        pixels.info.clear()
+        pixels.format = "PNG"
+        return counted_ocr(
+            lambda: pytesseract.image_to_string(
+                pixels, lang="chi_sim+eng", timeout=limits.ocr_seconds
+            )
         )
-    )
 
 
 def parse(data: bytes, filename: str) -> list[Block]:

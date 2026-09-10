@@ -8,7 +8,8 @@ COPY src src
 RUN --mount=type=cache,target=/root/.m2 mvn -B package -DskipTests
 FROM ${JAVA_IMAGE}
 WORKDIR /app
-RUN useradd --system --uid 10001 careflow
+# The application starts Java directly; the base image's optional Go supervisor is unused.
+RUN rm -f /usr/bin/pebble && useradd --system --uid 10001 careflow
 COPY --from=build /build/target/knowledge-platform-0.1.0.jar app.jar
 USER careflow
 EXPOSE 8080

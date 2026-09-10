@@ -25,3 +25,5 @@ CareFlow 自有代码采用 Apache-2.0。此许可不替换依赖、容器基础
 可选 BGE 模型固定版本与下载方式见[模型服务说明](tools/local-models/README.md)。BGE-small-zh-v1.5 和 BGE-reranker-base 的上游模型声明为 MIT；模型文件不包含在源码仓库中，下载后保留上游许可与模型卡。DeepSeek 通过用户配置的 API 使用，服务条款由其提供方管理，不包含模型权重分发授权。
 
 容器基础系统、OCR 引擎及系统库的版权文件保存在镜像的 `/usr/share/doc` 等上游位置。当前清单不冒充完整操作系统 SBOM。修改或对外分发第三方镜像时，需要按对应上游条款保留源代码获取方式、修改记录和声明；本项目当前仅进行本地构建验证，没有发布这些镜像。
+
+Worker从固定SHA256的Tesseract 5.5.3官方源码构建，仅保留识别可执行文件，禁用训练工具、网络和归档支持；其Apache-2.0文本位于镜像`/usr/share/licenses/tesseract/LICENSE`。Leptonica和中英训练数据由Debian包提供并保留版权文件。构建方式与源码地址保留于`worker/Dockerfile`，没有修改Tesseract源码。

@@ -85,7 +85,7 @@ def main():
     environment = {
         **os.environ,
         "PARSE_MEMORY_MIB": "128",
-        "PARSE_TIMEOUT_SECONDS": "1",
+        "PARSE_TIMEOUT_SECONDS": "10",
     }
     memory_probe = subprocess.run(
         [
@@ -101,6 +101,8 @@ def main():
     assert (
         memory_probe.returncode == 0 and memory_probe.stdout.strip() == "MEMORY_BLOCKED"
     )
+    # Isolate CPU exhaustion from the memory probe and dependency import cost.
+    environment["PARSE_TIMEOUT_SECONDS"] = "1"
     cpu_probe = subprocess.run(
         [
             sys.executable,

@@ -69,7 +69,10 @@ def test_errors_are_not_retried_or_redirected(status):
 @pytest.mark.parametrize(
     "stream,success",
     [
-        ('event:delta\r\ndata:{"text":"你好"}\r\n\r\nevent:done\ndata:{}\n\n', True),
+        (
+            'event:delta\r\ndata:{"text":"你好"}\r\n\r\nevent:usage\ndata:{"total_tokens":16}\n\nevent:done\ndata:{}\n\n',
+            True,
+        ),
         ('event:delta\ndata:{"text":"partial"}\n\n', False),
         ('event:error\ndata:{"message":"private"}\n\n', False),
         ("event:delta\ndata:invalid\n\n", False),
@@ -86,7 +89,7 @@ def test_sync_and_async_stream_contract(stream, success):
     with Client(ORIGIN, "token", transport=httpx.MockTransport(handler)) as client:
         if success:
             with client.answer(Query("test"), idempotency_key="stable") as events:
-                assert [e.name for e in events] == ["delta", "done"]
+                assert [e.name for e in events] == ["delta", "usage", "done"]
         else:
             with (
                 pytest.raises(StreamError),
@@ -102,7 +105,7 @@ def test_sync_and_async_stream_contract(stream, success):
                 async with client.answer(
                     Query("test"), idempotency_key="stable"
                 ) as events:
-                    assert [e.name async for e in events] == ["delta", "done"]
+                    assert [e.name async for e in events] == ["delta", "usage", "done"]
             else:
                 with pytest.raises(StreamError):
                     async with client.answer(

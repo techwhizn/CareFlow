@@ -180,8 +180,7 @@ def rerank(query, candidates, record_usage=None):
     return sorted(results, key=lambda item: item["score"], reverse=True)
 
 
-def generate_stream(query, evidence):
-    url, model, headers = endpoint("GENERATION", "/chat/completions")
+def generation_payload(query, evidence, model):
     # Evidence is untrusted data, never an instruction or a tool authorization.
     messages = [
         {
@@ -195,33 +194,90 @@ def generate_stream(query, evidence):
             ),
         },
     ]
+    return {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+        "max_tokens": 2048,
+    }
+
+
+class GenerationDecoder:
+    def __init__(self):
+        self.done = False
+        self.usage_seen = False
+
+    def events(self, line):
+        if len(line) > 65536:
+            raise ModelUnavailable("Generation event too large")
+        if not line.startswith("data:"):
+            return []
+        payload = line[5:].strip()
+        if payload == "[DONE]":
+            self.done = True
+            return ([{"usage": {}}] if not self.usage_seen else []) + [{"done": True}]
+        item = json.loads(payload)
+        if not isinstance(item, dict) or item.get("error"):
+            raise ModelUnavailable("Upstream generation error")
+        result = []
+        for choice in item.get("choices", []):
+            text = choice.get("delta", {}).get("content")
+            if text is not None:
+                if not isinstance(text, str):
+                    raise ModelUnavailable("Invalid generation content")
+                if text:
+                    result.append({"text": text})
+        reported = item.get("usage")
+        if isinstance(reported, dict):
+            usage = {}
+            for public, key in (
+                ("input_tokens", "prompt_tokens"),
+                ("output_tokens", "completion_tokens"),
+                ("total_tokens", "total_tokens"),
+            ):
+                value = reported.get(key)
+                if type(value) is int and value >= 0:
+                    usage[public] = value
+            self.usage_seen = True
+            result.append({"usage": usage})
+        return result
+
+
+def generate_stream(query, evidence):
+    url, model, headers = endpoint("GENERATION", "/chat/completions")
+    decoder = GenerationDecoder()
     with httpx.Client(timeout=90) as client:
         with client.stream(
             "POST",
             url,
             headers=headers,
-            json={
-                "model": model,
-                "messages": messages,
-                "stream": True,
-                "max_tokens": 2048,
-            },
+            json=generation_payload(query, evidence, model),
         ) as response:
             response.raise_for_status()
-            finished = False
             for line in response.iter_lines():
-                if not line.startswith("data:"):
-                    continue
-                payload = line[5:].strip()
-                if payload == "[DONE]":
-                    finished = True
-                    break
-                item = json.loads(payload)
-                if item.get("error"):
-                    raise ModelUnavailable("Upstream generation error")
-                for choice in item.get("choices", []):
-                    if text := choice.get("delta", {}).get("content"):
-                        yield json.dumps({"text": text}, ensure_ascii=False) + "\n"
-            if not finished:
-                raise ModelUnavailable("Generation stream ended before completion")
-            yield json.dumps({"done": True}) + "\n"
+                for event in decoder.events(line):
+                    yield json.dumps(event, ensure_ascii=False) + "\n"
+                if decoder.done:
+                    return
+    raise ModelUnavailable("Generation stream ended before completion")
+
+
+async def generate_stream_async(query, evidence):
+    """Await network reads so ASGI disconnect cancellation closes the HTTP response immediately."""
+    url, model, headers = endpoint("GENERATION", "/chat/completions")
+    decoder = GenerationDecoder()
+    async with httpx.AsyncClient(timeout=90) as client:
+        async with client.stream(
+            "POST",
+            url,
+            headers=headers,
+            json=generation_payload(query, evidence, model),
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                for event in decoder.events(line):
+                    yield json.dumps(event, ensure_ascii=False) + "\n"
+                if decoder.done:
+                    return
+    raise ModelUnavailable("Generation stream ended before completion")

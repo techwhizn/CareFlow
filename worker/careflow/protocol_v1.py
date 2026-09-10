@@ -105,14 +105,27 @@ class ContextTokensResponse(Contract):
     tokenizer: Literal["cl100k_base"] = "cl100k_base"
 
 
+class GenerationUsage(Contract):
+    input_tokens: int | None = Field(default=None, ge=0, strict=True)
+    output_tokens: int | None = Field(default=None, ge=0, strict=True)
+    total_tokens: int | None = Field(default=None, ge=0, strict=True)
+
+
 class GenerationEvent(Contract):
     text: str | None = None
     done: Literal[True] | None = None
     error: str | None = None
+    usage: GenerationUsage | None = None
 
     @model_validator(mode="after")
     def exactly_one_event(self):
-        if sum(value is not None for value in (self.text, self.done, self.error)) != 1:
+        if (
+            sum(
+                value is not None
+                for value in (self.text, self.done, self.error, self.usage)
+            )
+            != 1
+        ):
             raise ValueError("Expected exactly one generation event")
         return self
 

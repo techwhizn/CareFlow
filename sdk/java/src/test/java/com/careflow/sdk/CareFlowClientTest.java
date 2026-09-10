@@ -182,11 +182,13 @@ class CareFlowClientTest {
   @Test
   void streamingRequiresDoneAndPreservesUnicode() throws Exception {
     contentType = "text/event-stream;charset=UTF-8";
-    response = "event:delta\r\ndata:{\"text\":\"你好\"}\r\n\r\nevent:done\ndata:{}\n\n";
+    response =
+        "event:delta\r\ndata:{\"text\":\"你好\"}\r\n\r\nevent:usage\ndata:{\"total_tokens\":16}\n\nevent:done\ndata:{}\n\n";
     List<CareFlowClient.Event> events = new ArrayList<>();
     client.answer(new CareFlowClient.Query("test"), "stable", events::add);
     assertEquals(
-        List.of("delta", "done"), events.stream().map(CareFlowClient.Event::name).toList());
+        List.of("delta", "usage", "done"),
+        events.stream().map(CareFlowClient.Event::name).toList());
     assertEquals("你好", events.getFirst().data().get("text").asText());
     for (String incomplete :
         List.of(

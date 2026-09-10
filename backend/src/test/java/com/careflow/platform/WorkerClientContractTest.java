@@ -185,4 +185,61 @@ class WorkerClientContractTest {
                     }))
         .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.code).isEqualTo("CANCELLED"));
   }
+
+  @Test
+  void usageEventsAreValidatedSeparatelyFromGeneratedText() {
+    response =
+        "{\"usage\":{\"input_tokens\":12,\"output_tokens\":4,\"total_tokens\":16}}\n{\"done\":true}\n";
+    List<Map<String, Object>> usage = new ArrayList<>();
+    client.stream(
+        generation(),
+        text -> fail("Usage is not answer text"),
+        usage::add,
+        new StreamCancellation());
+    assertThat(usage).hasSize(1);
+    assertThat(((Number) usage.getFirst().get("total_tokens")).longValue()).isEqualTo(16);
+    response = "{\"usage\":{\"total_tokens\":-1}}\n{\"done\":true}\n";
+    assertThatThrownBy(
+            () -> client.stream(generation(), text -> {}, usage::add, new StreamCancellation()))
+        .isInstanceOf(ApiException.class);
+  }
+
+  @Test
+  void cancellationInterruptsAStalledUpstreamWithoutWaitingForAnotherDelta() throws Exception {
+    server.removeContext("/");
+    server.createContext(
+        "/",
+        exchange -> {
+          exchange.getRequestBody().readAllBytes();
+          exchange.sendResponseHeaders(200, 0);
+          try {
+            exchange
+                .getResponseBody()
+                .write("{\"text\":\"first\"}\n".getBytes(StandardCharsets.UTF_8));
+            exchange.getResponseBody().flush();
+            Thread.sleep(10000);
+          } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+          } finally {
+            exchange.close();
+          }
+        });
+    var received = new CountDownLatch(1);
+    var cancellation = new StreamCancellation();
+    var running =
+        executor.submit(
+            () -> {
+              cancellation.bindThread();
+              try {
+                client(Duration.ofSeconds(30)).stream(
+                    generation(), text -> received.countDown(), usage -> {}, cancellation);
+                return "unexpected completion";
+              } catch (ApiException error) {
+                return error.code;
+              }
+            });
+    assertThat(received.await(3, TimeUnit.SECONDS)).isTrue();
+    cancellation.cancel();
+    assertThat(running.get(2, TimeUnit.SECONDS)).isEqualTo("CANCELLED");
+  }
 }

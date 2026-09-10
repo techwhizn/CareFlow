@@ -108,23 +108,23 @@ def test_identity_mismatch_fails_before_model_or_milvus(monkeypatch):
     assert response.status_code == 503
 
 
-def test_generation_context_does_not_cross_threadpool_yields(monkeypatch):
+def test_generation_context_is_bound_to_async_stream_task(monkeypatch):
     from careflow.protocol_v1 import Generate
 
     seen = []
 
-    def synthetic_stream(*args):
+    async def synthetic_stream(*args):
         for event in [{"text": "one"}, {"text": "two"}, {"done": True}]:
             seen.append(value("GENERATION_MODEL"))
             yield json.dumps(event) + "\n"
 
-    monkeypatch.setattr(models, "generate_stream", synthetic_stream)
+    monkeypatch.setattr(models, "generate_stream_async", synthetic_stream)
     body = Generate(
         query="synthetic",
         evidence=[{"id": "synthetic", "content": "synthetic"}],
         model_configuration=configuration(kind="GENERATION", model="stream-snapshot"),
     )
-    # Exercise Starlette's real threadpool iterator, with a fresh context at each next().
+    # Exercise the ASGI async iterator with the immutable per-request configuration.
     monkeypatch.setenv("INTERNAL_TOKEN", "test-internal-key-at-least-32-characters")
     with TestClient(api.app) as client:
         response = client.post(

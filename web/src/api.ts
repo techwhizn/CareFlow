@@ -1,3 +1,4 @@
+import { consumeAnswerStream } from "./answerStream";
 export type Row = Record<string, any>;
 let token = sessionStorage.getItem("careflow-token") || "";
 export function setToken(value: string) {
@@ -70,37 +71,7 @@ export async function streamAnswer(
     throw new Error(data.message || "问答请求失败");
   }
   if (!response.body) throw new Error("流式连接不可用");
-  const reader = response.body.getReader(),
-    decoder = new TextDecoder();
-  let buffer = "",
-    doneSeen = false;
-  try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder
-        .decode(value, { stream: true })
-        .replaceAll("\r\n", "\n");
-      let index;
-      while ((index = buffer.indexOf("\n\n")) >= 0) {
-        const raw = buffer.slice(0, index);
-        buffer = buffer.slice(index + 2);
-        let name = "message";
-        const data: string[] = [];
-        for (const line of raw.split("\n")) {
-          if (line.startsWith("event:")) name = line.slice(6).trim();
-          if (line.startsWith("data:")) data.push(line.slice(5).trim());
-        }
-        if (data.length) {
-          onEvent(name, JSON.parse(data.join("\n")));
-          if (name === "done" || name === "error") doneSeen = true;
-        }
-      }
-    }
-    if (!doneSeen) throw new Error("连接提前结束，回答未完成");
-  } finally {
-    reader.releaseLock();
-  }
+  await consumeAnswerStream(response.body, onEvent, signal);
 }
 
 export async function downloadSource(version: string, filename: string) {

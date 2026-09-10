@@ -124,6 +124,15 @@ public class WorkerClient {
   }
 
   public void stream(Object body, java.util.function.Consumer<String> consumer) {
+    stream(body, consumer, ignored -> {}, new StreamCancellation());
+  }
+
+  public void stream(
+      Object body,
+      java.util.function.Consumer<String> consumer,
+      java.util.function.Consumer<Map<String, Object>> usage,
+      StreamCancellation cancellation) {
+    cancellation.check();
     final WorkerProtocolV1.GenerateRequest request;
     try {
       request = checked(body, WorkerProtocolV1.GenerateRequest.class);
@@ -144,16 +153,40 @@ public class WorkerClient {
                         .newDecoder()
                         .onMalformedInput(CodingErrorAction.REPORT)
                         .onUnmappableCharacter(CodingErrorAction.REPORT);
-                try (var reader =
-                    new BufferedReader(new InputStreamReader(response.getBody(), decoder))) {
+                var input = response.getBody();
+                cancellation.attach(input);
+                try (var reader = new BufferedReader(new InputStreamReader(input, decoder))) {
                   String line;
                   while ((line = boundedLine(reader)) != null) {
                     if (line.isBlank()) continue;
+                    cancellation.check();
                     var event = mapper.readTree(line);
                     if (!event.isObject() || event.has("error"))
                       throw new ApiException(503, "GENERATION_UNAVAILABLE", "生成模型中断");
-                    if (event.has("done") && event.has("text"))
-                      throw new ApiException(503, "STREAM_INTERRUPTED", "生成事件类型冲突");
+                    if ((event.has("done") ? 1 : 0)
+                            + (event.has("text") ? 1 : 0)
+                            + (event.has("usage") ? 1 : 0)
+                        != 1) throw new ApiException(503, "STREAM_INTERRUPTED", "生成事件类型冲突");
+                    if (event.has("usage")) {
+                      if (!event.get("usage").isObject())
+                        throw new IllegalArgumentException("Invalid usage");
+                      for (String field :
+                          List.of("input_tokens", "output_tokens", "total_tokens")) {
+                        var value = event.get("usage").get(field);
+                        if (value != null
+                            && !value.isNull()
+                            && (!value.isIntegralNumber()
+                                || !value.canConvertToLong()
+                                || value.longValue() < 0))
+                          throw new IllegalArgumentException("Invalid usage count");
+                      }
+                      var measured =
+                          checked(
+                              mapper.convertValue(event.get("usage"), Map.class),
+                              WorkerProtocolV1.GenerationUsage.class);
+                      usage.accept(mapper.convertValue(measured, Map.class));
+                      continue;
+                    }
                     if (event.path("done").isBoolean() && event.path("done").booleanValue())
                       return null;
                     if (!event.has("text") || !event.get("text").isTextual())
@@ -166,7 +199,10 @@ public class WorkerClient {
     } catch (ApiException e) {
       throw e;
     } catch (Exception e) {
+      cancellation.check();
       throw new ApiException(503, "STREAM_INTERRUPTED", "生成连接中断");
+    } finally {
+      cancellation.detach();
     }
   }
 

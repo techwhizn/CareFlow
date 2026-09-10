@@ -1,4 +1,6 @@
-import MetadataFilterEditor, { serializeFilters } from "../features/retrieval/MetadataFilterEditor";
+import MetadataFilterEditor, {
+  serializeFilters,
+} from "../features/retrieval/MetadataFilterEditor";
 import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
 import {
@@ -7,12 +9,13 @@ import {
   PaperPlaneTilt,
   Stop,
 } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Row } from "../api";
 import { post, streamAnswer } from "../api";
 import { Empty, ErrorNote, useData } from "../ui";
 export default function AnswerPage() {
   const [query, setQuery] = useState(""),
+    [kb, setKb] = useState(""),
     [answer, setAnswer] = useState(""),
     [minimumScore, setMinimumScore] = useState(""),
     [filters, setFilters] = useState<FilterDraft[]>([]),
@@ -20,10 +23,12 @@ export default function AnswerPage() {
     [stage, setStage] = useState(""),
     [error, setError] = useState(""),
     [evidence, setEvidence] = useState<Row[]>([]),
-    [controller, setController] = useState<AbortController | null>(null),
-    [answerId, setAnswerId] = useState("");
+    [answerId, setAnswerId] = useState(""),
+    [usage, setUsage] = useState<Row | null>(null);
   const history = useData<Row[]>("/answers", []);
-  useEffect(() => () => controller?.abort(), [controller]);
+  const knowledge = useData<Row[]>("/knowledge-bases", []);
+  const controller = useRef<AbortController | null>(null);
+  useEffect(() => () => controller.current?.abort(), []);
   return (
     <>
       <div className="page-heading">
@@ -39,30 +44,39 @@ export default function AnswerPage() {
             onSubmit={async (e) => {
               e.preventDefault();
               const control = new AbortController();
-              setController(control);
+              controller.current?.abort();
+              controller.current = control;
               setBusy(true);
               setError("");
               setAnswer("");
               setAnswerId("");
               setEvidence([]);
+              setUsage(null);
               try {
                 await streamAnswer(
                   {
                     query,
-                    knowledge_base_ids: [],
+                    knowledge_base_ids: kb ? [kb] : [],
                     mode: null,
                     limit: 6,
                     debug: false,
-                    minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
-                filters: serializeFilters(filters),
+                    minimum_rerank_score:
+                      minimumScore === "" ? null : Number(minimumScore),
+                    filters: serializeFilters(filters),
                   },
                   (name, data) => {
+                    if (
+                      control.signal.aborted ||
+                      controller.current !== control
+                    )
+                      return;
                     if (name === "status")
                       setStage(
                         data.stage === "retrieval"
                           ? "检索与重排中"
                           : "生成回答中",
                       );
+                    if (name === "usage") setUsage(data);
                     if (name === "delta") setAnswer((a) => a + data.text);
                     if (name === "citations") setEvidence(data.evidence);
                     if (name === "done") {
@@ -78,6 +92,7 @@ export default function AnswerPage() {
                   control.signal,
                 );
               } catch (e) {
+                if (controller.current !== control) return;
                 setError(
                   (e as Error).name === "AbortError"
                     ? "已停止，当前回答未完成"
@@ -85,12 +100,37 @@ export default function AnswerPage() {
                 );
                 setStage("回答未完成");
               } finally {
-                setBusy(false);
+                if (controller.current === control) setBusy(false);
               }
             }}
           >
-<RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
-<MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
+            <label>
+              知识范围
+              <select
+                value={kb}
+                onChange={(event) => setKb(event.target.value)}
+                disabled={busy}
+              >
+                <option value="">全部授权知识库</option>
+                {knowledge.data.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <small>查询配置不同的知识库，请分别选择后提问。</small>
+            </label>
+            <ErrorNote error={knowledge.error} />
+            <RelevanceThreshold
+              value={minimumScore}
+              onChange={setMinimumScore}
+              disabled={busy}
+            />
+            <MetadataFilterEditor
+              value={filters}
+              onChange={setFilters}
+              disabled={busy}
+            />
             <label>
               向知识库提问
               <textarea
@@ -105,12 +145,21 @@ export default function AnswerPage() {
             <div className="section-title">
               <span className="muted">仅使用当前可访问的知识</span>
               {busy ? (
-                <button type="button" onClick={() => controller?.abort()}>
+                <button
+                  key="stop"
+                  type="button"
+                  onClick={() => {
+                    controller.current?.abort();
+                    setStage("回答未完成");
+                    setError("已停止，当前回答未完成");
+                    setBusy(false);
+                  }}
+                >
                   <Stop />
                   停止
                 </button>
               ) : (
-                <button className="primary">
+                <button key="send" className="primary">
                   <PaperPlaneTilt />
                   发送问题
                 </button>
@@ -122,6 +171,13 @@ export default function AnswerPage() {
             <div className="answer-content">
               <span className="eyebrow">{stage}</span>
               <p>{answer}</p>
+              {usage && (
+                <small>
+                  生成模型报告：输入 {usage.input_tokens ?? "未知"} Token · 输出{" "}
+                  {usage.output_tokens ?? "未知"} Token · 总计{" "}
+                  {usage.total_tokens ?? "未知"} Token
+                </small>
+              )}
               {!!evidence.length && (
                 <div className="citations">
                   <h3>引用证据</h3>

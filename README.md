@@ -72,7 +72,7 @@ uv run --project worker python scripts/real-smoke.py
 主服务提供 [Swagger UI](http://localhost:8080/swagger-ui/index.html) 和 [OpenAPI](http://localhost:8080/v3/api-docs)。REST 前缀 `/api/v1`，Bearer 凭证确定企业与身份。客户端 tenant_id/user_id 不参与可信认证。内部 API 用不同的服务密钥及任务租约保护。
 
 - 搜索：`POST /retrieval/search`，含 `query`、`mode`、`limit`、`knowledge_base_ids`，可选 `application_id`。
-- 问答：`POST /answers`，同上，事件 `start/status/delta/citations/done/error`。
+- 问答：`POST /answers`，同上，事件 `start/status/delta/usage/citations/done/error`。
 - POST 调用携带 `Idempotency-Key`；问答/检索重复键返回 409，避免重复扣费，当前不重放旧响应。
 - 不可访问对象统一 404，不区分不存在与无权限。
 

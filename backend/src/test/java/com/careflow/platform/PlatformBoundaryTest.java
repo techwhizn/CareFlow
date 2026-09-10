@@ -1464,7 +1464,43 @@ class PlatformBoundaryTest {
         .andExpect(status().isOk())
         .andExpect(content().string(org.hamcrest.Matchers.containsString("event:done")));
     org.mockito.Mockito.verify(worker, org.mockito.Mockito.never()).stream(
-        org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        org.mockito.ArgumentMatchers.any(),
+        org.mockito.ArgumentMatchers.any(),
+        org.mockito.ArgumentMatchers.any(),
+        org.mockito.ArgumentMatchers.any());
+    assertThat(db.list("SELECT * FROM answers WHERE tenant_id=?", tenant)).hasSize(1);
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/rerank"),
+                org.mockito.ArgumentMatchers.any()))
+        .thenReturn(Map.of("results", List.of(Map.of("id", chunk)), "degraded", true));
+    var failed =
+        mvc.perform(
+                post("/api/v1/answers")
+                    .header("Authorization", token)
+                    .header("Idempotency-Key", Db.id())
+                    .contentType("application/json")
+                    .content(
+                        json.writeValueAsString(
+                            Map.of(
+                                "query",
+                                "test",
+                                "mode",
+                                "hybrid",
+                                "limit",
+                                6,
+                                "minimum_rerank_score",
+                                .5))))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+    failed.getAsyncResult(5000);
+    mvc.perform(asyncDispatch(failed))
+        .andExpect(status().isOk())
+        .andExpect(content().string(org.hamcrest.Matchers.containsString("event:error")))
+        .andExpect(
+            content()
+                .string(
+                    org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("event:done"))));
     assertThat(db.list("SELECT * FROM answers WHERE tenant_id=?", tenant)).hasSize(1);
   }
 

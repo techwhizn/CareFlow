@@ -74,6 +74,9 @@ public final class WorkerProtocolV1 {
       String warning,
       @Valid ModelUsage usage) {}
 
+  public record GenerationUsage(
+      @Min(0) Long input_tokens, @Min(0) Long output_tokens, @Min(0) Long total_tokens) {}
+
   public record GenerateRequest(
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence,

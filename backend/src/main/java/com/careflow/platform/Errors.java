@@ -11,6 +11,12 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class Errors {
   private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Errors.class);
 
+  @ExceptionHandler(
+      org.springframework.web.context.request.async.AsyncRequestNotUsableException.class)
+  void disconnected() {
+    // The client has closed the response. Writing a JSON error would fail again on the SSE channel.
+  }
+
   @ExceptionHandler(ApiException.class)
   ResponseEntity<?> api(ApiException e, HttpServletRequest r) {
     return error(e.status, e.code, e.getMessage(), r);

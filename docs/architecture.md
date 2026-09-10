@@ -36,3 +36,5 @@ REST `/api/v1`。Bearer credential；租户及主体从密钥摘要查出。创�
 物理清理由CleanupRepository持久化范围/租约/阶段，CleanupRootService安排子资源依赖，PhysicalCleanupService协调外部存储，ContentPurgeService在事务中删除正文副本。IndexCacheReferences记录内容缓存归属。清理记录与重试由CleanupReadService授权，Worker只执行内部存储协议。
 
 EvidenceContextService只整理同版本授权父/相邻资料，EvidenceSelection拥有确定去重、文档条数和证据Token预算。Worker提供固定逻辑Tokenizer计数；返回与生成前逐条复核覆盖切片。
+
+AnswerStreamService编排流式问答，StreamCancellation绑定执行线程与上游连接；GenerationAccounting独立保留生成消耗与交付状态。前端和SDK仅以done确认流完成。

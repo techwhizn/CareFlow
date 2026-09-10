@@ -156,7 +156,7 @@ def stream(body: Generate):
     if sum(tokens(item.content) for item in body.evidence) > 6000:
         raise HTTPException(422, "EVIDENCE_TOKEN_LIMIT")
 
-    def generate():
+    async def generate():
         upstream = None
         try:
             if (
@@ -164,28 +164,21 @@ def stream(body: Generate):
                 and body.model_configuration.kind != "GENERATION"
             ):
                 raise ValueError("Generation requires generation configuration")
-            upstream = iter(
-                models.generate_stream(
+            with use_configuration(body.model_configuration):
+                upstream = models.generate_stream_async(
                     body.query, [c.model_dump() for c in body.evidence]
                 )
-            )
-            while True:
-                # StreamingResponse may resume each next() in a different copied thread context.
-                # Never retain a ContextVar token across a yield to that thread pool.
-                with use_configuration(body.model_configuration):
-                    line = next(upstream, None)
-                if line is None:
-                    return
-                event = GenerationEvent.model_validate_json(line)
-                yield event.model_dump_json(exclude_none=True) + "\n"
-                if event.done:
-                    return
+                async for line in upstream:
+                    event = GenerationEvent.model_validate_json(line)
+                    yield event.model_dump_json(exclude_none=True) + "\n"
+                    if event.done:
+                        return
+                raise ValueError("Generation stream missing completion")
         except Exception:
             yield json.dumps({"error": "GENERATION_UNAVAILABLE"}) + "\n"
         finally:
-            if upstream is not None and hasattr(upstream, "close"):
-                with use_configuration(body.model_configuration):
-                    upstream.close()
+            if upstream is not None:
+                await upstream.aclose()
 
     return StreamingResponse(generate(), media_type="application/x-ndjson")
 

@@ -84,18 +84,18 @@ def test_generation_events_reject_ambiguous_types_and_stop_at_done(monkeypatch):
 
     c = client(monkeypatch)
     body = {"query": "fixture", "evidence": [{"id": "a", "content": "source"}]}
-    monkeypatch.setattr(
-        api.models,
-        "generate_stream",
-        lambda *args: iter(['{"text":"ok"}\n', '{"done":true}\n', '{"text":"late"}\n']),
-    )
+
+    async def valid(*args):
+        for line in ['{"text":"ok"}\n', '{"done":true}\n', '{"text":"late"}\n']:
+            yield line
+
+    async def invalid(*args):
+        yield '{"text":"ambiguous","done":true}\n'
+
+    monkeypatch.setattr(api.models, "generate_stream_async", valid)
     response = c.post("/internal/v1/generate/stream", json=body)
     assert '"late"' not in response.text and '"done":true' in response.text
-    monkeypatch.setattr(
-        api.models,
-        "generate_stream",
-        lambda *args: iter(['{"text":"ambiguous","done":true}\n']),
-    )
+    monkeypatch.setattr(api.models, "generate_stream_async", invalid)
     response = c.post("/internal/v1/generate/stream", json=body)
     assert '"error"' in response.text and "ambiguous" not in response.text
 

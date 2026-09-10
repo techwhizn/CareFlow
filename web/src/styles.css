@@ -1050,6 +1050,26 @@ td button {
   gap: 18px;
   align-items: center;
 }
+.model-profile-form fieldset {
+  min-width: 0;
+}
+.model-profile-form .query-options {
+  flex-wrap: wrap;
+}
+@media (max-width: 760px) {
+  .model-profile-form .query-options label {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+    white-space: normal;
+  }
+  .model-profile-form .query-options input,
+  .model-profile-form .query-options select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
 .query-options label {
   display: flex;
   align-items: center;

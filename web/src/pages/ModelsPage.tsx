@@ -24,10 +24,10 @@ export default function ModelsPage() {
   function reset() {setForm(blank); setKey(""); setClearKey(false);}
   return <>
     <div className="page-heading"><div><h1>模型配置</h1><p>管理生成、向量化与重排服务，仅企业所有者和管理员可操作。</p></div></div>
-    <div className="notice">此处保存模型连接配置。知识库配置绑定与连接检测尚待后续接入，保存不会切换当前运行模型。</div>
+    <div className="notice">此处保存模型连接配置。请在知识库的处理与查询配置中选择模型并发布配置；保存模型档案不会自动切换已发布配置。</div>
     <ErrorNote error={error || profiles.error || policy.error} />
     {notice && <div className="notice" role="status">{notice}</div>}
-    <form className="query-panel" onSubmit={async event => {
+    <form className="query-panel model-profile-form" onSubmit={async event => {
       event.preventDefault(); setBusy(true); setError(""); setNotice("");
       const body = {...form, dimensions: form.kind === "EMBEDDING" ? Number(form.dimensions) : null,
         api_key: clearKey ? "" : key || null};
@@ -38,7 +38,7 @@ export default function ModelsPage() {
       } catch (error) {setError((error as Error).message);}
       finally {setKey(""); setBusy(false);}
     }}>
-      <fieldset disabled={busy}>
+      <fieldset disabled={busy || policy.loading}>
         <legend>{form.id ? "编辑模型配置" : "新增模型配置"}</legend>
         <div className="query-options">
           <label>名称<input required maxLength={200} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>
@@ -63,7 +63,7 @@ export default function ModelsPage() {
     </form>
     {busy && <Loading/>}
     <div className="section-title"><h2>已保存配置</h2></div>
-    {profiles.data.length===0 && <p>暂无可见模型配置。</p>}
+    {profiles.loading ? <Loading/> : !profiles.error && profiles.data.length===0 && <p>暂无可见模型配置。</p>}
     {profiles.data.map(profile=><article className="evidence" key={profile.id}>
       <header><b>{profile.name}</b><span>{profile.kind}</span></header>
       <p>{profile.model} · {profile.base_url}</p><p>{profile.key_configured ? "密钥已配置" : "未配置密钥"} · 版本 {profile.revision}</p>

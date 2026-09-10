@@ -82,6 +82,7 @@ public class ConfiguredModelRouting {
         bm25 = new ArrayList<>(),
         fused = new ArrayList<>();
     boolean anyDegraded = false;
+    List<Map<String, Object>> usage = new ArrayList<>();
     for (var group : groups.entrySet()) {
       var configuration = configurations.runtime(tenant, group.getKey().configuration());
       Map<String, Object> request =
@@ -103,6 +104,12 @@ public class ConfiguredModelRouting {
       if (group.getKey().generations())
         request.put("generation_ids", group.getValue().stream().map(generations::get).toList());
       var response = worker.call("/internal/v1/recall", request);
+      usage.add(
+          Map.of(
+              "configuration_id",
+              group.getKey().configuration(),
+              "usage",
+              response.get("usage") == null ? Map.of("state", "UNKNOWN") : response.get("usage")));
       dense.add((List<Map<String, Object>>) response.get("dense"));
       bm25.add((List<Map<String, Object>>) response.get("bm25"));
       fused.add((List<Map<String, Object>>) response.get("fused"));
@@ -117,7 +124,9 @@ public class ConfiguredModelRouting {
           "fused",
           fused.getFirst(),
           "degraded",
-          anyDegraded);
+          anyDegraded,
+          "usage",
+          usage);
     return Map.of(
         "dense",
         merge(dense, true),
@@ -126,7 +135,9 @@ public class ConfiguredModelRouting {
         "fused",
         merge(fused, false),
         "degraded",
-        anyDegraded);
+        anyDegraded,
+        "usage",
+        usage);
   }
 
   static List<Map<String, Object>> merge(

@@ -1166,6 +1166,38 @@
         ],
         "title": "ModelConfiguration"
       },
+      "ModelUsage": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "NOT_CALLED",
+              "REPORTED",
+              "NOT_REPORTED",
+              "UNKNOWN"
+            ],
+            "title": "State"
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Tokens"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "ModelUsage"
+      },
       "ParseCompletion": {
         "properties": {
           "chunks": {
@@ -1475,6 +1507,16 @@
               }
             ],
             "title": "Warning"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -1551,6 +1593,16 @@
               }
             ],
             "title": "Warning"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,

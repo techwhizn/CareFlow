@@ -1397,7 +1397,11 @@ class PlatformBoundaryTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.evidence").isEmpty())
         .andExpect(jsonPath("$.excluded[0].reason").value("BELOW_MINIMUM_SCORE"))
-        .andExpect(jsonPath("$.evidence_status").value("BELOW_THRESHOLD"));
+        .andExpect(jsonPath("$.evidence_status").value("BELOW_THRESHOLD"))
+        .andExpect(jsonPath("$.query_processing.original").value("test"))
+        .andExpect(jsonPath("$.query_processing.rewritten").value("test"))
+        .andExpect(jsonPath("$.timings_ms.recall").isNumber())
+        .andExpect(jsonPath("$.model_usage.rerank.state").value("UNKNOWN"));
     var query = new Query("test", null, List.of(), "hybrid", 6, false, null);
     assertThat(
             (List<?>)
@@ -1405,6 +1409,8 @@ class PlatformBoundaryTest {
                     .search(actor, query, retrieval.scope(actor, query), token)
                     .get("evidence"))
         .hasSize(1);
+    assertThat(retrieval.search(actor, query, retrieval.scope(actor, query), token))
+        .doesNotContainKeys("query_processing", "timings_ms", "model_usage", "recall", "excluded");
     assertThatThrownBy(
             () ->
                 retrieval.scope(

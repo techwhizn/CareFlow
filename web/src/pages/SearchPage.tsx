@@ -4,6 +4,7 @@ import MetadataFilterEditor, {
 } from "../features/retrieval/MetadataFilterEditor";
 import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
+import RetrievalTrace from "../components/RetrievalTrace";
 import { ArrowRight, FileText, MagnifyingGlass } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Row } from "../api";
@@ -179,9 +180,13 @@ export default function SearchPage() {
             ))
           )}
           {debug && (
-            <pre className="debug-output">
-              {JSON.stringify(result, null, 2)}
-            </pre>
+            <RetrievalTrace
+              result={{
+                ...result,
+                trace_id: result.trace_id,
+                publication_versions: result.publication_versions,
+              }}
+            />
           )}
         </>
       ) : (

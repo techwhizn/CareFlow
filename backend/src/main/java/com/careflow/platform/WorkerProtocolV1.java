@@ -45,12 +45,22 @@ public final class WorkerProtocolV1 {
       @Valid ModelConfiguration model_configuration,
       @Size(min = 1, max = 500) String expected_model_identity) {}
 
+  public record ModelUsage(
+      @NotNull @Pattern(regexp = "NOT_CALLED|REPORTED|NOT_REPORTED|UNKNOWN") String state,
+      @Min(0) Long total_tokens) {
+    public ModelUsage {
+      if ("REPORTED".equals(state) != (total_tokens != null))
+        throw new IllegalArgumentException("Inconsistent model usage");
+    }
+  }
+
   public record RecallResponse(
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> dense,
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> bm25,
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> fused,
       @NotNull Boolean degraded,
-      String warning) {}
+      String warning,
+      @Valid ModelUsage usage) {}
 
   public record RerankRequest(
       @NotBlank @Size(max = 4000) String query,
@@ -61,7 +71,8 @@ public final class WorkerProtocolV1 {
   public record RerankResponse(
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> results,
       @NotNull Boolean degraded,
-      String warning) {}
+      String warning,
+      @Valid ModelUsage usage) {}
 
   public record GenerateRequest(
       @NotBlank @Size(max = 4000) String query,

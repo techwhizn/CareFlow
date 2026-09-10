@@ -39,12 +39,26 @@ class Recall(ConfiguredOperation):
     allow_degraded: bool = False
 
 
+class ModelUsage(Contract):
+    state: Literal["NOT_CALLED", "REPORTED", "NOT_REPORTED", "UNKNOWN"]
+    total_tokens: int | None = Field(default=None, ge=0, strict=True)
+
+    @model_validator(mode="after")
+    def consistent(self):
+        if (self.state == "REPORTED") != (self.total_tokens is not None):
+            raise ValueError(
+                "Reported usage requires tokens; unknown usage is not zero"
+            )
+        return self
+
+
 class RecallResponse(Contract):
     dense: list[Hit] = Field(max_length=40)
     bm25: list[Hit] = Field(max_length=40)
     fused: list[Hit] = Field(max_length=40)
     degraded: bool
     warning: str | None = None
+    usage: ModelUsage | None = None
 
 
 class Rerank(ConfiguredOperation):
@@ -57,6 +71,7 @@ class RerankResponse(Contract):
     results: list[Hit] = Field(max_length=40)
     degraded: bool
     warning: str | None = None
+    usage: ModelUsage | None = None
 
 
 class Generate(ConfiguredOperation):

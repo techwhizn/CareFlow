@@ -111,20 +111,31 @@ def recall(body: Recall):
 @app.post("/internal/v1/rerank", response_model=RerankResponse)
 def rerank(body: Rerank):
     if not body.candidates:
-        return {"results": [], "degraded": False}
+        return {"results": [], "degraded": False, "usage": {"state": "NOT_CALLED"}}
     if (
         body.model_configuration is not None
         and body.model_configuration.kind != "RERANK"
     ):
         raise HTTPException(422, "INVALID_MODEL_KIND")
+    usage = {"state": "UNKNOWN", "total_tokens": None}
+
+    def record_usage(tokens):
+        usage.update(
+            state="REPORTED" if tokens is not None else "NOT_REPORTED",
+            total_tokens=tokens,
+        )
+
     try:
         with use_configuration(body.model_configuration):
             return RerankResponse.model_validate(
                 {
                     "results": models.rerank(
-                        body.query, [c.model_dump() for c in body.candidates]
+                        body.query,
+                        [c.model_dump() for c in body.candidates],
+                        record_usage,
                     ),
                     "degraded": False,
+                    "usage": usage,
                 }
             )
     except Exception as exc:
@@ -133,6 +144,7 @@ def rerank(body: Rerank):
                 "results": [{"id": c.id, "score": None} for c in body.candidates],
                 "degraded": True,
                 "warning": "RERANK_UNAVAILABLE",
+                "usage": usage,
             }
         raise HTTPException(503, "RERANK_UNAVAILABLE") from exc
 

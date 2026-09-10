@@ -141,7 +141,7 @@ def input_tokens(texts, tokenizer="cl100k_base", before_batch=None):
     return counts, limit
 
 
-def rerank(query, candidates):
+def rerank(query, candidates, record_usage=None):
     url, model, headers = endpoint("RERANK", "/rerank")
     with httpx.Client(timeout=30) as client:
         response = client.post(
@@ -155,7 +155,14 @@ def rerank(query, candidates):
             },
         )
         response.raise_for_status()
-        rows = response.json()["results"]
+        payload = response.json()
+        reported = payload.get("usage")
+        consumed = reported.get("total_tokens") if isinstance(reported, dict) else None
+        if type(consumed) is not int or consumed < 0:
+            consumed = None
+        if record_usage:
+            record_usage(consumed)
+        rows = payload["results"]
     results = []
     seen = set()
     for row in rows:

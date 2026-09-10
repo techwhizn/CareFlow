@@ -1,0 +1,13 @@
+# 查询处理与调试追踪
+
+首版采用确定性的空白规范化：合并连续空白、去掉首尾空白，完整保留其他字符。不调用模型生成替代问题、不猜测实体、不改变大小写或型号；原始输入和实际用于召回及重排的文本同时保留在调试响应。提取含数字的ASCII型号/编号仅用于核对，不作为授权或业务意图。
+
+管理身份且请求debug=true时返回query_processing、timings_ms、model_usage、recall、rerank及excluded。普通USER和应用身份不获得这些字段。公开证据仍遵守版本、权限、启用状态与Token预算。所有模型候选ID经过Java权威元数据和授权范围复核后才进入调试响应；不展示未授权候选或模型隐含推理。
+
+耗时使用Java单调时钟：recall包含配置路由、Embedding、Milvus和内部网络；authorization为召回后的权限复核；rerank包含重排内部请求；evidence包含来源扩展、逻辑Token统计和返回前复核；total为进入检索服务至响应整理。范围计算和套餐额度预留在此前完成，不属于该total。各候选数组顺序表示排名，重排分数与RRF分数仍分别显示。
+
+configuration_id为生效的查询配置；publication_versions为实际授权检索版本。model_usage.embedding按索引处理配置分组，可能与查询配置不同；使用各版本冻结的Embedding模型，查询配置控制重排等策略。输出只含配置ID与用量，不含模型凭证和连接地址。
+
+用量状态：REPORTED有实际total_tokens（包括供应商明确返回的0），NOT_REPORTED表示成功调用但供应商未提供计数，UNKNOWN表示无法确认，NOT_CALLED表示未调用。未知不是0，证据逻辑Token也不等于模型账单。当前调试字段是一次请求的观测结果，持久化计量及异常后结算由V1-37/38继续完善，不把该面板视为费用总账。
+
+内部协议新增可空usage字段，旧Worker缺失时显示未知；升级时先更新Java协议再更新Worker。公开Java/Python客户端保留响应字段。界面按阶段显示候选排名、分数、耗时和用量，无需阅读整个JSON。

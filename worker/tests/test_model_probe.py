@@ -111,3 +111,25 @@ def test_invalid_model_format_cannot_pass(adapter_http, failure):
 
     adapter_http(handler)
     assert not check_models()["complete"]
+
+
+@pytest.mark.parametrize(
+    "reported,expected",
+    [(12, 12), (0, 0), (None, None), (True, None), (-1, None), ("12", None)],
+)
+def test_rerank_reports_only_actual_valid_usage(adapter_http, reported, expected):
+    adapter_http(
+        lambda request: httpx.Response(
+            200,
+            json={
+                "results": [{"index": 0, "relevance_score": 0.9}],
+                "usage": {"total_tokens": reported},
+            },
+        )
+    )
+    consumption = []
+    result = models.rerank(
+        "fixture", [{"id": "a", "content": "source"}], consumption.append
+    )
+    assert result == [{"id": "a", "score": 0.9}]
+    assert consumption == [expected]

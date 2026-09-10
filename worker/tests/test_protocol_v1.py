@@ -175,3 +175,20 @@ def test_rerank_timeout_obeys_explicit_degradation_policy(monkeypatch):
     assert allowed.json()["degraded"] is True
     assert allowed.json()["results"] == [{"id": "a", "score": None}]
     assert "private endpoint" not in allowed.text
+
+
+def test_model_usage_unknown_is_not_coerced_to_zero():
+    import pytest
+    from pydantic import ValidationError
+
+    from careflow.protocol_v1 import ModelUsage
+
+    assert ModelUsage(state="NOT_REPORTED").total_tokens is None
+    assert ModelUsage(state="REPORTED", total_tokens=0).total_tokens == 0
+    for value in [
+        {"state": "REPORTED"},
+        {"state": "UNKNOWN", "total_tokens": 0},
+        {"state": "REPORTED", "total_tokens": True},
+    ]:
+        with pytest.raises(ValidationError):
+            ModelUsage.model_validate(value)

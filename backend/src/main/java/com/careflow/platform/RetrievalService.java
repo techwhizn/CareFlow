@@ -88,6 +88,7 @@ public class RetrievalService {
       throw new IllegalArgumentException();
     if (q.minimum_rerank_score() != null && !Double.isFinite(q.minimum_rerank_score()))
       throw new IllegalArgumentException("minimum_rerank_score must be finite");
+    QueryProcessing.process(q.query());
     var metadata = metadataFilters.compile(q.filters());
     String app = q.application_id();
     if (actor.app()) {
@@ -194,6 +195,8 @@ public class RetrievalService {
   // blindly.
   @SuppressWarnings("unchecked")
   public Map<String, Object> search(Actor actor, Query q, Scope scope, String authorization) {
+    long started = System.nanoTime();
+    var processed = QueryProcessing.process(q.query());
     var queryConfiguration = scope.configuration();
     boolean allowDegraded =
         queryConfiguration == null
@@ -211,15 +214,17 @@ public class RetrievalService {
           minimumScore == null
               ? queryConfiguration.retrieval().minimum_rerank_score()
               : Math.max(minimumScore, queryConfiguration.retrieval().minimum_rerank_score());
+    long recallStarted = System.nanoTime();
     Map<String, Object> recall =
         modelRouting.recall(
             actor.tenant(),
             scope.versions(),
-            q.query(),
+            processed.rewritten(),
             q.mode() == null
                 ? (queryConfiguration == null ? "hybrid" : queryConfiguration.retrieval().mode())
                 : q.mode(),
             allowDegraded);
+    long recallFinished = System.nanoTime();
     List<Map<String, Object>> evidence = new ArrayList<>();
     var fused = (List<Map<String, Object>>) recall.getOrDefault("fused", List.of());
     reauthenticate(actor, authorization);
@@ -247,7 +252,7 @@ public class RetrievalService {
         new LinkedHashMap<>(
             Map.of(
                 "query",
-                q.query(),
+                processed.rewritten(),
                 "candidates",
                 evidence.stream()
                     .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
@@ -256,10 +261,12 @@ public class RetrievalService {
                 allowDegraded));
     if (queryConfiguration != null)
       rerankRequest.put("model_configuration", queryConfiguration.runtime().rerank());
+    long rerankStarted = System.nanoTime();
     Map<String, Object> ranked =
         evidence.isEmpty()
             ? Map.of("results", List.of(), "degraded", false)
             : worker.call("/internal/v1/rerank", rerankRequest);
+    long rerankFinished = System.nanoTime();
     var byId =
         contexts.prepare(
             actor,
@@ -318,6 +325,24 @@ public class RetrievalService {
                       .stream().filter(hit -> authorizedIds.contains(str(hit, "id"))).toList(),
               "degraded", Boolean.TRUE.equals(ranked.get("degraded"))));
       response.put("excluded", selection.excluded());
+      response.put("query_processing", processed);
+      response.put(
+          "timings_ms",
+          Map.of(
+              "recall", (recallFinished - recallStarted) / 1_000_000.0,
+              "authorization", (rerankStarted - recallFinished) / 1_000_000.0,
+              "rerank", (rerankFinished - rerankStarted) / 1_000_000.0,
+              "evidence", (System.nanoTime() - rerankFinished) / 1_000_000.0,
+              "total", (System.nanoTime() - started) / 1_000_000.0));
+      response.put(
+          "model_usage",
+          Map.of(
+              "embedding",
+              recall.getOrDefault("usage", List.of()),
+              "rerank",
+              ranked.get("usage") == null
+                  ? Map.of("state", evidence.isEmpty() ? "NOT_CALLED" : "UNKNOWN")
+                  : ranked.get("usage")));
     }
     return response;
   }

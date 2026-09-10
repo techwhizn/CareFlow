@@ -1,0 +1,60 @@
+{
+  "complete": true,
+  "synthetic": true,
+  "real_models": true,
+  "query": {
+    "original": "  CF-100\t E404\n网络故障如何处理  ",
+    "rewritten": "CF-100 E404 网络故障如何处理",
+    "method": "WHITESPACE_NORMALIZATION",
+    "identifiers": [
+      "CF-100",
+      "E404"
+    ]
+  },
+  "timings_ms": {
+    "total": 3818.281124,
+    "rerank": 1401.258943,
+    "authorization": 249.768325,
+    "evidence": 750.905393,
+    "recall": 1415.922219
+  },
+  "model_usage": {
+    "embedding": [
+      {
+        "usage": {
+          "state": "REPORTED",
+          "total_tokens": 14
+        },
+        "configuration_id": "63836e71-2507-44ea-8f7e-cba81cc0164a"
+      }
+    ],
+    "rerank": {
+      "state": "REPORTED",
+      "total_tokens": 258
+    }
+  },
+  "configuration_id": "3db0807e-d775-4d3d-9706-bbe38bc752a9",
+  "publication_versions": [
+    "d3deba6e-3cb6-4e46-909d-afbd65f1605b",
+    "091b7208-53ff-4a28-a8b9-6981fe0f28de",
+    "878f21aa-94dd-46b4-b515-11074d74592a",
+    "267d1101-9834-4eea-85bf-41250040524b"
+  ],
+  "keyword_usage": {
+    "embedding": [
+      {
+        "usage": {
+          "state": "NOT_CALLED",
+          "total_tokens": null
+        },
+        "configuration_id": "63836e71-2507-44ea-8f7e-cba81cc0164a"
+      }
+    ],
+    "rerank": {
+      "state": "REPORTED",
+      "total_tokens": 130
+    }
+  },
+  "non_debug_hidden": true,
+  "cross_tenant_candidates_empty": true
+}

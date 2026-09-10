@@ -212,13 +212,19 @@ def recall(
         return hit["entity"]["chunk_id"] if generation_ids is not None else hit["id"]
 
     dense, sparse, degraded = [], [], False
+    usage = {"state": "NOT_CALLED", "total_tokens": None}
     if mode != "keyword":
         try:
-            vectors, _ = models.embed([query])
+            vectors, consumed = models.embed([query])
+            usage = {
+                "state": "REPORTED" if consumed is not None else "NOT_REPORTED",
+                "total_tokens": consumed,
+            }
         except (models.ModelUnavailable, __import__("httpx").HTTPError):
             if not allow_degraded:
                 raise
             degraded = True
+            usage = {"state": "UNKNOWN", "total_tokens": None}
         else:
             dense = [
                 {"id": hit_id(h), "score": h["distance"]}
@@ -252,4 +258,5 @@ def recall(
         "bm25": sparse,
         "fused": rrf(dense, sparse),
         "degraded": degraded,
+        "usage": usage,
     }

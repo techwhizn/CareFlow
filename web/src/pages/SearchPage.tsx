@@ -1,3 +1,5 @@
+import MetadataFilterEditor, { serializeFilters } from "../features/retrieval/MetadataFilterEditor";
+import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
 import { ArrowRight, FileText, MagnifyingGlass } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -10,6 +12,7 @@ export default function SearchPage() {
     [kb, setKb] = useState(""),
     [mode, setMode] = useState("hybrid"),
     [minimumScore, setMinimumScore] = useState(""),
+    [filters, setFilters] = useState<FilterDraft[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [result, setResult] = useState<Row | null>(null),
@@ -37,6 +40,7 @@ export default function SearchPage() {
                 limit: 6,
                 debug: true,
                 minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
+                filters: serializeFilters(filters),
               }),
             );
           } catch (e) {
@@ -65,6 +69,7 @@ export default function SearchPage() {
           </div>
         </label>
 <RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
+<MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
         <div className="query-options">
           <label>
             知识范围

@@ -1,3 +1,5 @@
+import MetadataFilterEditor, { serializeFilters } from "../features/retrieval/MetadataFilterEditor";
+import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
 import {
   ChatCircleText,
@@ -13,6 +15,7 @@ export default function AnswerPage() {
   const [query, setQuery] = useState(""),
     [answer, setAnswer] = useState(""),
     [minimumScore, setMinimumScore] = useState(""),
+    [filters, setFilters] = useState<FilterDraft[]>([]),
     [busy, setBusy] = useState(false),
     [stage, setStage] = useState(""),
     [error, setError] = useState(""),
@@ -51,6 +54,7 @@ export default function AnswerPage() {
                     limit: 6,
                     debug: false,
                     minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
+                filters: serializeFilters(filters),
                   },
                   (name, data) => {
                     if (name === "status")
@@ -86,6 +90,7 @@ export default function AnswerPage() {
             }}
           >
 <RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
+<MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
             <label>
               向知识库提问
               <textarea

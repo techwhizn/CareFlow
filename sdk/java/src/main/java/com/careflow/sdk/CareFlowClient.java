@@ -23,11 +23,51 @@ public final class CareFlowClient {
       String mode,
       int limit,
       boolean debug,
-      Double minimum_rerank_score) {
+      Double minimum_rerank_score,
+      List<MetadataFilter> filters) {
+    public Query(
+        String query,
+        String application_id,
+        List<String> knowledge_base_ids,
+        String mode,
+        int limit,
+        boolean debug,
+        Double minimum_rerank_score) {
+      this(
+          query,
+          application_id,
+          knowledge_base_ids,
+          mode,
+          limit,
+          debug,
+          minimum_rerank_score,
+          List.of());
+    }
+
     public Query(String query) {
       this(query, null, List.of(), "hybrid", 6, false, null);
     }
   }
+
+  public enum MetadataField {
+    title,
+    source,
+    language,
+    tags,
+    product_models,
+    valid_from,
+    valid_until
+  }
+
+  public enum MetadataOperator {
+    eq,
+    in,
+    contains,
+    gte,
+    lte
+  }
+
+  public record MetadataFilter(MetadataField field, MetadataOperator operator, Object value) {}
 
   public record Event(String name, JsonNode data) {}
 

@@ -413,7 +413,8 @@
       "V1-24"
     ],
     "acceptance": "字段与操作符白名单；客户端过滤只能缩小授权范围；在召回阶段过滤，覆盖类型错误、注入及空结果，不允许任意SQL/Milvus表达式。",
-    "status": "待完成"
+    "status": "待验收",
+    "evidence": "docs/reports/v1-25-metadata-filters.md"
   },
   {
     "id": "V1-26",

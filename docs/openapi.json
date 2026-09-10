@@ -2975,6 +2975,7 @@
           "stage"
         ]
       },
+      "JsonNode": {},
       "Query": {
         "type": "object",
         "properties": {
@@ -3003,6 +3004,42 @@
           "minimum_rerank_score": {
             "type": "number",
             "format": "double"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rule"
+            }
+          }
+        }
+      },
+      "Rule": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "title",
+              "source",
+              "language",
+              "tags",
+              "product_models",
+              "valid_from",
+              "valid_until"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "in",
+              "contains",
+              "gte",
+              "lte"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/JsonNode"
           }
         }
       },

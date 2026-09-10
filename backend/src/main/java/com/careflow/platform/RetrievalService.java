@@ -14,18 +14,21 @@ public class RetrievalService {
   private final WorkerClient worker;
   private final TransactionTemplate tx;
   private final EntitlementService entitlements;
+  private final MetadataFilters metadataFilters;
 
   public RetrievalService(
       Db db,
       Identity auth,
       WorkerClient worker,
       TransactionTemplate tx,
-      EntitlementService entitlements) {
+      EntitlementService entitlements,
+      MetadataFilters metadataFilters) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
     this.tx = tx;
     this.entitlements = entitlements;
+    this.metadataFilters = metadataFilters;
   }
 
   public record Query(
@@ -35,7 +38,27 @@ public class RetrievalService {
       String mode,
       int limit,
       boolean debug,
-      Double minimum_rerank_score) {}
+      Double minimum_rerank_score,
+      List<MetadataFilters.Rule> filters) {
+    public Query(
+        String query,
+        String application_id,
+        List<String> knowledge_base_ids,
+        String mode,
+        int limit,
+        boolean debug,
+        Double minimum_rerank_score) {
+      this(
+          query,
+          application_id,
+          knowledge_base_ids,
+          mode,
+          limit,
+          debug,
+          minimum_rerank_score,
+          List.of());
+    }
+  }
 
   public record Scope(
       List<String> versions, boolean degraded, String application, long applicationRevision) {}
@@ -50,6 +73,7 @@ public class RetrievalService {
       throw new IllegalArgumentException();
     if (q.minimum_rerank_score() != null && !Double.isFinite(q.minimum_rerank_score()))
       throw new IllegalArgumentException("minimum_rerank_score must be finite");
+    var metadata = metadataFilters.compile(q.filters());
     String app = q.application_id();
     if (actor.app()) {
       if (app != null && !app.equals(actor.subject())) throw ApiException.hidden();
@@ -88,7 +112,7 @@ public class RetrievalService {
           && !q.knowledge_base_ids().contains(kb)) continue;
       try {
         auth.document(actor, str(d, "id"), "read");
-        versions.add(str(d, "version_id"));
+        if (metadata.test(d)) versions.add(str(d, "version_id"));
       } catch (ApiException e) {
         if (e.status != 404) throw e;
       }

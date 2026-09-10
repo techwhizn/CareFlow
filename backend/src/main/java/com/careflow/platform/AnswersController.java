@@ -107,7 +107,8 @@ public class AnswersController {
                         q.mode(),
                         q.limit(),
                         q.debug(),
-                        q.minimum_rerank_score()),
+                        q.minimum_rerank_score(),
+                        q.filters()),
                     content.toString(),
                     evidence);
             charged = true;

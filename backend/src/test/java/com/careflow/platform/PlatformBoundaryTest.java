@@ -89,6 +89,58 @@ class PlatformBoundaryTest {
   @Autowired EntitlementService entitlements;
 
   @Test
+  void metadataFiltersNarrowRecallAndNeverWidenDocumentAuthorization() {
+    var matches =
+        new MetadataFilters.Rule(
+            MetadataFilters.Field.language, MetadataFilters.Operator.eq, json.valueToTree("zh"));
+    var miss =
+        new MetadataFilters.Rule(
+            MetadataFilters.Field.language,
+            MetadataFilters.Operator.eq,
+            json.valueToTree("no-match"));
+    var query =
+        new Query("fixture", null, List.of(kb), "keyword", 6, false, null, List.of(matches));
+    assertThat(retrieval.scope(actor, query).versions()).containsExactly(version);
+    var excluded =
+        new Query("fixture", null, List.of(kb), "keyword", 6, false, null, List.of(miss));
+    var scope = retrieval.scope(actor, excluded);
+    assertThat(scope.versions()).isEmpty();
+    assertThat((List<?>) retrieval.search(actor, excluded, scope, token).get("evidence")).isEmpty();
+    org.mockito.Mockito.verifyNoInteractions(worker);
+    db.exec("UPDATE documents SET restricted=TRUE WHERE id=?", document);
+    assertThat(retrieval.scope(actor, query).versions()).isEmpty();
+  }
+
+  @Test
+  void invalidFilterFieldsAndValuesFailBeforeModelCallsOrQuotaReservation() throws Exception {
+    for (var filter :
+        List.of(
+            Map.of("field", "tenant_id", "operator", "eq", "value", tenant),
+            Map.of("field", "language", "operator", "eq", "value", 7),
+            Map.of("field", "valid_from", "operator", "gte", "value", "2026-09-10"))) {
+      mvc.perform(
+              post("/api/v1/retrieval/search")
+                  .header("Authorization", token)
+                  .header("Idempotency-Key", Db.id())
+                  .contentType("application/json")
+                  .content(
+                      json.writeValueAsBytes(
+                          Map.of(
+                              "query",
+                              "fixture",
+                              "mode",
+                              "keyword",
+                              "limit",
+                              6,
+                              "filters",
+                              List.of(filter)))))
+          .andExpect(status().isBadRequest());
+    }
+    org.mockito.Mockito.verifyNoInteractions(worker);
+    assertThat(db.list("SELECT id FROM usage_events WHERE tenant_id=?", tenant)).isEmpty();
+  }
+
+  @Test
   void publicationRejectsUnseenContentRevisionEvenAfterReindexing() throws Exception {
     org.mockito.Mockito.when(
             worker.call(

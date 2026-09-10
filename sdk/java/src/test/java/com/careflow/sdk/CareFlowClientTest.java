@@ -59,6 +59,21 @@ class CareFlowClientTest {
   }
 
   @Test
+  void metadataFilterSerializesWithoutAnExpressionString() throws Exception {
+    var filter =
+        new CareFlowClient.MetadataFilter(
+            CareFlowClient.MetadataField.product_models,
+            CareFlowClient.MetadataOperator.in,
+            List.of("CF-100", "CF-200"));
+    client.search(
+        new CareFlowClient.Query(
+            "fixture", null, List.of(), "keyword", 6, false, null, List.of(filter)),
+        "filter");
+    assertTrue(bodies.getFirst().contains("\"field\":\"product_models\""));
+    assertTrue(bodies.getFirst().contains("\"value\":[\"CF-100\",\"CF-200\"]"));
+  }
+
+  @Test
   void documentVersionsPreservesContentRevision() throws Exception {
     response = "[{\"id\":\"" + ID + "\",\"revision\":7}]";
     assertEquals(7, client.documentVersions(ID).get(0).get("revision").asInt());

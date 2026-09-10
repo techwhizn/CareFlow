@@ -122,3 +122,5 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 本次仓库预览版将 `version_revision` 设为必填，旧请求缺少此字段返回400。Python同步/异步 `publish(document_id, version_id, revision, version_revision, ...)`；Java `publish(documentId, versionId, revision, versionRevision, key)`。这是预览SDK的签名变更，调用方需要同步升级，不能自动填入最新修订号绕过预览冲突检查。
 
 通过 `document_versions(document_id)` / `documentVersions(documentId)` 获取版本列表，在核对目标版本内容时保留其 `revision`，发布时作为 `version_revision` 传入；文档 `revision` 来自文档列表或详情。409时重新读取并核对内容，再决定是否发布。READY仅表示处理就绪，不会自动发布。
+
+搜索与问答的 Query.filters 支持类型化元数据条件；Python 使用 MetadataFilter，Java 使用 MetadataFilter/MetadataField/MetadataOperator。字段、值类型和组合规则见 [过滤契约](../docs/metadata-filters.md)。

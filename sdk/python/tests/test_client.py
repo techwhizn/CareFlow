@@ -238,3 +238,22 @@ def test_document_versions_preserves_revision_in_sync_and_async_clients():
             assert (await client.document_versions(ID))[0]["revision"] == 7
 
     asyncio.run(check())
+
+
+def test_typed_metadata_filter_serializes_closed_request_shape():
+    from careflow_sdk import MetadataFilter
+
+    def handler(request):
+        payload = json.loads(request.content)
+        assert payload["filters"] == [
+            {"field": "product_models", "operator": "in", "value": ["CF-100", "CF-200"]}
+        ]
+        return httpx.Response(200, json={"evidence": []})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.search(
+            Query(
+                "fixture",
+                filters=(MetadataFilter("product_models", "in", ("CF-100", "CF-200")),),
+            )
+        )

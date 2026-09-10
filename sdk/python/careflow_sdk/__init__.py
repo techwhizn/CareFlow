@@ -5,7 +5,7 @@ import uuid
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlsplit
 
 import httpx
@@ -25,6 +25,21 @@ class StreamError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class MetadataFilter:
+    field: Literal[
+        "title",
+        "source",
+        "language",
+        "tags",
+        "product_models",
+        "valid_from",
+        "valid_until",
+    ]
+    operator: Literal["eq", "in", "contains", "gte", "lte"]
+    value: str | tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class Query:
     query: str
     application_id: str | None = None
@@ -33,6 +48,7 @@ class Query:
     limit: int = 6
     debug: bool = False
     minimum_rerank_score: float | None = None
+    filters: tuple[MetadataFilter, ...] = ()
 
 
 @dataclass(frozen=True)

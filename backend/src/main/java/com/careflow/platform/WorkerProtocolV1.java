@@ -55,13 +55,25 @@ public final class WorkerProtocolV1 {
     }
   }
 
+  public record RecallTimings(Double embedding, Double pure_retrieval) {
+    public RecallTimings {
+      if (embedding == null
+          || pure_retrieval == null
+          || !Double.isFinite(embedding)
+          || embedding < 0
+          || !Double.isFinite(pure_retrieval)
+          || pure_retrieval < 0) throw new IllegalArgumentException("Invalid recall timing");
+    }
+  }
+
   public record RecallResponse(
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> dense,
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> bm25,
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> fused,
       @NotNull Boolean degraded,
       String warning,
-      @Valid ModelUsage usage) {}
+      @Valid ModelUsage usage,
+      @Valid RecallTimings timings_ms) {}
 
   public record RerankRequest(
       @NotBlank @Size(max = 4000) String query,

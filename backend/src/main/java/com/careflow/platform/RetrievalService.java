@@ -397,6 +397,7 @@ public class RetrievalService {
               "degraded", Boolean.TRUE.equals(ranked.get("degraded"))));
       response.put("excluded", selection.excluded());
       response.put("query_processing", processed);
+      response.put("recall_timings_ms", recall.getOrDefault("timings_ms", List.of()));
       response.put(
           "timings_ms",
           Map.of(

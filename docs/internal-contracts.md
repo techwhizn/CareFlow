@@ -5,6 +5,8 @@
 Java WorkerProtocolV1与Python protocol_v1定义召回、重排、生成、Token计数、任务领取和完成结构。WorkerClient只允许已知操作，调用前后验证类型/边界，拒绝空响应、缺失必需字段及非有限分数。返回ID仍由Java重新查权威文档内容和授权；协议校验不替代租户授权。
 
 - recall：tenant_id、version_ids（≤10000）、query（≤4000）、mode、allow_degraded、expected_model_identity（原索引身份）；响应dense/bm25/fused（每路≤40，id/score）、degraded。
+
+  可选timings_ms包含非负有限的embedding与pure_retrieval毫秒。后者计入Worker集合检查、Milvus查询和RRF，排除查询Embedding；不含Java授权/网络排队与Rerank。多个模型组按顺序执行，管理调试响应recall_timings_ms逐组保留；旧Worker未报告时标记UNAVAILABLE，不能按零耗时统计。失败请求仍计入失败率，不能只用成功请求耗时宣称负载达标。
 - rerank：query、candidates（≤40，id/content）、allow_degraded；响应results和degraded。降级分数可为null，不能冒充相关性达标。
 - tokenize：text（≤10000），响应非负token_count。
 - generate/stream：query、evidence（1～6，id/content）；application/x-ndjson UTF-8。每行是text、done:true或error三者之一；只有done成功，之后不再交付。单行最多65536字符，非法UTF-8、异常、空流、缺失done都失败。消费取消关闭连接。

@@ -94,6 +94,33 @@ class WorkerClientContractTest {
   }
 
   @Test
+  void recallTimingsAreOptionalForOlderWorkersButMustBeFiniteAndNonnegative() {
+    var request =
+        Map.of(
+            "tenant_id",
+            Db.id(),
+            "version_ids",
+            List.of(Db.id()),
+            "query",
+            "fixture",
+            "mode",
+            "hybrid");
+    String prefix = "{\"dense\":[],\"bm25\":[],\"fused\":[],\"degraded\":false";
+    response = prefix + "}";
+    assertThat(client.call("/internal/v1/recall", request).get("timings_ms")).isNull();
+    response = prefix + ",\"timings_ms\":{\"embedding\":5000,\"pure_retrieval\":300}}";
+    assertThat(
+            ((Map<?, ?>) client.call("/internal/v1/recall", request).get("timings_ms"))
+                .get("pure_retrieval"))
+        .isEqualTo(300.0);
+    for (String value : List.of("-1", "1e309", "null")) {
+      response = prefix + ",\"timings_ms\":{\"embedding\":" + value + ",\"pure_retrieval\":300}}";
+      assertThatThrownBy(() -> client.call("/internal/v1/recall", request))
+          .isInstanceOf(ApiException.class);
+    }
+  }
+
+  @Test
   void sendsServiceIdentityAndValidatesTypedTokenResult() {
     assertThat(client.call("/internal/v1/tokenize", Map.of("text", "fixture")).get("token_count"))
         .isEqualTo(3);

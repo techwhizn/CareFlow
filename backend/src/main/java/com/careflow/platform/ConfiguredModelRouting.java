@@ -119,6 +119,7 @@ public class ConfiguredModelRouting {
         fused = new ArrayList<>();
     boolean anyDegraded = false;
     List<Map<String, Object>> usage = new ArrayList<>();
+    List<Object> timings = new ArrayList<>();
     for (var group : groups.entrySet()) {
       revalidate.run();
       var configuration = configurations.runtime(tenant, group.getKey().configuration());
@@ -154,6 +155,10 @@ public class ConfiguredModelRouting {
               group.getKey().configuration(),
               "usage",
               response.get("usage") == null ? Map.of("state", "UNKNOWN") : response.get("usage")));
+      timings.add(
+          response.get("timings_ms") == null
+              ? Map.of("state", "UNAVAILABLE")
+              : response.get("timings_ms"));
       dense.add((List<Map<String, Object>>) response.get("dense"));
       bm25.add((List<Map<String, Object>>) response.get("bm25"));
       fused.add((List<Map<String, Object>>) response.get("fused"));
@@ -170,7 +175,9 @@ public class ConfiguredModelRouting {
           "degraded",
           anyDegraded,
           "usage",
-          usage);
+          usage,
+          "timings_ms",
+          timings);
     return Map.of(
         "dense",
         merge(dense, true),
@@ -181,7 +188,9 @@ public class ConfiguredModelRouting {
         "degraded",
         anyDegraded,
         "usage",
-        usage);
+        usage,
+        "timings_ms",
+        timings);
   }
 
   static List<Map<String, Object>> merge(

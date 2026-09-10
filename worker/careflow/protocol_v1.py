@@ -52,6 +52,11 @@ class ModelUsage(Contract):
         return self
 
 
+class RecallTimings(Contract):
+    embedding: FiniteFloat = Field(ge=0)
+    pure_retrieval: FiniteFloat = Field(ge=0)
+
+
 class RecallResponse(Contract):
     dense: list[Hit] = Field(max_length=40)
     bm25: list[Hit] = Field(max_length=40)
@@ -59,6 +64,7 @@ class RecallResponse(Contract):
     degraded: bool
     warning: str | None = None
     usage: ModelUsage | None = None
+    timings_ms: RecallTimings | None = None
 
 
 class Rerank(ConfiguredOperation):

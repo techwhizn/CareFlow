@@ -5,6 +5,44 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/internal/v1/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_internal_v1_health_get",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/v1/context/tokens": {
       "post": {
         "summary": "Context Tokens",
@@ -1764,6 +1802,16 @@
                 "type": "null"
               }
             ]
+          },
+          "timings_ms": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecallTimings"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -1775,6 +1823,27 @@
           "degraded"
         ],
         "title": "RecallResponse"
+      },
+      "RecallTimings": {
+        "properties": {
+          "embedding": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Embedding"
+          },
+          "pure_retrieval": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Pure Retrieval"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "embedding",
+          "pure_retrieval"
+        ],
+        "title": "RecallTimings"
       },
       "Rerank": {
         "properties": {
@@ -1978,6 +2047,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

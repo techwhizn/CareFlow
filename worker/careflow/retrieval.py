@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 import uuid
 from collections import defaultdict
 from functools import lru_cache
@@ -183,6 +184,8 @@ def rrf(*lanes, k=60, limit=40):
 def recall(
     tenant, versions, query, mode="hybrid", allow_degraded=False, generation_ids=None
 ):
+    started = time.perf_counter()
+    embedding_seconds = 0.0
     tenant = str(uuid.UUID(tenant))
     versions = [str(uuid.UUID(v)) for v in versions]
     if not versions:
@@ -214,6 +217,7 @@ def recall(
     dense, sparse, degraded = [], [], False
     usage = {"state": "NOT_CALLED", "total_tokens": None}
     if mode != "keyword":
+        embedding_started = time.perf_counter()
         try:
             vectors, consumed = models.embed([query])
             usage = {
@@ -225,7 +229,9 @@ def recall(
                 raise
             degraded = True
             usage = {"state": "UNKNOWN", "total_tokens": None}
-        else:
+        finally:
+            embedding_seconds = time.perf_counter() - embedding_started
+        if not degraded:
             dense = [
                 {"id": hit_id(h), "score": h["distance"]}
                 for h in c.search(
@@ -253,10 +259,18 @@ def recall(
                 consistency_level="Strong",
             )[0]
         ]
+    fused = rrf(dense, sparse)
     return {
         "dense": dense,
         "bm25": sparse,
-        "fused": rrf(dense, sparse),
+        "fused": fused,
         "degraded": degraded,
         "usage": usage,
+        "timings_ms": {
+            "embedding": embedding_seconds * 1000,
+            "pure_retrieval": max(
+                0.0, time.perf_counter() - started - embedding_seconds
+            )
+            * 1000,
+        },
     }

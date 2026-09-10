@@ -14,6 +14,7 @@ import subprocess
 
 from recovery_crypto import encrypt_command, signature, verify_bundle
 from recovery_binlogs import probe
+from recovery_broker import capture_identity
 
 SERVICES = {
     "mysql",
@@ -104,6 +105,7 @@ def capture(
     # Validate the key before starting any external producer.
     signature({}, key)
     containers, volumes = inspect_stopped(project)
+    broker_identity = capture_identity(containers)
     image = docker_json("image", "inspect", helper)[0]["Id"]
     checkpoint = probe(volumes["mysql-data"], image)
     destination.mkdir(mode=0o700)
@@ -119,6 +121,7 @@ def capture(
         },
         "entries": [],
         "mysql_checkpoint": checkpoint,
+        "rabbitmq_identity": broker_identity,
         "recovery_gate": "CLOSED_REQUIRES_CURRENT_SECURITY_STATE",
         "limitations": [
             "Requires exclusive maintenance window; do not start services during capture",
@@ -164,7 +167,12 @@ def capture(
         metadata["entries"].append(
             encrypt_command(command, destination / "configuration.enc", key)
         )
-        inspect_stopped(project)
+        final_containers, final_volumes = inspect_stopped(project)
+        if (
+            final_volumes != volumes
+            or capture_identity(final_containers) != broker_identity
+        ):
+            raise ValueError("Deployment identity changed during capture")
         if probe(volumes["mysql-data"], image) != checkpoint:
             raise ValueError("Database log boundary changed during capture")
         metadata["status"] = "COMPLETE"

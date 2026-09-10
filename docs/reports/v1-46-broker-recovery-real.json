@@ -1,0 +1,106 @@
+{
+  "date": "2026-09-11",
+  "source_project": "careflow-v1-clean",
+  "target_project": "careflow-v1-brokerrestore",
+  "restore_started_at": "2026-09-10T20:08:28.319108+00:00",
+  "storage_finished_at": "2026-09-10T20:08:47.586712+00:00",
+  "verified_at": "2026-09-10T20:21:44.627708+00:00",
+  "rto_seconds": 796.3086,
+  "rto_scope": "Includes operator pause for separate performance experiment, restored queue inspection and full application/source/index/model verification; not an uninterrupted automation benchmark",
+  "planned_cold_rpo_seconds": 0,
+  "source_remained_stopped": true,
+  "old_credential_status": 401,
+  "broker": {
+    "node": "rabbit@810bb25fc805",
+    "version": "4.1.4",
+    "queues": [
+      {
+        "name": "careflow.processing",
+        "durable": true
+      }
+    ],
+    "generated_override_used": true,
+    "source_project": "careflow-v1-clean",
+    "recovery_project": "careflow-v1-brokerrestore"
+  },
+  "persistent_message_upgrade_probe": {
+    "source_hostname": "810bb25fc805",
+    "stages": [
+      {
+        "image": "rabbitmq:4.1.4-management",
+        "version": "4.1.4",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      },
+      {
+        "image": "public.ecr.aws/docker/library/rabbitmq:4.2.9-management",
+        "version": "4.2.9",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      },
+      {
+        "image": "public.ecr.aws/docker/library/rabbitmq:4.3.5-management",
+        "version": "4.3.5",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      }
+    ],
+    "synthetic_queue": "careflow.recovery.probe",
+    "complete": true
+  },
+  "protocol": {
+    "started_at": "2026-09-10T20:20:08.843089+00:00",
+    "source_sha256": "21b9612251cd027cdc89e382feb2c10967b73aa17a26801e6b5c31ff481daac0",
+    "before_index_check": {
+      "report": {
+        "consistent": true,
+        "expected_count": 1,
+        "actual_count": 1,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "19b265daf7b062fbb50434590a56848958d8e604c1dd1d17947ae2326ae25ee5",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      },
+      "id": "fd9cdb21-8f56-4b39-afba-d155a8d02e15"
+    },
+    "search_before": true,
+    "rebuild_job_id": "12c2ed42-930f-4bd5-b1db-f25b6a8544e6",
+    "after_index_check": {
+      "report": {
+        "consistent": true,
+        "expected_count": 1,
+        "actual_count": 1,
+        "missing_count": 0,
+        "extra_count": 0,
+        "mismatched_count": 0,
+        "manifest": "19b265daf7b062fbb50434590a56848958d8e604c1dd1d17947ae2326ae25ee5",
+        "samples": {
+          "missing": [],
+          "extra": [],
+          "mismatched": []
+        }
+      },
+      "id": "625afc0a-f5c8-41bc-8053-0f19f7aec817"
+    },
+    "index_generation_changed": true,
+    "search_after": true,
+    "answer_events": [
+      "citations",
+      "delta",
+      "done",
+      "start",
+      "status",
+      "usage"
+    ],
+    "deleted_document_status": 404,
+    "finished_at": "2026-09-10T20:20:32.875992+00:00"
+  }
+}

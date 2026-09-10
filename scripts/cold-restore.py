@@ -18,6 +18,7 @@ import subprocess
 import tarfile
 
 from recovery_crypto import cipher_command, file_digest, verify_bundle
+from recovery_broker import compose_override
 
 VOLUMES = {"mysql-data", "rabbit-data", "s3-data", "etcd-data", "milvus-data"}
 
@@ -26,6 +27,7 @@ def restore(directory: Path, key: Path, project: str, configuration: Path, helpe
     metadata = verify_bundle(directory, key)
     if metadata.get("kind") != "COLD_COMPOSE":
         raise ValueError("Expected a cold Compose snapshot")
+    broker_override = compose_override(metadata.get("rabbitmq_identity"))
     if (
         not re.fullmatch(r"[a-z0-9][a-z0-9_-]+", project)
         or project == metadata["source_project"]
@@ -72,6 +74,7 @@ def restore(directory: Path, key: Path, project: str, configuration: Path, helpe
         "volumes": volumes,
         "recovery_gate": "CLOSED_REQUIRES_CURRENT_SECURITY_STATE",
         "source_images": metadata["images"],
+        "rabbitmq_identity": metadata["rabbitmq_identity"],
         "base_manifest_sha256": file_digest(directory / "manifest.json"),
     }
     try:
@@ -151,13 +154,22 @@ def restore(directory: Path, key: Path, project: str, configuration: Path, helpe
                         "Configuration archive must contain unique regular basenames"
                     )
                 if (
-                    member.name in {".", "..", "recovery-receipt.json"}
+                    member.name
+                    in {
+                        ".",
+                        "..",
+                        "recovery-receipt.json",
+                        "recovery-broker.compose.json",
+                    }
                     or member.size > 4 * 1024 * 1024
                 ):
                     raise ValueError("Invalid configuration entry")
                 seen.add(member.name)
                 with (configuration / member.name).open("xb") as output:
                     output.write(archive.extractfile(member).read())
+        (configuration / "recovery-broker.compose.json").write_text(
+            json.dumps(broker_override, indent=2) + "\n"
+        )
         receipt["status"] = "STORAGE_RESTORED_ACCESS_CLOSED"
     finally:
         receipt["finished_at"] = datetime.now(timezone.utc).isoformat()
@@ -165,7 +177,7 @@ def restore(directory: Path, key: Path, project: str, configuration: Path, helpe
             json.dumps(receipt, indent=2) + "\n"
         )
     print(
-        "Storage restored to new volumes; no service was started and access remains CLOSED"
+        "Storage restored; include recovery-broker.compose.json in Compose. No service started; access remains CLOSED"
     )
 
 

@@ -32,6 +32,53 @@ def test_backup_rejects_running_service_before_reading_volumes(monkeypatch):
         backup.inspect_stopped("synthetic-project")
 
 
+def test_broker_restore_preserves_node_name_and_refuses_unknown_identity(
+    monkeypatch, tmp_path
+):
+    broker = load("recovery_broker", monkeypatch)
+    identity = broker.capture_identity(
+        [
+            {
+                "Config": {
+                    "Hostname": "original-node",
+                    "Env": [],
+                    "Labels": {"com.docker.compose.service": "rabbitmq"},
+                }
+            }
+        ]
+    )
+    override = broker.compose_override(identity)["services"]["rabbitmq"]
+    assert override["hostname"] == "original-node"
+    assert override["environment"]["RABBITMQ_NODENAME"] == "rabbit@original-node"
+    restore = load("cold-restore", monkeypatch)
+    monkeypatch.setattr(restore, "verify_bundle", lambda *a: {"kind": "COLD_COMPOSE"})
+    monkeypatch.setattr(
+        restore.subprocess,
+        "check_output",
+        lambda *a, **k: pytest.fail("Must reject before Docker mutation"),
+    )
+    with pytest.raises(ValueError, match="node identity"):
+        restore.restore(
+            tmp_path, tmp_path / "key", "new-project", tmp_path / "new", "helper"
+        )
+
+
+@pytest.mark.parametrize(
+    "identity",
+    [
+        {"hostname": "node", "nodename": "rabbit@other", "use_longname": False},
+        {"hostname": "node\ninvalid", "nodename": "rabbit@node", "use_longname": False},
+        {"hostname": "node", "nodename": "rabbit@node", "use_longname": "false"},
+    ],
+)
+def test_broker_identity_rejects_mismatched_or_ambiguous_host_settings(
+    monkeypatch, identity
+):
+    broker = load("recovery_broker", monkeypatch)
+    with pytest.raises(ValueError):
+        broker.compose_override(identity)
+
+
 def test_replay_rejects_wrong_base_and_network_before_any_sql(tmp_path, monkeypatch):
     replay = load("mysql-recovery-log", monkeypatch)
     metadata = {

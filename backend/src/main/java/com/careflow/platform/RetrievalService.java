@@ -302,29 +302,7 @@ public class RetrievalService {
                 processed.rewritten(),
                 "candidates",
                 evidence.stream()
-                    .map(
-                        c ->
-                            Map.of(
-                                "id",
-                                str(c, "id"),
-                                "content",
-                                str(c, "content"),
-                                "title",
-                                str(c, "title"),
-                                "document_id",
-                                str(c, "document_id"),
-                                "version_id",
-                                str(c, "version_id"),
-                                "applicability",
-                                Map.of(
-                                    "document_from",
-                                    str(c, "document_valid_from"),
-                                    "document_until",
-                                    str(c, "document_valid_until"),
-                                    "version_from",
-                                    str(c, "version_valid_from"),
-                                    "version_until",
-                                    str(c, "version_valid_until"))))
+                    .map(c -> Map.of("id", str(c, "id"), "content", str(c, "content")))
                     .toList(),
                 "allow_degraded",
                 allowDegraded));

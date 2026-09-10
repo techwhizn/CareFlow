@@ -85,7 +85,7 @@ npm audit --prefix web
 
 单元/组件测试使用 H2 和明确的测试替身，不作为 Milvus、真实模型、MySQL 全链路或生产隔离的验收证据。详情见 [验收报告](docs/reports/acceptance.md) 和 [需求状态](docs/reports/requirements.md)。恢复、数据清理与生产限制见 [运维说明](docs/operations.md)。
 
-## 1.0 开源发布计划
+## 1.0 开源质量完善计划
 
 [剩余任务清单](docs/roadmap/v1.0-tasks.md)列出53个工作包、前置依赖与验收条件，覆盖原PRD全部P0及SDK、开源交付要求；当前仍是开发增量。
 

@@ -86,6 +86,163 @@ class PlatformBoundaryTest {
   }
 
   @Test
+  void knowledgeAttributesTransferAndConflict() throws Exception {
+    String next = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'KNOWLEDGE_MANAGER')",
+        next,
+        tenant,
+        "Next");
+    String nextToken = "Bearer " + auth.credential(tenant, next, "MEMBER", null);
+    String body =
+        json.writeValueAsString(
+            Map.of(
+                "name",
+                "Updated",
+                "description",
+                "Scope",
+                "language",
+                "en-US",
+                "tags",
+                List.of("manual", "manual"),
+                "owner_id",
+                next,
+                "revision",
+                0));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.revision").value(1));
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb).header("Authorization", token))
+        .andExpect(status().isNotFound());
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb).header("Authorization", nextToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Updated"))
+        .andExpect(jsonPath("$.language").value("en-US"))
+        .andExpect(jsonPath("$.tags.length()").value(1));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb)
+                .header("Authorization", nextToken)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isConflict());
+    assertThat(
+            db.list(
+                "SELECT id FROM audit_events WHERE tenant_id=? AND action='KB_ATTRIBUTES_UPDATE'",
+                tenant))
+        .hasSize(1);
+  }
+
+  @Test
+  void knowledgeAttributesRejectInvalidOwnersAndTagsAtomically() throws Exception {
+    String other = Db.id();
+    for (String owner : List.of(other, member)) {
+      var body =
+          Map.of(
+              "name",
+              "Wrong",
+              "description",
+              "",
+              "language",
+              "zh",
+              "tags",
+              owner.equals(member) ? List.of("") : List.of("tag"),
+              "owner_id",
+              owner,
+              "revision",
+              0);
+      mvc.perform(
+              put("/api/v1/knowledge-bases/" + kb)
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(json.writeValueAsString(body)))
+          .andExpect(status().isBadRequest());
+    }
+    assertThat(Db.str(auth.kb(actor, kb, "read"), "name")).isEqualTo("Knowledge");
+    assertThat(Db.num(auth.kb(actor, kb, "read"), "revision")).isZero();
+  }
+
+  @Test
+  void overviewFiltersRestrictedDocumentsAndDeduplicatesSourceObjects() throws Exception {
+    db.exec("UPDATE document_versions SET size_bytes=100 WHERE id=?", version);
+    String draft = Db.id();
+    db.exec(
+        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,state,size_bytes) VALUES(?,?,?,'key','manual.txt','digest','PARSED',100)",
+        draft,
+        tenant,
+        document);
+    String hidden = Db.id(), hiddenVersion = Db.id();
+    db.exec(
+        "INSERT INTO documents(id,tenant_id,kb_id,title,restricted,published_version) VALUES(?,?,?,'Restricted',TRUE,?)",
+        hidden,
+        tenant,
+        kb,
+        hiddenVersion);
+    db.exec(
+        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,state,ever_published,size_bytes) VALUES(?,?,?,'hidden','hidden.txt','hidden','READY',TRUE,999)",
+        hiddenVersion,
+        tenant,
+        hidden);
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,state,request_key) VALUES(?,?,?,'PARSE','FAILED',?)",
+        Db.id(),
+        tenant,
+        version,
+        Db.id());
+    db.exec(
+        "INSERT INTO jobs(id,tenant_id,version_id,kind,state,request_key) VALUES(?,?,?,'PARSE','FAILED',?)",
+        Db.id(),
+        tenant,
+        hiddenVersion,
+        Db.id());
+    String app = Db.id();
+    db.exec(
+        "INSERT INTO applications(id,tenant_id,name,description,published) VALUES(?,?,?,'',TRUE)",
+        app,
+        tenant,
+        "Reference");
+    db.exec(
+        "INSERT INTO application_bindings(tenant_id,application_id,kb_id) VALUES(?,?,?)",
+        tenant,
+        app,
+        kb);
+    mvc.perform(get("/api/v1/knowledge-bases/" + kb + "/overview").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.document_count").value(1))
+        .andExpect(jsonPath("$.effective_chunk_count").value(1))
+        .andExpect(jsonPath("$.failed_job_count").value(1))
+        .andExpect(jsonPath("$.known_source_bytes").value(100))
+        .andExpect(jsonPath("$.unknown_source_objects").value(0))
+        .andExpect(jsonPath("$.applications[0].name").value("Reference"));
+    String reader = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,'Reader','USER')", reader, tenant);
+    db.exec(
+        "INSERT INTO permissions(tenant_id,resource_id,subject_id,action) VALUES(?,?,?,'read')",
+        tenant,
+        kb,
+        reader);
+    String readerToken = "Bearer " + auth.credential(tenant, reader, "MEMBER", null);
+    mvc.perform(
+            get("/api/v1/knowledge-bases/" + kb + "/overview").header("Authorization", readerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.document_count").value(1))
+        .andExpect(jsonPath("$.failed_job_count").doesNotExist())
+        .andExpect(jsonPath("$.applications_visible").value(false))
+        .andExpect(jsonPath("$.applications").isEmpty());
+    mvc.perform(
+            get("/api/v1/knowledge-bases/" + kb + "/settings").header("Authorization", readerToken))
+        .andExpect(status().isNotFound());
+    db.exec("DELETE FROM permissions WHERE tenant_id=? AND subject_id=?", tenant, reader);
+    mvc.perform(
+            get("/api/v1/knowledge-bases/" + kb + "/overview").header("Authorization", readerToken))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   void requiresAuthentication() throws Exception {
     mvc.perform(get("/api/v1/knowledge-bases")).andExpect(status().isUnauthorized());
   }

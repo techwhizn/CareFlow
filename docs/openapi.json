@@ -138,6 +138,74 @@
         }
       }
     },
+    "/api/v1/knowledge-bases/{id}": {
+      "get": {
+        "tags": [
+          "knowledge-bases-controller"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "knowledge-bases-controller"
+        ],
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Attributes"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/state": {
       "put": {
         "tags": [
@@ -703,9 +771,9 @@
     "/api/v1/knowledge-bases": {
       "get": {
         "tags": [
-          "management-controller"
+          "knowledge-bases-controller"
         ],
-        "operationId": "knowledgeBases",
+        "operationId": "list_2",
         "responses": {
           "200": {
             "description": "OK",
@@ -721,14 +789,14 @@
       },
       "post": {
         "tags": [
-          "management-controller"
+          "knowledge-bases-controller"
         ],
-        "operationId": "createKb",
+        "operationId": "create_2",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Named"
+                "$ref": "#/components/schemas/Create"
               }
             }
           },
@@ -871,7 +939,7 @@
         "tags": [
           "enterprises-controller"
         ],
-        "operationId": "create_2",
+        "operationId": "create_3",
         "parameters": [
           {
             "name": "X-Bootstrap-Token",
@@ -1203,7 +1271,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "list_2",
+        "operationId": "list_3",
         "parameters": [
           {
             "name": "id",
@@ -1232,7 +1300,7 @@
         "tags": [
           "application-credentials-controller"
         ],
-        "operationId": "create_3",
+        "operationId": "create_4",
         "parameters": [
           {
             "name": "id",
@@ -1608,12 +1676,42 @@
         }
       }
     },
-    "/api/v1/knowledge-bases/{id}": {
+    "/api/v1/knowledge-bases/{id}/settings": {
       "get": {
         "tags": [
-          "management-controller"
+          "knowledge-bases-controller"
         ],
-        "operationId": "kb",
+        "operationId": "settings",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge-bases/{id}/overview": {
+      "get": {
+        "tags": [
+          "knowledge-bases-controller"
+        ],
+        "operationId": "overview",
         "parameters": [
           {
             "name": "id",
@@ -2119,6 +2217,52 @@
           "state"
         ]
       },
+      "Attributes": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0,
+            "pattern": "[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50,
+              "minLength": 0
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          "owner_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "language",
+          "name",
+          "owner_id",
+          "tags"
+        ]
+      },
       "State": {
         "type": "object",
         "properties": {
@@ -2250,24 +2394,6 @@
           "role"
         ]
       },
-      "Named": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 0
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 2000,
-            "minLength": 0
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
       "ProvisionEnterprise": {
         "type": "object",
         "properties": {
@@ -2301,6 +2427,24 @@
         },
         "required": [
           "version_id"
+        ]
+      },
+      "Named": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "Options": {

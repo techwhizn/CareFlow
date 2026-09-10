@@ -183,13 +183,14 @@ public class DocumentsController {
     var v = auth.version(actor, id, "edit");
     String next = id();
     db.exec(
-        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,state) VALUES(?,?,?,?,?,?,'PARSED')",
+        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,state,size_bytes) VALUES(?,?,?,?,?,?,'PARSED',?)",
         next,
         actor.tenant(),
         str(v, "document_id"),
         str(v, "object_key"),
         str(v, "filename"),
-        str(v, "digest"));
+        str(v, "digest"),
+        v.get("size_bytes"));
     for (var c :
         db.list("SELECT * FROM chunks WHERE tenant_id=? AND version_id=?", actor.tenant(), id))
       db.exec(

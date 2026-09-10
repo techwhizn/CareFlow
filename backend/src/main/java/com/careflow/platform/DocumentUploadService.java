@@ -82,13 +82,14 @@ public class DocumentUploadService {
         key = actor.tenant() + "/" + document + "/" + version + "/source";
     blobs.put(key, data);
     db.exec(
-        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest) VALUES(?,?,?,?,?,?)",
+        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest,size_bytes) VALUES(?,?,?,?,?,?,?)",
         version,
         actor.tenant(),
         document,
         key,
         name,
-        digest);
+        digest,
+        data.length);
     db.exec(
         "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key,upload_fingerprint) VALUES(?,?,?,'PARSE',?,?)",
         job,

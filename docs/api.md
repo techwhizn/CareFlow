@@ -20,9 +20,9 @@
 
 ## 权限与密钥
 
-资源授权 `PUT .../permissions` 是 **全量替换**，不是增量合并。使用 `grants: {subject_id: [read,download,edit,publish,manage]}`，并携带资源 revision。知识库创建者默认可管理；文档显式 ACL 会进一步收窄创建者权限。当前单主体管理表单已提示替换影响，多主体可通过 API 提交。
+资源授权 `PUT .../permissions` 是 **全量替换**，不是增量合并。使用 `grants: {subject_id: [read,download,edit,publish,manage]}`，并携带资源 revision。知识库创建者默认可管理；文档显式 ACL 会进一步收窄创建者权限。多主体管理表单加载现有授权并提示替换影响。
 
-应用凭证默认 90 天到期；`DELETE /credentials/{id}` 立即撤销。轮换采用先创建新凭证、迁移调用方、再撤销旧凭证的流程。当前没有可配置的凭证动作 scope UI。
+应用凭证默认 90 天到期；`DELETE /credentials/{id}` 立即撤销。轮换采用先创建新凭证、迁移调用方、再撤销旧凭证的流程。应用密钥界面可配置动作范围和有效期，详见V1-06。
 
 ## 幂等边界
 
@@ -71,3 +71,13 @@ UI加载现有多主体授权，修改后需核对确认。发生409保留本地
 响应返回id、token、expires_at、scopes；token仅本次创建显示。`GET /applications/{id}/credentials`查看元数据，`DELETE /applications/{id}/credentials/{credential}`按应用范围撤销，开发者不必取得全企业凭证管理权。跨应用撤销拒绝；不能通过body自称用户身份。
 
 scope先于业务操作校验，未授权操作统一404，不消耗查询额度；到期或撤销返回401。新密钥不会撤销旧密钥：先迁移调用方并验证，再显式撤销旧密钥。收窄scope不等于收窄所有知识库权限，实际访问继续取应用绑定和资源ACL交集。
+
+## 知识库属性与概览（V1-08）
+
+`GET /knowledge-bases` 和 `GET /knowledge-bases/{id}` 返回 tags 数组（历史数据为空数组）。创建仍接受 name、description。
+
+`GET /knowledge-bases/{id}/settings` 仅当前知识库管理者可访问，返回 knowledge_base 和本企业启用的 OWNER/ADMIN/KNOWLEDGE_MANAGER 责任人候选。`PUT /knowledge-bases/{id}` 接受 name、description、language（例如 zh、en-US，最长20）、tags（最多20个非空标签，每个最多50字）、owner_id、revision。全部替换属性；旧 revision 返回409且不写入。标签去首尾空格并去重。责任人必须是当前启用的知识管理角色；移交立即改变隐式权限，显式ACL保留，返回 id/revision 确认而不在移交后读取资源。属性修改不切换解析或模型配置。
+
+`GET /knowledge-bases/{id}/overview` 逐项授权后统计 document_count、effective_chunk_count（当前发布版本的启用切片）、failed_job_count（仅库管理者可见且只计有编辑权的文档）、known_source_bytes、unknown_source_objects。原文件空间按可读版本的 object_key 去重，含历史版本，不含向量索引、备份和已删除资料。V8前文件大小未知时显式计入 unknown_source_objects，不能当作零字节；新上传记录大小，复制草稿沿用相同对象与大小。
+
+applications 返回当前绑定应用的 id/name/published；还需具备应用管理角色，其他主体返回空数组并标明 applications_visible=false。无知识库读取权限或跨企业访问统一404。概览与属性设置读取在同一企业锁下完成，避免与撤权/移交交错。

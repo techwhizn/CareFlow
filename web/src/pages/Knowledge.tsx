@@ -1,3 +1,4 @@
+import KnowledgeOverview from "../components/KnowledgeOverview";
 import AclDialog from "../components/AclDialog";
 import DocumentUpload from "../components/DocumentUpload";
 import {
@@ -186,6 +187,7 @@ function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
           授权管理
         </button>
       </div>
+      <KnowledgeOverview id={kb.id} onSaved={back} />
       <div className="tabs">
         <button className="active">文档</button>
         <span>上传 → 解析 → 审核切片 → 索引 → 发布</span>

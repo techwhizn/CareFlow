@@ -129,7 +129,8 @@
       "V1-04"
     ],
     "acceptance": "名称、描述、语言、标签、责任人可管理；统计文档/有效切片/失败任务/空间；展示引用应用；统计与列表均遵守授权。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-08-knowledge-base.md"
   },
   {
     "id": "V1-09",

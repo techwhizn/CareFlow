@@ -73,46 +73,6 @@ public class ManagementController {
         db.one("SELECT name FROM tenants WHERE id=?", actor.tenant()));
   }
 
-  @GetMapping("/knowledge-bases")
-  public Object knowledgeBases(@RequestAttribute Actor actor) {
-    return db
-        .list(
-            "SELECT * FROM knowledge_bases WHERE tenant_id=? AND status<>'DELETED' ORDER BY created_at DESC",
-            actor.tenant())
-        .stream()
-        .filter(
-            k -> {
-              try {
-                auth.kb(actor, str(k, "id"), "read");
-                return true;
-              } catch (ApiException e) {
-                return false;
-              }
-            })
-        .toList();
-  }
-
-  @PostMapping("/knowledge-bases")
-  @Transactional
-  public Object createKb(@RequestAttribute Actor actor, @RequestBody @Valid Named body) {
-    auth.manager(actor);
-    String kb = id();
-    db.exec(
-        "INSERT INTO knowledge_bases(id,tenant_id,name,description,owner_id) VALUES(?,?,?,?,?)",
-        kb,
-        actor.tenant(),
-        body.name(),
-        Objects.toString(body.description(), ""),
-        actor.subject());
-    auth.audit(actor, "KB_CREATE", kb, "");
-    return auth.kb(actor, kb, "read");
-  }
-
-  @GetMapping("/knowledge-bases/{id}")
-  public Object kb(@RequestAttribute Actor actor, @PathVariable String id) {
-    return auth.kb(actor, id, "read");
-  }
-
   @PutMapping("/knowledge-bases/{id}/state")
   @Transactional
   public Object kbState(

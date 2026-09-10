@@ -130,7 +130,11 @@ def run_job(job_id):
                 if isinstance(exc, ParseFailure):
                     code = exc.code
                 elif isinstance(exc, models.ModelUnavailable):
-                    code = "MODEL_CONFIGURATION_REQUIRED"
+                    code = (
+                        "PROCESSING_UNAVAILABLE"
+                        if exc.retryable
+                        else "MODEL_CONFIGURATION_REQUIRED"
+                    )
                 elif isinstance(exc, (parsing.InvalidFile, ValueError)):
                     code = "INVALID_FILE"
                 else:

@@ -84,3 +84,5 @@ Java每分钟补齐删除任务，默认每10秒领取最多20个到期步骤；
 Milvus Compose挂载 `deploy/milvus-user.yaml`，开启压实和GC，每小时扫描回收，旧文件保留窗口3小时、孤立文件容忍24小时、全量孤立扫描间隔24小时。配置依据 [Milvus 2.6.1配置](https://raw.githubusercontent.com/milvus-io/milvus/v2.6.1/configs/milvus.yaml)。底层回收由Milvus执行，禁止直接删除其MinIO段文件。服务持续不可用、S3对象锁或外部备份策略不满足期限时，必须处置逾期，不能承诺已完成物理回收。
 
 升级V23前停止全部旧consumer，升级Java与Worker API，再启动新consumer。缓存由`cfec_`切换到`cfec2_`；Java领取索引任务时先登记版本、模型、内容哈希归属，新Worker每次写入前校验租约。旧缓存没有归属记录，清理时会按企业整体淘汰这些可重建派生缓存，可能增加后续Embedding调用。正式索引不会因此被整体删除。V23迁移不删除数据库正文；执行器只清理已经逻辑删除或失效的范围。
+
+原生 Tokenizer 返回429/5xx或网络连接失败时，Worker按可重试处理失败上报，由既有任务退避机制重试；认证、请求或Tokenizer身份不匹配保持不可重试配置错误。可选CPU模型服务只有一个执行槽，并发检索和索引可能遇到MODEL_BUSY，不能把临时繁忙归成永久缺少配置。真实429分类验证见[记录](reports/model-busy-retry-real.json)。

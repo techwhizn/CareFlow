@@ -10,7 +10,9 @@ from careflow.model_configuration import embedding_identity, value
 
 
 class ModelUnavailable(RuntimeError):
-    pass
+    def __init__(self, message="Model unavailable", *, retryable=False):
+        super().__init__(message)
+        self.retryable = retryable
 
 
 def identity():
@@ -137,7 +139,13 @@ def input_tokens(texts, tokenizer="cl100k_base", before_batch=None):
                 counts.extend(values)
                 limit = min(limit, maximum)
     except (httpx.HTTPError, ValueError, TypeError, AttributeError) as exc:
-        raise ModelUnavailable("Model tokenizer unavailable or invalid") from exc
+        retryable = isinstance(exc, httpx.TransportError) or (
+            isinstance(exc, httpx.HTTPStatusError)
+            and (exc.response.status_code == 429 or exc.response.status_code >= 500)
+        )
+        raise ModelUnavailable(
+            "Model tokenizer unavailable or invalid", retryable=retryable
+        ) from exc
     return counts, limit
 
 

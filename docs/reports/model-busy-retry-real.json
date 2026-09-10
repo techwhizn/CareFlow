@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "actual_local_model_http_status": 429,
+  "tokenizer_failure_retryable": true,
+  "concurrent_rerank_completed": true
+}

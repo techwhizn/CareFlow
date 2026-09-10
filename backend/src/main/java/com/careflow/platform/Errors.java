@@ -25,6 +25,14 @@ public class Errors {
     return error(400, "INVALID_ARGUMENT", "参数不合法，请检查输入", r);
   }
 
+  @ExceptionHandler(
+      org.springframework.web.method.annotation.HandlerMethodValidationException.class)
+  ResponseEntity<?> methodValidation(
+      org.springframework.web.method.annotation.HandlerMethodValidationException e,
+      HttpServletRequest r) {
+    return e.isForReturnValue() ? failure(e, r) : invalid(e, r);
+  }
+
   @ExceptionHandler(MaxUploadSizeExceededException.class)
   ResponseEntity<?> size(Exception e, HttpServletRequest r) {
     return error(413, "FILE_TOO_LARGE", "文件不能超过 50 MiB", r);

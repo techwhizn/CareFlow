@@ -4,6 +4,7 @@ import type { Row } from "../../api";
 import { Dialog, Empty, ErrorNote, Loading, useData } from "../../ui";
 import { knowledgeClient, knowledgePaths } from "./client";
 import ContextPanel, { FaqForm } from "./ContextPanel";
+import QualityPanel from "./QualityPanel";
 
 function sourceLocation(raw: unknown): Record<string, unknown> {
   try {
@@ -36,12 +37,15 @@ export default function ChunkWorkspace({
       [],
     ),
     [selected, setSelected] = useState<Row | null>(null),
+    [pendingSelection,setPendingSelection]=useState<string|null>(null),
     [edit, setEdit] = useState(""),
     [reason, setReason] = useState(""),
     [editing, setEditing] = useState(false), [addingFaq,setAddingFaq]=useState(false);
   useEffect(() => {
-    setSelected(chunks.data[0] || null);
-  }, [chunks.data]);
+    const requested=chunks.data.find(row=>row.id===pendingSelection);
+    setSelected(previous=>requested || chunks.data.find(row=>row.id===previous?.id) || chunks.data[0] || null);
+    if(requested)setPendingSelection(null);
+  }, [chunks.data, pendingSelection]);
   const location = selected ? sourceLocation(selected.location) : {};
   return (
     <>
@@ -100,6 +104,9 @@ export default function ChunkWorkspace({
         </div>
       </div>
       <ErrorNote error={chunks.error} />
+      <QualityPanel key={`${version.id}:${version.revision}`} versionId={version.id} select={(target,id)=>{
+        setPendingSelection(id);setPage(target);
+      }}/>
       {typeof location.warning === "string" && location.warning && (
         <div className="notice" role="note">
           解析质量提示：{location.warning}

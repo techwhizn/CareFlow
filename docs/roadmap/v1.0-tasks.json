@@ -297,7 +297,8 @@
       "V1-16"
     ],
     "acceptance": "保留表名、列名、单位与行关系；检测空、过短、过长、重复、OCR异常和表格断裂，警告可定位处理。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-18-quality.md"
   },
   {
     "id": "V1-19",

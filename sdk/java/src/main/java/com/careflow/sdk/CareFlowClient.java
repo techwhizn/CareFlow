@@ -243,6 +243,11 @@ public final class CareFlowClient {
         "GET", "document-versions/" + id(versionId) + "/contexts?page=" + page, null, null);
   }
 
+  public JsonNode documentQuality(String versionId, int page) throws IOException {
+    return request(
+        "GET", "document-versions/" + id(versionId) + "/quality?page=" + page, null, null);
+  }
+
   public JsonNode documentContext(String versionId, String contextId) throws IOException {
     return request(
         "GET", "document-versions/" + id(versionId) + "/contexts/" + id(contextId), null, null);

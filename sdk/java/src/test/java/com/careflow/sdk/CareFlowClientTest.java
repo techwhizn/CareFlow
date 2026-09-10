@@ -115,6 +115,12 @@ class CareFlowClientTest {
   }
 
   @Test
+  void qualityUsesVersionScopedReadRoute() throws Exception {
+    client.documentQuality(ID, 2);
+    assertEquals("/api/v1/document-versions/" + ID + "/quality", paths.getFirst());
+  }
+
+  @Test
   void documentVersionsPreservesContentRevision() throws Exception {
     response = "[{\"id\":\"" + ID + "\",\"revision\":7}]";
     assertEquals(7, client.documentVersions(ID).get(0).get("revision").asInt());

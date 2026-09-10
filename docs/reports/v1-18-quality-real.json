@@ -1,0 +1,32 @@
+{
+  "started_at": "2026-09-10T12:27:08Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "real_table_quality_codes_and_source_links",
+      "passed": true,
+      "knowledge_base_id": "83a018e0-f4ca-49ae-b0b7-ef61f3576ce8",
+      "document_id": "aacb1653-3c68-402e-a942-af5298752a90",
+      "version_id": "3a34b5c3-11bd-4133-b659-a8fe59c55d11",
+      "counts": {
+        "DUPLICATE": 2,
+        "EMPTY_CONTENT": 1,
+        "SOURCE_REVIEW": 1,
+        "TABLE_ROW_BROKEN": 1
+      }
+    },
+    {
+      "name": "manual_repair_recomputes_quality_without_stale_duplicate_flags",
+      "passed": true
+    },
+    {
+      "name": "foreign_tenant_cannot_read_quality_or_source_locations",
+      "passed": true
+    },
+    {
+      "name": "existing_real_ocr_source_reports_review_warning",
+      "passed": true
+    }
+  ],
+  "complete": true
+}

@@ -7,9 +7,11 @@ from io import BytesIO, StringIO
 from pathlib import PurePath
 
 from careflow.chunking import chunk as chunk
+from careflow.markdown_tables import expand as expand_markdown_tables
 from careflow.office_parsing import docx_blocks, xlsx_blocks
 from careflow.parsing_limits import Limits
 from careflow.parsing_types import Block, InvalidFile
+from careflow.table_semantics import describe
 from careflow.text_parsing import markdown_blocks, repeated_page_margins
 
 
@@ -64,20 +66,26 @@ def parse(data: bytes, filename: str) -> list[Block]:
                             f"{header[i] if i < len(header) else i + 1}: {value}"
                             for i, value in enumerate(row)
                         ),
-                        {
-                            "type": "table",
-                            "sheet": "CSV",
-                            "row": row_num,
-                            "columns": len(row),
-                            "column_start": 1,
-                            "column_end": len(row),
-                            "headers": header,
-                        },
+                        describe(
+                            header,
+                            row,
+                            PurePath(filename).name,
+                            {
+                                "type": "table",
+                                "sheet": "CSV",
+                                "row": row_num,
+                                "columns": len(row),
+                                "column_start": 1,
+                                "column_end": len(row),
+                                "headers": header,
+                            },
+                        ),
                         "列数与表头不一致，请核对" if len(row) != len(header) else "",
                     )
                 )
         elif ext == ".md":
-            blocks.extend(markdown_blocks(text))
+            for block in markdown_blocks(text):
+                blocks.extend(expand_markdown_tables(block))
         else:
             for match in re.finditer(r"[^\n]+(?:\n(?!\n)[^\n]+)*", text):
                 blocks.append(

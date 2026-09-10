@@ -28,6 +28,7 @@ def attach_children(block, start, end, settings, context_ordinal):
         location = json.loads(child["location"])
         location["block_start"] += start
         location["block_end"] += start
+        location["block_length"] = len(block.text)
         location["cleaning"]["ignored_spans"] = block.ignored_spans
         child["location"] = json.dumps(location, ensure_ascii=False)
         child["context_ordinal"] = context_ordinal

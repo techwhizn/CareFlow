@@ -10,6 +10,7 @@ SDK 0.1.0 对应 CareFlow 公共 API `/api/v1`。两种语言访问同一服务�
 | 上传文件 | upload | upload |
 | 查询文档版本与内容修订 | document_versions | documentVersions |
 | 父子/FAQ上下文预览 | document_contexts / document_context | documentContexts / documentContext |
+| 切片质量诊断与统计 | document_quality | documentQuality |
 | 整组FAQ新增与修订 | save_faq（FaqInput） | saveFaq（FaqInput） |
 | 解除组关联 | detach_context | detachContext |
 | 查询任务 | job | job |

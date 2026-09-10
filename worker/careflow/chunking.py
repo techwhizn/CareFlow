@@ -26,7 +26,11 @@ def context(block, include_context):
     title = " > ".join(block.location.get("title_path", []))
     if block.location.get("type") == "table":
         labels = block.location.get("headers", [])
-        table = block.location.get("sheet") or block.location.get("table", "")
+        table = (
+            block.location.get("table_name")
+            or block.location.get("sheet")
+            or block.location.get("table", "")
+        )
         return "\n".join(
             filter(None, [title, f"表格 {table}" if table else "", " | ".join(labels)])
         )
@@ -43,6 +47,7 @@ def render(block, start, end, prefix):
         **block.location,
         "block_start": start,
         "block_end": end,
+        "block_length": block.location.get("block_length", len(block.text)),
         "context_prefix": prefix,
         "cleaning": {
             "whitespace_normalized": cleaned != raw,

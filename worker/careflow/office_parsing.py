@@ -4,6 +4,7 @@ import re
 from io import BytesIO
 
 from careflow.parsing_types import Block, InvalidFile
+from careflow.table_semantics import describe
 
 
 def docx_blocks(data: bytes) -> list[Block]:
@@ -13,11 +14,13 @@ def docx_blocks(data: bytes) -> list[Block]:
     document = Document(BytesIO(data))
     blocks = []
     headings = []
+    caption = ""
     paragraph_no = table_no = 0
     for element in document.iter_inner_content():
         if isinstance(element, Paragraph):
             paragraph_no += 1
             style = element.style.name if element.style else ""
+            caption = element.text if style == "Caption" else ""
             heading = re.fullmatch(r"Heading (\d+)", style)
             kind = "paragraph"
             if heading:
@@ -60,19 +63,27 @@ def docx_blocks(data: bytes) -> list[Block]:
                         f"{header[i] if i < len(header) and header[i] else f'列{i + 1}'}: {cell.text}"
                         for i, cell in enumerate(row.cells)
                     ),
-                    {
-                        "type": "table",
-                        "table": table_no,
-                        "row": row_no,
-                        "columns": len(row.cells),
-                        "column_start": 1,
-                        "column_end": len(row.cells),
-                        "title_path": [t for _, t in headings],
-                        "headers": header,
-                    },
+                    describe(
+                        header,
+                        [cell.text for cell in row.cells],
+                        caption
+                        or " > ".join(t for _, t in headings)
+                        or f"表格 {table_no}",
+                        {
+                            "type": "table",
+                            "table": table_no,
+                            "row": row_no,
+                            "columns": len(row.cells),
+                            "column_start": 1,
+                            "column_end": len(row.cells),
+                            "title_path": [t for _, t in headings],
+                            "headers": header,
+                        },
+                    ),
                     warning,
                 )
             )
+        caption = ""
     return blocks
 
 
@@ -111,16 +122,21 @@ def xlsx_blocks(data: bytes) -> list[Block]:
                             f"{header[i] if i < len(header) else f'列{i + 1}'}: {c.value}"
                             for i, c in nonempty
                         ),
-                        {
-                            "type": "table",
-                            "sheet": sheet.title,
-                            "row": row_no,
-                            "columns": len(row),
-                            "column_start": 1,
-                            "column_end": len(row),
-                            "cell_range": f"A{row_no}:{get_column_letter(len(row))}{row_no}",
-                            "headers": header,
-                        },
+                        describe(
+                            header,
+                            [c.value for c in row],
+                            sheet.title,
+                            {
+                                "type": "table",
+                                "sheet": sheet.title,
+                                "row": row_no,
+                                "columns": len(row),
+                                "column_start": 1,
+                                "column_end": len(row),
+                                "cell_range": f"A{row_no}:{get_column_letter(len(row))}{row_no}",
+                                "headers": header,
+                            },
+                        ),
                         warning,
                     )
                 )

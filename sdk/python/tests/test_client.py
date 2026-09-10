@@ -228,6 +228,7 @@ def test_routes_and_query_fields_exist_in_openapi():
         ("/document-versions/{version}/faqs", "post"),
         ("/document-versions/{version}/faqs/{context}", "put"),
         ("/document-versions/{version}/contexts/{context}/detach", "post"),
+        ("/document-versions/{version}/quality", "get"),
     ]:
         assert method in schema["paths"]["/api/v1" + path]
     assert set(Query.__dataclass_fields__) <= set(
@@ -376,3 +377,21 @@ def test_context_and_faq_management_use_reviewed_revision_in_both_clients():
         assert json.loads(group[2].content)["revision"] == 9
         assert json.loads(group[3].content)["alternatives"] == ["similar"]
         assert group[4].url.path.endswith("/detach")
+
+
+def test_quality_routes_in_sync_and_async_clients():
+    def handler(request):
+        assert request.url.path == f"/api/v1/document-versions/{ID}/quality"
+        assert request.url.params["page"] == "2"
+        return httpx.Response(200, json={"issue_count": 203})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        assert client.document_quality(ID, page=2)["issue_count"] == 203
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            assert (await client.document_quality(ID, page=2))["issue_count"] == 203
+
+    asyncio.run(run())

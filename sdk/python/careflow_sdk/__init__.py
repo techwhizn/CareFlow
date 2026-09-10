@@ -264,6 +264,11 @@ class Client:
             params={"page": page},
         )
 
+    def document_quality(self, version_id, *, page=0):
+        return self._request(
+            "GET", f"document-versions/{_id(version_id)}/quality", params={"page": page}
+        )
+
     def document_context(self, version_id, context_id):
         return self._request(
             "GET", f"document-versions/{_id(version_id)}/contexts/{_id(context_id)}"
@@ -471,6 +476,11 @@ class AsyncClient:
             "GET",
             f"document-versions/{_id(version_id)}/contexts",
             params={"page": page},
+        )
+
+    async def document_quality(self, version_id, *, page=0):
+        return await self._request(
+            "GET", f"document-versions/{_id(version_id)}/quality", params={"page": page}
         )
 
     async def document_context(self, version_id, context_id):

@@ -12,7 +12,8 @@ export default function AdminPage({ page }: { page: Page }) {
     keys = useData<Row[]>("/credentials", []),
     [error, setError] = useState(""),
     [secret, setSecret] = useState(""),
-    [creating, setCreating] = useState(false);
+    [creating, setCreating] = useState(false),
+    [editing, setEditing] = useState<Row | null>(null);
   return (
     <>
       <div className="page-heading">
@@ -91,29 +92,13 @@ export default function AdminPage({ page }: { page: Page }) {
           <DataTable
             rows={data.data || []}
             fields={["name", "role", "id", "active"]}
-            action={(r) =>
-              r.role !== "OWNER" && r.active ? (
-                <button
-                  onClick={async () => {
-                    if (
-                      !window.confirm(
-                        `禁用成员 ${r.name} 后，其凭证立即失效。继续？`,
-                      )
-                    )
-                      return;
-                    try {
-                      await request(`/members/${r.id}`, { method: "DELETE" });
-                      await data.reload();
-                      await keys.reload();
-                    } catch (e) {
-                      setError((e as Error).message);
-                    }
-                  }}
-                >
-                  禁用
-                </button>
-              ) : null
-            }
+            action={(r) => !r.removed ? <>
+              <button onClick={()=>setEditing(r)}>编辑</button>
+              {r.active && <button onClick={async()=>{
+                try {const issued=await post(`/members/${r.id}/credentials`);setSecret(issued.token);await keys.reload();}
+                catch(error){setError((error as Error).message);}
+              }}>签发新凭证</button>}
+            </> : null}
           />
           <div className="section-title">
             <h2>访问凭证</h2>
@@ -196,6 +181,27 @@ export default function AdminPage({ page }: { page: Page }) {
           <textarea readOnly value={secret} />
         </Dialog>
       )}
+      {editing && <Dialog title="编辑成员" close={()=>setEditing(null)}>
+        <form onSubmit={async event=>{
+          event.preventDefault();const fields=new FormData(event.currentTarget);
+          try {await put(`/members/${editing.id}`,{name:fields.get("name"),role:fields.get("role"),state:fields.get("state"),revision:editing.revision});
+            setEditing(null);await data.reload();await keys.reload();}
+          catch(error){setError((error as Error).message);}
+        }}>
+          <label>姓名<input name="name" defaultValue={editing.name} maxLength={200} required/></label>
+          <label>角色<select name="role" defaultValue={editing.role}>
+            {editing.role==="OWNER" ? <option value="OWNER">所有者</option> : <>
+              <option value="ADMIN">管理员</option><option value="KNOWLEDGE_MANAGER">知识管理员</option>
+              <option value="DEVELOPER">开发者</option><option value="USER">使用者</option>
+            </>}
+          </select></label>
+          <label>状态<select name="state" defaultValue={editing.active?"ACTIVE":"DISABLED"}>
+            <option value="ACTIVE">启用</option>{editing.role!=="OWNER" && <><option value="DISABLED">禁用</option><option value="REMOVED">移除</option></>}
+          </select></label>
+          <p>禁用或移除会立即撤销凭证；重新启用需签发新凭证。移除后不能恢复此成员，历史审计保留。</p>
+          <button className="primary">确认保存</button>
+        </form>
+      </Dialog>}
     </>
   );
 }

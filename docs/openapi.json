@@ -75,6 +75,69 @@
         }
       }
     },
+    "/api/v1/members/{id}": {
+      "put": {
+        "tags": [
+          "members-controller"
+        ],
+        "operationId": "change",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Change"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "members-controller"
+        ],
+        "operationId": "disable",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/state": {
       "put": {
         "tags": [
@@ -529,9 +592,9 @@
     "/api/v1/members": {
       "get": {
         "tags": [
-          "management-controller"
+          "members-controller"
         ],
-        "operationId": "members",
+        "operationId": "list_1",
         "responses": {
           "200": {
             "description": "OK",
@@ -547,19 +610,50 @@
       },
       "post": {
         "tags": [
-          "management-controller"
+          "members-controller"
         ],
-        "operationId": "member",
+        "operationId": "create_1",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Member"
+                "$ref": "#/components/schemas/Create"
               }
             }
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/members/{id}/credentials": {
+      "post": {
+        "tags": [
+          "members-controller"
+        ],
+        "operationId": "issue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -736,6 +830,57 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/enterprises": {
+      "post": {
+        "tags": [
+          "enterprises-controller"
+        ],
+        "operationId": "create_2",
+        "parameters": [
+          {
+            "name": "X-Bootstrap-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1613,29 +1758,6 @@
         }
       }
     },
-    "/api/v1/members/{id}": {
-      "delete": {
-        "tags": [
-          "management-controller"
-        ],
-        "operationId": "disable",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/v1/documents/{id}": {
       "delete": {
         "tags": [
@@ -1803,6 +1925,34 @@
           }
         }
       },
+      "Change": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "role": {
+            "type": "string",
+            "pattern": "OWNER|ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "ACTIVE|DISABLED|REMOVED"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "role",
+          "state"
+        ]
+      },
       "State": {
         "type": "object",
         "properties": {
@@ -1915,7 +2065,7 @@
           }
         }
       },
-      "Member": {
+      "Create": {
         "type": "object",
         "properties": {
           "name": {
@@ -1929,7 +2079,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "role"
         ]
       },
       "Named": {

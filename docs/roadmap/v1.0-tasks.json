@@ -60,7 +60,8 @@
     ],
     "dependencies": [],
     "acceptance": "补管理员开通企业、成员禁用/移除及角色变更；至少两企业可独立运行；身份变化即时生效；覆盖最后所有者等边界，不要求自助注册或SSO。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-04-membership.md"
   },
   {
     "id": "V1-05",

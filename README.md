@@ -19,7 +19,7 @@ python3 scripts/init-local-env.py
 docker compose up -d --build
 ```
 
-打开 http://localhost:5173 。首次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN` 创建企业。返回的所有者凭证仅显示一次，请妥善保存。后续使用个人凭证登录。应用 API Key 不具备管理后台权限。
+打开 http://localhost:5173 。首次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN` 创建企业。返回的所有者凭证仅显示一次，请妥善保存。后续使用个人凭证登录。应用 API Key 不具备管理后台权限。部署管理员开通额外企业时，在初始化模式勾选“开通另一企业”；每家企业使用独立身份与数据范围。
 
 Embedding 需配置 `EMBEDDING_REVISION` 和真实维度；模型输出维度不匹配时任务失败，不裁切或伪造向量。Rerank 使用 `/rerank` 的 `results[].index/relevance_score` 契约。生成模型必须支持 `/chat/completions` SSE。使用自托管模型时 key 可空，地址和模型名仍为必填。
 

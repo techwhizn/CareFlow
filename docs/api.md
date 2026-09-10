@@ -49,3 +49,9 @@
 请求字段：name、kind（GENERATION/EMBEDDING/RERANK）、base_url、model、model_revision、dimensions、external_processing、api_key、revision。Embedding必须有不可变版本和维度，其他类型dimensions为null。api_key为null时保留、空串时清除、非空时替换；切换地址/类型时必须重新输入或明确清除。响应只有key_configured，不包含api_key或密文。
 
 地址必须匹配部署批准名单；未授权地址或外发范围不符返回400 MODEL_ENDPOINT_NOT_ALLOWED；主密钥不可用时保存非空密钥返回503 MODEL_KEY_STORAGE_UNAVAILABLE；并发修订返回409。注册不触发网络调用，也不切换当前运行模型；真实检测与配置绑定由后续工作完成。
+
+## 企业开通与成员生命周期（V1-04）
+
+部署管理员可调用 `POST /api/v1/enterprises`，提供 `X-Bootstrap-Token`、`Idempotency-Key`及 `{name, owner_name}`，开通新企业并取得一次性展示的所有者凭证。该接口不接受普通成员权限替代开通密钥，不提供跨企业资料查询。重复请求键返回409，不回显已签发凭证。原 `/bootstrap` 首次初始化行为保留。
+
+`PUT /api/v1/members/{id}` 接受 name、role、state（ACTIVE/DISABLED/REMOVED）、revision。禁用/移除即时撤销个人凭证；重新启用不会恢复旧凭证，可由管理员调用 `POST /api/v1/members/{id}/credentials` 签发新凭证。管理员不能取得他人的OWNER凭证。移除后不能恢复此成员；先移交其负责的知识库，权限条目移除但历史审计保留。所有者不能通过此接口转移角色或被禁用/移除。旧DELETE成员接口继续表示禁用。

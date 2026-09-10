@@ -43,7 +43,11 @@ public class Identity {
       db.one("SELECT id FROM applications WHERE tenant_id=? AND id=? AND published=TRUE", t, s);
       return new Actor(t, s, kind, "APPLICATION");
     }
-    var m = db.one("SELECT * FROM members WHERE tenant_id=? AND id=? AND active=TRUE", t, s);
+    var m =
+        db.one(
+            "SELECT * FROM members WHERE tenant_id=? AND id=? AND active=TRUE AND removed=FALSE",
+            t,
+            s);
     return new Actor(t, s, kind, Db.str(m, "role"));
   }
 

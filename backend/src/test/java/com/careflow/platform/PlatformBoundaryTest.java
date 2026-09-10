@@ -661,4 +661,153 @@ class PlatformBoundaryTest {
         .andExpect(jsonPath("$.code").value("DUPLICATE_FILE"));
     assertThat(db.list("SELECT * FROM jobs WHERE tenant_id=?", tenant)).hasSize(1);
   }
+
+  @Test
+  void enterpriseProvisioningCreatesSeparateTenantsAndDoesNotReplayCredentials() throws Exception {
+    String operator = "bootstrap-testing-secret-at-least-32-chars", key = Db.id();
+    String body =
+        json.writeValueAsString(Map.of("name", "new enterprise", "owner_name", "new owner"));
+    mvc.perform(
+            post("/api/v1/enterprises")
+                .header("X-Bootstrap-Token", "wrong")
+                .header("Idempotency-Key", key)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isUnauthorized());
+    var first =
+        mvc.perform(
+                post("/api/v1/enterprises")
+                    .header("X-Bootstrap-Token", operator)
+                    .header("Idempotency-Key", key)
+                    .contentType("application/json")
+                    .content(body))
+            .andExpect(status().isOk())
+            .andReturn();
+    var one = json.readTree(first.getResponse().getContentAsString());
+    var second =
+        mvc.perform(
+                post("/api/v1/enterprises")
+                    .header("X-Bootstrap-Token", operator)
+                    .header("Idempotency-Key", Db.id())
+                    .contentType("application/json")
+                    .content(body))
+            .andExpect(status().isOk())
+            .andReturn();
+    var two = json.readTree(second.getResponse().getContentAsString());
+    assertThat(one.get("tenant_id").asText()).isNotEqualTo(two.get("tenant_id").asText());
+    mvc.perform(
+            get("/api/v1/knowledge-bases/" + kb)
+                .header("Authorization", "Bearer " + one.get("token").asText()))
+        .andExpect(status().isNotFound());
+    mvc.perform(
+            post("/api/v1/enterprises")
+                .header("X-Bootstrap-Token", operator)
+                .header("Idempotency-Key", key)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void memberLifecycleRevokesCredentialsAndDoesNotReviveThem() throws Exception {
+    String id = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'USER')", id, tenant, "member");
+    String old = "Bearer " + auth.credential(tenant, id, "MEMBER", null);
+    for (int revision = 0; revision < 2; revision++) {
+      mvc.perform(
+              put("/api/v1/members/" + id)
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(
+                      json.writeValueAsString(
+                          Map.of(
+                              "name",
+                              "renamed",
+                              "role",
+                              "DEVELOPER",
+                              "state",
+                              revision == 0 ? "DISABLED" : "ACTIVE",
+                              "revision",
+                              revision))))
+          .andExpect(status().isOk());
+      mvc.perform(get("/api/v1/me").header("Authorization", old))
+          .andExpect(status().isUnauthorized());
+    }
+    var issued =
+        mvc.perform(post("/api/v1/members/" + id + "/credentials").header("Authorization", token))
+            .andExpect(status().isOk())
+            .andReturn();
+    String fresh =
+        "Bearer " + json.readTree(issued.getResponse().getContentAsString()).get("token").asText();
+    mvc.perform(get("/api/v1/me").header("Authorization", fresh))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("DEVELOPER"));
+    mvc.perform(
+            put("/api/v1/members/" + id)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "name",
+                            "renamed",
+                            "role",
+                            "DEVELOPER",
+                            "state",
+                            "REMOVED",
+                            "revision",
+                            2))))
+        .andExpect(status().isOk());
+    mvc.perform(get("/api/v1/me").header("Authorization", fresh))
+        .andExpect(status().isUnauthorized());
+    mvc.perform(
+            put("/api/v1/members/" + id)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "name",
+                            "renamed",
+                            "role",
+                            "DEVELOPER",
+                            "state",
+                            "ACTIVE",
+                            "revision",
+                            3))))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void adminCannotObtainOwnerCredentialAndOwnerCannotBeRemoved() throws Exception {
+    String admin = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'ADMIN')",
+        admin,
+        tenant,
+        "admin");
+    String credential = "Bearer " + auth.credential(tenant, admin, "MEMBER", null);
+    mvc.perform(
+            post("/api/v1/members/" + member + "/credentials").header("Authorization", credential))
+        .andExpect(status().isNotFound());
+    mvc.perform(
+            put("/api/v1/members/" + member)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "name", "owner", "role", "OWNER", "state", "REMOVED", "revision", 0))))
+        .andExpect(status().isConflict());
+    mvc.perform(
+            put("/api/v1/members/" + admin)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "name", "admin", "role", "OWNER", "state", "ACTIVE", "revision", 0))))
+        .andExpect(status().isConflict());
+  }
 }

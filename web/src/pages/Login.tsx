@@ -6,6 +6,7 @@ export default function Login({ done }: { done: () => void }) {
   const [value, setValue] = useState(""),
     [name, setName] = useState("我的企业"),
     [bootstrap, setBootstrap] = useState(false),
+    [provision, setProvision] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [issued, setIssued] = useState("");
@@ -15,10 +16,10 @@ export default function Login({ done }: { done: () => void }) {
     setError("");
     try {
       if (bootstrap) {
-        const result = await request("/bootstrap", {
+        const result = await request(provision ? "/enterprises" : "/bootstrap", {
           method: "POST",
           headers: { "X-Bootstrap-Token": value },
-          body: JSON.stringify({ name, description: "" }),
+          body: JSON.stringify(provision ? {name, owner_name: "企业所有者"} : { name, description: "" }),
         });
         setIssued(result.token);
         setValue(result.token);
@@ -70,7 +71,7 @@ export default function Login({ done }: { done: () => void }) {
           <h2>{bootstrap ? "初始化企业" : "进入工作空间"}</h2>
           <p className="muted">
             {bootstrap
-              ? "仅首次部署使用服务端初始化密钥。"
+              ? "由部署管理员使用开通密钥；普通用户请使用个人访问凭证。"
               : "使用企业管理员提供的个人访问凭证。"}
           </p>
           <ErrorNote error={error} />
@@ -80,6 +81,7 @@ export default function Login({ done }: { done: () => void }) {
               <textarea readOnly value={issued} aria-label="新凭证" />
             </div>
           )}
+          {bootstrap && <label><input type="checkbox" checked={provision} onChange={event=>setProvision(event.target.checked)}/>开通另一企业（部署管理员）</label>}
           {bootstrap && (
             <label>
               企业名称

@@ -39,7 +39,8 @@ public class HttpBoundary extends OncePerRequestFilter {
                 supplied.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
           throw new ApiException(401, "UNAUTHENTICATED", "内部身份无效");
       } else if (req.getRequestURI().startsWith("/api/v1/")
-          && !req.getRequestURI().equals("/api/v1/bootstrap"))
+          && !req.getRequestURI().equals("/api/v1/bootstrap")
+          && !(req.getMethod().equals("POST") && req.getRequestURI().equals("/api/v1/enterprises")))
         req.setAttribute("actor", identity.authenticate(req.getHeader("Authorization")));
       chain.doFilter(req, res);
     } catch (ApiException e) {

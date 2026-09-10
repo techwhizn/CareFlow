@@ -29,10 +29,6 @@ public class ManagementController {
   public record Named(
       @NotBlank @Size(max = 200) String name, @Size(max = 2000) String description) {}
 
-  public record Member(
-      @NotBlank @Size(max = 200) String name,
-      @Pattern(regexp = "ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER") String role) {}
-
   public record Acl(@NotNull Map<String, List<String>> grants, long revision) {}
 
   public record State(@Pattern(regexp = "ACTIVE|ARCHIVED|DELETED") String status, long revision) {}
@@ -79,43 +75,6 @@ public class ManagementController {
         actor.role(),
         "tenant",
         db.one("SELECT name FROM tenants WHERE id=?", actor.tenant()));
-  }
-
-  @GetMapping("/members")
-  public Object members(@RequestAttribute Actor actor) {
-    auth.admin(actor);
-    return db.list("SELECT * FROM members WHERE tenant_id=?", actor.tenant());
-  }
-
-  @PostMapping("/members")
-  @Transactional
-  public Object member(@RequestAttribute Actor actor, @RequestBody @Valid Member body) {
-    auth.admin(actor);
-    String member = id();
-    db.exec(
-        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,?)",
-        member,
-        actor.tenant(),
-        body.name(),
-        body.role());
-    auth.audit(actor, "MEMBER_CREATE", member, body.role());
-    return Map.of("id", member, "token", auth.credential(actor.tenant(), member, "MEMBER", null));
-  }
-
-  @DeleteMapping("/members/{id}")
-  @Transactional
-  public void disable(@RequestAttribute Actor actor, @PathVariable String id) {
-    auth.admin(actor);
-    auth.lock(actor);
-    var member = db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), id);
-    if (str(member, "role").equals("OWNER"))
-      throw new ApiException(409, "OWNER_REQUIRED", "不能禁用企业所有者");
-    db.exec("UPDATE members SET active=FALSE WHERE tenant_id=? AND id=?", actor.tenant(), id);
-    db.exec(
-        "UPDATE credentials SET active=FALSE WHERE tenant_id=? AND subject_id=?",
-        actor.tenant(),
-        id);
-    auth.audit(actor, "MEMBER_DISABLE", id, "");
   }
 
   @GetMapping("/knowledge-bases")

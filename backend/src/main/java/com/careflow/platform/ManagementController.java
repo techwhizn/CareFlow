@@ -5,8 +5,6 @@ import static com.careflow.platform.Db.*;
 import com.careflow.platform.Identity.Actor;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -212,25 +210,11 @@ public class ManagementController {
     auth.audit(actor, "APP_PUBLISH", id, "");
   }
 
-  @PostMapping("/applications/{id}/credentials")
-  @Transactional
-  public Object key(@RequestAttribute Actor actor, @PathVariable String id) {
-    auth.developer(actor);
-    appOwned(actor, id);
-    auth.audit(actor, "CREDENTIAL_CREATE", id, "");
-    return Map.of(
-        "token",
-        auth.credential(
-            actor.tenant(), id, "APP", Timestamp.from(Instant.now().plusSeconds(90L * 86400))),
-        "expires_in_days",
-        90);
-  }
-
   @GetMapping("/credentials")
   public Object keys(@RequestAttribute Actor actor) {
     auth.admin(actor);
     return db.list(
-        "SELECT id,subject_id,kind,active,expires_at FROM credentials WHERE tenant_id=?",
+        "SELECT id,subject_id,kind,active,expires_at,scopes FROM credentials WHERE tenant_id=?",
         actor.tenant());
   }
 

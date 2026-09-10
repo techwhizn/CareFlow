@@ -7,7 +7,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class Identity {
-  public record Actor(String tenant, String subject, String kind, String role) {
+  public record Actor(String tenant, String subject, String kind, String role, Set<String> scopes) {
+    public Actor(String tenant, String subject, String kind, String role) {
+      this(tenant, subject, kind, role, Set.of("READ", "SEARCH", "ANSWER"));
+    }
+
+    public Actor {
+      scopes = Set.copyOf(scopes);
+    }
+
     public boolean app() {
       return kind.equals("APP");
     }
@@ -41,7 +49,8 @@ public class Identity {
     String t = Db.str(c, "tenant_id"), s = Db.str(c, "subject_id"), kind = Db.str(c, "kind");
     if (kind.equals("APP")) {
       db.one("SELECT id FROM applications WHERE tenant_id=? AND id=? AND published=TRUE", t, s);
-      return new Actor(t, s, kind, "APPLICATION");
+      return new Actor(
+          t, s, kind, "APPLICATION", new HashSet<>(Arrays.asList(Db.str(c, "scopes").split(","))));
     }
     var m =
         db.one(
@@ -49,6 +58,17 @@ public class Identity {
             t,
             s);
     return new Actor(t, s, kind, Db.str(m, "role"));
+  }
+
+  public void authorizeRequest(Actor actor, String method, String path) {
+    if (!actor.app()) return;
+    String required =
+        method.equals("GET")
+            ? "READ"
+            : method.equals("POST") && path.equals("/api/v1/retrieval/search")
+                ? "SEARCH"
+                : method.equals("POST") && path.equals("/api/v1/answers") ? "ANSWER" : null;
+    if (required == null || !actor.scopes().contains(required)) throw ApiException.hidden();
   }
 
   public void manager(Actor a) {

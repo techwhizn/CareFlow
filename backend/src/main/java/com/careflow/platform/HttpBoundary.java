@@ -40,8 +40,12 @@ public class HttpBoundary extends OncePerRequestFilter {
           throw new ApiException(401, "UNAUTHENTICATED", "内部身份无效");
       } else if (req.getRequestURI().startsWith("/api/v1/")
           && !req.getRequestURI().equals("/api/v1/bootstrap")
-          && !(req.getMethod().equals("POST") && req.getRequestURI().equals("/api/v1/enterprises")))
-        req.setAttribute("actor", identity.authenticate(req.getHeader("Authorization")));
+          && !(req.getMethod().equals("POST")
+              && req.getRequestURI().equals("/api/v1/enterprises"))) {
+        var actor = identity.authenticate(req.getHeader("Authorization"));
+        identity.authorizeRequest(actor, req.getMethod(), req.getRequestURI());
+        req.setAttribute("actor", actor);
+      }
       chain.doFilter(req, res);
     } catch (ApiException e) {
       res.setStatus(e.status);

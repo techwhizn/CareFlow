@@ -1199,21 +1199,60 @@
       }
     },
     "/api/v1/applications/{id}/credentials": {
-      "post": {
+      "get": {
         "tags": [
-          "management-controller"
+          "application-credentials-controller"
         ],
-        "operationId": "key",
+        "operationId": "list_2",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "application-credentials-controller"
+        ],
+        "operationId": "create_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Options"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1906,6 +1945,39 @@
           }
         }
       }
+    },
+    "/api/v1/applications/{id}/credentials/{credential}": {
+      "delete": {
+        "tags": [
+          "application-credentials-controller"
+        ],
+        "operationId": "revoke_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "credential",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2229,6 +2301,29 @@
         },
         "required": [
           "version_id"
+        ]
+      },
+      "Options": {
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "expires_in_days": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 365,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "scopes"
         ]
       },
       "ConfigurationPublish": {

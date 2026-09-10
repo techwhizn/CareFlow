@@ -912,4 +912,91 @@ class PlatformBoundaryTest {
     assertThat(db.list("SELECT * FROM permissions WHERE tenant_id=? AND resource_id=?", tenant, kb))
         .isEmpty();
   }
+
+  @Test
+  void scopedApplicationKeyCannotGenerateOrReadMetadata() throws Exception {
+    String app = Db.id();
+    db.exec(
+        "INSERT INTO applications(id,tenant_id,name,description,published) VALUES(?,?,?,'',TRUE)",
+        app,
+        tenant,
+        "scope-test");
+    var issued =
+        mvc.perform(
+                post("/api/v1/applications/" + app + "/credentials")
+                    .header("Authorization", token)
+                    .contentType("application/json")
+                    .content(
+                        json.writeValueAsString(
+                            Map.of("scopes", List.of("SEARCH"), "expires_in_days", 2))))
+            .andExpect(status().isOk())
+            .andReturn();
+    var payload = json.readTree(issued.getResponse().getContentAsString());
+    String appToken = "Bearer " + payload.get("token").asText();
+    mvc.perform(get("/api/v1/knowledge-bases").header("Authorization", appToken))
+        .andExpect(status().isNotFound());
+    String query = json.writeValueAsString(Map.of("query", "test", "mode", "hybrid", "limit", 6));
+    mvc.perform(
+            post("/api/v1/answers")
+                .header("Authorization", appToken)
+                .header("Idempotency-Key", Db.id())
+                .contentType("application/json")
+                .content(query))
+        .andExpect(status().isNotFound());
+    mvc.perform(
+            post("/api/v1/retrieval/search")
+                .header("Authorization", appToken)
+                .header("Idempotency-Key", Db.id())
+                .contentType("application/json")
+                .content(query))
+        .andExpect(status().isOk());
+    mvc.perform(
+            delete("/api/v1/applications/" + app + "/credentials/" + payload.get("id").asText())
+                .header("Authorization", token))
+        .andExpect(status().isOk());
+    mvc.perform(
+            post("/api/v1/retrieval/search")
+                .header("Authorization", appToken)
+                .header("Idempotency-Key", Db.id())
+                .contentType("application/json")
+                .content(query))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void invalidScopesExpiryAndCrossApplicationRevocationAreRejected() throws Exception {
+    String app = Db.id(), other = Db.id();
+    for (String id : List.of(app, other))
+      db.exec(
+          "INSERT INTO applications(id,tenant_id,name,description,published) VALUES(?,?,?,'',TRUE)",
+          id,
+          tenant,
+          "test");
+    for (Map<String, Object> input :
+        List.<Map<String, Object>>of(
+            Map.of("scopes", List.of("ADMIN"), "expires_in_days", 90),
+            Map.of("scopes", List.of("SEARCH"), "expires_in_days", 0),
+            Map.of("scopes", List.of(), "expires_in_days", 90)))
+      mvc.perform(
+              post("/api/v1/applications/" + app + "/credentials")
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(json.writeValueAsString(input)))
+          .andExpect(status().isBadRequest());
+    var issued =
+        mvc.perform(
+                post("/api/v1/applications/" + app + "/credentials").header("Authorization", token))
+            .andExpect(status().isOk())
+            .andReturn();
+    var key = json.readTree(issued.getResponse().getContentAsString());
+    mvc.perform(
+            delete("/api/v1/applications/" + other + "/credentials/" + key.get("id").asText())
+                .header("Authorization", token))
+        .andExpect(status().isNotFound());
+    db.exec(
+        "UPDATE credentials SET expires_at=TIMESTAMP '2000-01-01 00:00:00' WHERE id=?",
+        key.get("id").asText());
+    mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + key.get("token").asText()))
+        .andExpect(status().isUnauthorized());
+  }
 }

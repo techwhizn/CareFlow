@@ -63,3 +63,11 @@
 PUT permissions仍为全量替换，最多500个主体，每个主体最多5个动作；显式校验空值、未知动作、已移除/跨企业主体。文档动作必须是该主体知识库动作的子集，不符返回400 DOCUMENT_PERMISSION_EXCEEDS_KB；任何校验失败都回滚整次替换，旧授权与revision不变。
 
 UI加载现有多主体授权，修改后需核对确认。发生409保留本地内容，要求重新加载最新授权后再编辑；不会自动覆盖别人的修改。文档收窄可能撤销操作者自身管理权，保存前有明确提示。
+
+## 应用 API Key 范围与期限（V1-06）
+
+`POST /api/v1/applications/{id}/credentials` 可携带 `{scopes:["SEARCH","ANSWER"], expires_in_days:90}`。允许READ（受资源权限约束的GET读取）、SEARCH（搜索POST）、ANSWER（问答POST），至少选一个；期限1～365天。无请求体保留默认READ/SEARCH/ANSWER及90天，便于旧调用方迁移。历史应用密钥迁移为这三个范围，个人凭证不受此应用scope限制。
+
+响应返回id、token、expires_at、scopes；token仅本次创建显示。`GET /applications/{id}/credentials`查看元数据，`DELETE /applications/{id}/credentials/{credential}`按应用范围撤销，开发者不必取得全企业凭证管理权。跨应用撤销拒绝；不能通过body自称用户身份。
+
+scope先于业务操作校验，未授权操作统一404，不消耗查询额度；到期或撤销返回401。新密钥不会撤销旧密钥：先迁移调用方并验证，再显式撤销旧密钥。收窄scope不等于收窄所有知识库权限，实际访问继续取应用绑定和资源ACL交集。

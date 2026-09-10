@@ -1,4 +1,5 @@
-import { ArrowRight, Key, PlugsConnected, Plus } from "@phosphor-icons/react";
+import AppCredentials from "../components/AppCredentials";
+import { ArrowRight, PlugsConnected, Plus } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Row } from "../api";
 import { post, put, request } from "../api";
@@ -164,22 +165,9 @@ export default function AppsPage() {
             >
               发布配置
             </button>
-            <button
-              onClick={async () => {
-                try {
-                  const r = await post(
-                    `/applications/${selected.id}/credentials`,
-                  );
-                  setSecret(r.token);
-                } catch (e) {
-                  setError((e as Error).message);
-                }
-              }}
-            >
-              <Key />
-              生成 API Key
-            </button>
+
           </div>
+          <AppCredentials applicationId={selected.id} onIssued={setSecret} />
           {!!configurations.length && (
             <div className="configurations">
               <h3>配置版本</h3>

@@ -93,7 +93,8 @@
       "V1-04"
     ],
     "acceptance": "可配置期限及动作范围，撤销立即生效，轮换有迁移流程；密钥仅创建时显示；个人身份与应用身份不混用。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-06-credentials.md"
   },
   {
     "id": "V1-07",

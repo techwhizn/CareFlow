@@ -1,0 +1,89 @@
+{
+  "date": "2026-09-11",
+  "synthetic_fixture_only": true,
+  "shared_knowledge_base": true,
+  "runtime": "Local Java API 8080, real BGE embedding/rerank, Milvus, deepseek-v4-flash",
+  "runs": {
+    "java-ingest": {
+      "language": "java",
+      "java_version": "21.0.9+10-LTS",
+      "knowledge_base_id": "ede54439-8b55-402c-a339-cb55cedeba83",
+      "document_id": "b3054e8e-e3ba-48c0-84f6-b4624dd3e29a",
+      "version_id": "e804e244-424f-4632-9d1d-211927c17016",
+      "upload_parse_index_publish": "passed",
+      "jobs": [
+        {
+          "id": "d4a6e68d-a394-465a-95e5-09d10270084b",
+          "version_id": "a287fa7d-8244-42a8-a506-9a2dbada08ab",
+          "kind": "PARSE",
+          "state": "CANCELLED",
+          "error_code": "CANCELLED"
+        },
+        {
+          "id": "08e3e466-a345-4539-b9dc-68b38c805ae7",
+          "version_id": "e804e244-424f-4632-9d1d-211927c17016",
+          "kind": "INDEX",
+          "state": "DONE",
+          "error_code": null
+        },
+        {
+          "id": "c90bb957-cf00-471b-8006-3f07b0426c46",
+          "version_id": "e804e244-424f-4632-9d1d-211927c17016",
+          "kind": "PARSE",
+          "state": "DONE",
+          "error_code": null
+        }
+      ],
+      "evidence_note": "Java process returned 0; initial wrapper could not parse JVM warning-prefixed stdout. State verified using public API without repeating upload."
+    },
+    "java-answer": {
+      "language": "java",
+      "java_version": "21.0.9+10-LTS",
+      "knowledge_base_id": "ede54439-8b55-402c-a339-cb55cedeba83",
+      "cancelled_request_id": "5ef13d11-aa88-4bd4-87c4-a33c5c9f34c6",
+      "server_status": "CANCELLED",
+      "search_trace_id": "11da91e5-352c-4869-b28a-8f07514f01e7",
+      "events": [
+        "start",
+        "status",
+        "delta",
+        "usage",
+        "citations",
+        "done"
+      ],
+      "answer_characters": 185,
+      "stream_closed_after_first_delta": true
+    },
+    "python-ingest": {
+      "language": "python",
+      "python_version": "3.12.13",
+      "knowledge_base_id": "ede54439-8b55-402c-a339-cb55cedeba83",
+      "document_id": "3da09fbd-b849-4ab6-b321-b8fd5321a9d6",
+      "version_id": "9af505a5-3a9d-425d-8809-548cf246dabe",
+      "cancelled_job_id": "c4245246-dd01-453f-88dc-18ba99f6db14",
+      "upload_parse_index_publish": "passed"
+    },
+    "python-answer": {
+      "language": "python",
+      "python_version": "3.12.13",
+      "knowledge_base_id": "ede54439-8b55-402c-a339-cb55cedeba83",
+      "events": [
+        "citations",
+        "delta",
+        "done",
+        "start",
+        "status",
+        "usage"
+      ],
+      "answer_characters": 170,
+      "stream_closed_after_first_delta": true,
+      "cancelled_request_id": "c371c06c-6778-49a2-9c9b-7e8f4587ae90",
+      "server_status": "CANCELLED"
+    }
+  },
+  "limitations": [
+    "Single fixture per language, not a load test",
+    "Java 21 container and Python 3.12 live protocol; other supported runtimes tested at SDK behavior layer",
+    "Current full lifecycle uses existing backend runtime; upgraded backend source reads were separately verified"
+  ]
+}

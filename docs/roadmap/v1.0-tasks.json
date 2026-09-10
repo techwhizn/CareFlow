@@ -602,7 +602,8 @@
       "V1-33"
     ],
     "acceptance": "保留已有SDK，补第一版所需管理/文档/版本接口和响应类型；OpenAPI同步检测；两种SDK同库真实联调，验证权限、错误、上传、取消、SSE和支持版本矩阵。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-35-sdk.md"
   },
   {
     "id": "V1-36",

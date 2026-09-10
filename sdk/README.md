@@ -204,3 +204,14 @@ mvn -f backend/pom.xml test -Dtest=PublicApiContractTest
 例如 Python `client.management.update_document_metadata(document_id, metadata)`，Java `client.management().updateDocumentMetadata(documentId, metadata)`。管理方法遵循同一snake_case/驼峰命名：`draft_version/draftVersion`、`replace_document/replaceDocument`、`download_source/downloadSource`、`delete_document/deleteDocument`。
 
 原文下载写入调用方提供的二进制输出流，不采用服务器返回的文件名创建本地文件，也不关闭调用方输出流。Python返回实际写入字节数，Java返回long。权限失败不写入错误正文；传输中断可能留下部分文件，调用方应写临时文件并在成功后原子替换。异步SDK的网络读取异步，输出流写入仍是同步操作。替换上传的幂等键与可选费率revision语义和初次上传一致。
+
+## 显式真实生命周期示例
+
+`java/examples/VerifyLifecycle.java` 和 `python/examples/verify_lifecycle.py` 读取 `CAREFLOW_URL`、`CAREFLOW_TOKEN`、`CAREFLOW_KB_ID`。请使用专用合成测试知识库并先发布处理配置。
+
+- `ingest` 另需 `CAREFLOW_FILE`：上传、等待解析/索引、发布，并另建合成文件验证任务取消。会保留远端测试文档；失败后先查任务状态，不要盲目重跑。
+- `answer` 另需 `CAREFLOW_QUERY`：检索、完整SSE、再次请求并在首段关闭流，最后轮询服务端CANCELLED。会调用真实模型并可能产生费用。
+
+Python安装SDK后执行 `python sdk/python/examples/verify_lifecycle.py ingest` 或 `answer`。Java先构建SDK及依赖classpath，再执行 `java --class-path "$SDK_CLASSPATH" sdk/java/examples/VerifyLifecycle.java ingest` 或 `answer`。示例只输出状态、ID与字符数，不输出令牌或回答正文。任务等待上限三分钟，取消结算等待上限三十秒；超时不代表任务已经停止。
+
+实际记录：[同库双语言生命周期](../docs/reports/v1-35-sdk-lifecycle-real.json)、[原文和跨租户权限](../docs/reports/v1-35-sdk-read-real.json)。

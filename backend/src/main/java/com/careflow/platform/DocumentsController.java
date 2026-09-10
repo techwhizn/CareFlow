@@ -19,12 +19,15 @@ public class DocumentsController {
   private final Identity auth;
   private final BlobStore blobs;
   private final WorkerClient worker;
+  private final DocumentUploadService uploads;
 
-  public DocumentsController(Db db, Identity auth, BlobStore blobs, WorkerClient worker) {
+  public DocumentsController(
+      Db db, Identity auth, BlobStore blobs, WorkerClient worker, DocumentUploadService uploads) {
     this.db = db;
     this.auth = auth;
     this.blobs = blobs;
     this.worker = worker;
+    this.uploads = uploads;
   }
 
   public record Publish(@NotBlank String version_id, long revision) {}
@@ -69,7 +72,7 @@ public class DocumentsController {
       @RequestParam MultipartFile file)
       throws Exception {
     auth.kb(actor, id, "edit");
-    return uploadFile(actor, id, null, requestKey, file);
+    return uploads.upload(actor, id, null, requestKey, file);
   }
 
   @PostMapping("/documents/{id}/versions")
@@ -81,74 +84,7 @@ public class DocumentsController {
       @RequestParam MultipartFile file)
       throws Exception {
     var d = auth.document(actor, id, "edit");
-    return uploadFile(actor, str(d, "kb_id"), id, requestKey, file);
-  }
-
-  private Object uploadFile(
-      Actor actor, String kb, String document, String requestKey, MultipartFile file)
-      throws Exception {
-    if (requestKey.isBlank() || requestKey.length() > 100) throw new IllegalArgumentException();
-    auth.lock(actor);
-    var existing =
-        db.list(
-            "SELECT j.id AS job_id,j.version_id,v.document_id FROM jobs j JOIN document_versions v ON j.version_id=v.id WHERE j.tenant_id=? AND j.request_key=?",
-            actor.tenant(),
-            requestKey);
-    if (!existing.isEmpty()) {
-      auth.document(actor, str(existing.getFirst(), "document_id"), "edit");
-      return existing.getFirst();
-    }
-    if (file.isEmpty() || file.getSize() > 50L * 1024 * 1024)
-      throw new ApiException(413, "FILE_TOO_LARGE", "文件为空或超过 50 MiB");
-    String name = Objects.toString(file.getOriginalFilename(), "file").replaceAll(".*[/\\\\]", "");
-    if (name.length() > 250) throw new IllegalArgumentException();
-    String ext =
-        name.contains(".")
-            ? name.substring(name.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT)
-            : "";
-    if (!Set.of("pdf", "docx", "md", "txt", "csv", "xlsx", "png", "jpg", "jpeg").contains(ext))
-      throw new ApiException(400, "UNSUPPORTED_FILE", "不支持的文件类型");
-    byte[] data = file.getBytes();
-    String digest =
-        java.util.HexFormat.of()
-            .formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(data));
-    if (document == null
-        && !db.list(
-                "SELECT v.id FROM document_versions v JOIN documents d ON d.id=v.document_id WHERE v.tenant_id=? AND d.kb_id=? AND d.status<>'DELETED' AND v.digest=?",
-                actor.tenant(),
-                kb,
-                digest)
-            .isEmpty()) throw new ApiException(409, "DUPLICATE_FILE", "知识库中已有相同内容，请使用版本更新");
-    if (document == null) {
-      document = id();
-      db.exec(
-          "INSERT INTO documents(id,tenant_id,kb_id,title) VALUES(?,?,?,?)",
-          document,
-          actor.tenant(),
-          kb,
-          name);
-    }
-    String version = id(),
-        job = id(),
-        key = actor.tenant() + "/" + document + "/" + version + "/source";
-    blobs.put(key, data);
-    db.exec(
-        "INSERT INTO document_versions(id,tenant_id,document_id,object_key,filename,digest) VALUES(?,?,?,?,?,?)",
-        version,
-        actor.tenant(),
-        document,
-        key,
-        name,
-        digest);
-    db.exec(
-        "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'PARSE',?)",
-        job,
-        actor.tenant(),
-        version,
-        requestKey);
-    db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
-    auth.audit(actor, "DOCUMENT_UPLOAD", document, version);
-    return Map.of("document_id", document, "version_id", version, "job_id", job);
+    return uploads.upload(actor, str(d, "kb_id"), id, requestKey, file);
   }
 
   @GetMapping("/documents/{id}/versions")

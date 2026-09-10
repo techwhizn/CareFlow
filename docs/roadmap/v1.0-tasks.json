@@ -157,7 +157,8 @@
     ],
     "dependencies": [],
     "acceptance": "默认每批最多20个、每文件50MiB；实际类型校验；损坏/加密文件明确拒绝；同库摘要重复提示；同请求键不同内容不误当成功。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-10-upload.md"
   },
   {
     "id": "V1-11",

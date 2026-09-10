@@ -633,4 +633,32 @@ class PlatformBoundaryTest {
                 .content(json.writeValueAsString(modelInput("secret"))))
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  void uploadKeyRejectsChangedPayloadAndDuplicateContentIsExplicit() throws Exception {
+    String key = Db.id();
+    var file = new MockMultipartFile("file", "guide.txt", "text/plain", "upload test".getBytes());
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(file)
+                .header("Authorization", token)
+                .header("Idempotency-Key", key))
+        .andExpect(status().isOk());
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(
+                    new MockMultipartFile("file", "guide.txt", "text/plain", "changed".getBytes()))
+                .header("Authorization", token)
+                .header("Idempotency-Key", key))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("IDEMPOTENCY_CONFLICT"));
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(file)
+                .header("Authorization", token)
+                .header("Idempotency-Key", Db.id()))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("DUPLICATE_FILE"));
+    assertThat(db.list("SELECT * FROM jobs WHERE tenant_id=?", tenant)).hasSize(1);
+  }
 }

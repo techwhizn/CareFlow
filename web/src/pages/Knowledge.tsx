@@ -1,3 +1,4 @@
+import DocumentUpload from "../components/DocumentUpload";
 import {
   ArrowClockwise,
   ArrowLeft,
@@ -10,7 +11,6 @@ import {
   Plus,
   ShieldCheck,
   Stack,
-  UploadSimple,
 } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
 import type { Row } from "../api";
@@ -151,39 +151,11 @@ export default function Knowledge() {
 function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
   const [page, setPage] = useState(0),
     [doc, setDoc] = useState<Row | null>(null),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
     [acl, setAcl] = useState(false);
   const docs = useData<Row[]>(
     `/knowledge-bases/${kb.id}/documents?page=${page}`,
     [],
   );
-  async function upload(files: FileList | null) {
-    if (!files?.length) return;
-    if (files.length > 20) {
-      setError("单批最多 20 个文件");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    try {
-      for (const file of files) {
-        if (file.size > 50 * 1024 * 1024)
-          throw new Error(`${file.name} 超过 50 MiB`);
-        const data = new FormData();
-        data.append("file", file);
-        await request(`/knowledge-bases/${kb.id}/documents`, {
-          method: "POST",
-          body: data,
-        });
-      }
-      await docs.reload();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
   if (doc)
     return (
       <DocumentDetail
@@ -217,27 +189,8 @@ function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
         <button className="active">文档</button>
         <span>上传 → 解析 → 审核切片 → 索引 → 发布</span>
       </div>
-      <ErrorNote error={error || docs.error} />
-      <label className={`upload-zone ${busy ? "disabled" : ""}`}>
-        <UploadSimple size={28} />
-        <div>
-          <strong>{busy ? "正在上传，请稍候…" : "选择资料文件"}</strong>
-          <p>
-            PDF、DOCX、Markdown、TXT、CSV、XLSX、PNG、JPEG · 单文件 50 MiB ·
-            每批最多 20 个
-          </p>
-        </div>
-        <input
-          type="file"
-          multiple
-          accept=".pdf,.docx,.md,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
-          disabled={busy}
-          onChange={(e) => {
-            void upload(e.target.files);
-            e.target.value = "";
-          }}
-        />
-      </label>
+      <ErrorNote error={docs.error} />
+      <DocumentUpload knowledgeBaseId={kb.id} onUploaded={docs.reload} />
       <div className="section-title">
         <h2>文档列表</h2>
         <button onClick={() => void docs.reload()}>

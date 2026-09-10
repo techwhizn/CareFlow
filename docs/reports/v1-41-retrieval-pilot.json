@@ -1,0 +1,3918 @@
+{
+  "date": "2026-09-11",
+  "environment": {
+    "hardware": "Intel macOS, 16 GiB host, Docker 7.75 GiB",
+    "embedding": "BAAI/bge-small-zh-v1.5 fixed revision, CPU",
+    "rerank": "BAAI/bge-reranker-base fixed revision, CPU",
+    "milvus": "2.6.1"
+  },
+  "runs": [
+    {
+      "schema_version": 2,
+      "complete": true,
+      "label": "pilot-hybrid",
+      "dataset_version_id": "391ad855-e79d-42a7-bdbf-d87b4253fd13",
+      "dataset_digest": "0b8cd0c15a05c1ff8845ead15cdf49083b4ca0a765202e2b7f228b0817373379",
+      "evidence_mapping_digest": "a0c7910787b3bc3e98c956447a537510892440ec38551d08c2ac26695dd50289",
+      "baseline_status": "PROVISIONAL_UNREVIEWED_LABELS",
+      "mode": "hybrid",
+      "answer_generation_enabled": false,
+      "retrieval_top10_stage": "authorized_rerank_before_evidence_limit_and_threshold",
+      "final_evidence_limit": 6,
+      "summary": {
+        "cases": 120,
+        "failure_rate": 0.0,
+        "retrieval_top10_eligible": 105,
+        "recall_at_10": 1.0,
+        "hit_at_10": 1.0,
+        "mrr_at_10": 1.0,
+        "final_evidence_eligible": 105,
+        "recall_at_6": 1.0,
+        "hit_at_6": 1.0,
+        "mrr_at_6": 1.0,
+        "p50_ms": 7106,
+        "p95_ms": 10638,
+        "answer_failure_rate": null,
+        "search_p50_ms": 7106,
+        "search_p95_ms": 10638,
+        "answer_p50_ms": null,
+        "answer_p95_ms": null,
+        "human_review": {
+          "reviewed": 0,
+          "answer_correctness": null,
+          "evidence_support": null,
+          "citation_accuracy": null,
+          "unanswerable_refusal_rate": null,
+          "answerable_false_refusal_rate": null
+        },
+        "known_customer_costs_by_currency": {},
+        "unknown_cost_cases": 120
+      },
+      "limitations": [
+        "Human answer correctness, grounding, citation accuracy and refusal ratings remain pending",
+        "Debug-restricted identities have no Top10 metrics; final six is never relabeled Top10",
+        "Changing source publications requires preserving label meaning; changed evidence mappings require renewed label review",
+        "Generated answer text is private evaluation content; store reports outside Git unless all inputs are synthetic"
+      ],
+      "resume_cases": [
+        {
+          "id": "direct-001",
+          "question": "CF-310 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6a732f90-2bed-47c8-88dd-f6477283e2c5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-005-warranty",
+          "question": "CF-310 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6a732f90-2bed-47c8-88dd-f6477283e2c5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-003",
+          "question": "CF-310 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ac05cec1-fe67-4875-aefb-a3684d0109e0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-004-power",
+          "question": "CF-310 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ac05cec1-fe67-4875-aefb-a3684d0109e0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-005",
+          "question": "CF-310 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-002-filter",
+          "question": "CF-310 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-00-filter",
+          "question": "编号 CF-310 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-008",
+          "question": "CF-310 报 E410 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-003-network",
+          "question": "CF-310 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-00-network",
+          "question": "CF-310 错误 E410 的处置步骤？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-011",
+          "question": "CF-310 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a3b2ecd4-266b-454e-8870-9a9fdc264fa5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-001-backup",
+          "question": "CF-310 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a3b2ecd4-266b-454e-8870-9a9fdc264fa5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-013",
+          "question": "CF-311 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "567266cf-7043-41d7-a08b-c63ec34526fa"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-010-warranty",
+          "question": "CF-311 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "567266cf-7043-41d7-a08b-c63ec34526fa"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-015",
+          "question": "CF-311 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "059f2621-9639-4353-b9d3-161f6cde0a8c"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-009-power",
+          "question": "CF-311 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "059f2621-9639-4353-b9d3-161f6cde0a8c"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-017",
+          "question": "CF-311 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-007-filter",
+          "question": "CF-311 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-01-filter",
+          "question": "编号 CF-311 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-020",
+          "question": "CF-311 报 E411 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-008-network",
+          "question": "CF-311 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-01-network",
+          "question": "CF-311 错误 E411 的处置步骤？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-023",
+          "question": "CF-311 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d1e0ed21-01aa-4bab-9de9-3815473904ec"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-006-backup",
+          "question": "CF-311 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d1e0ed21-01aa-4bab-9de9-3815473904ec"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-025",
+          "question": "CF-312 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b78f29fc-cea0-499d-bea5-fabd89ce09ba"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-015-warranty",
+          "question": "CF-312 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b78f29fc-cea0-499d-bea5-fabd89ce09ba"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-027",
+          "question": "CF-312 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f5d32034-e593-4662-ae91-0ee04f0e8292"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-014-power",
+          "question": "CF-312 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f5d32034-e593-4662-ae91-0ee04f0e8292"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-029",
+          "question": "CF-312 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-012-filter",
+          "question": "CF-312 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-02-filter",
+          "question": "编号 CF-312 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-032",
+          "question": "CF-312 报 E412 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-013-network",
+          "question": "CF-312 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-02-network",
+          "question": "CF-312 错误 E412 的处置步骤？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-035",
+          "question": "CF-312 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "921cc7fa-1b91-4a5e-a6e3-55ec39a39c15"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-011-backup",
+          "question": "CF-312 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "921cc7fa-1b91-4a5e-a6e3-55ec39a39c15"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-037",
+          "question": "CF-313 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5fd0732-7af9-4dda-a05f-21687fdebcbb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-020-warranty",
+          "question": "CF-313 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5fd0732-7af9-4dda-a05f-21687fdebcbb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-039",
+          "question": "CF-313 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ef8f3dd1-306a-49c5-bf87-3ba397c001f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-019-power",
+          "question": "CF-313 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ef8f3dd1-306a-49c5-bf87-3ba397c001f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-041",
+          "question": "CF-313 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-017-filter",
+          "question": "CF-313 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-03-filter",
+          "question": "编号 CF-313 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-044",
+          "question": "CF-313 报 E413 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-018-network",
+          "question": "CF-313 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-03-network",
+          "question": "CF-313 错误 E413 的处置步骤？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-047",
+          "question": "CF-313 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "7a228e2a-6abf-42f7-9fa0-6359a354802a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-016-backup",
+          "question": "CF-313 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "7a228e2a-6abf-42f7-9fa0-6359a354802a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-049",
+          "question": "CF-314 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "08bdfc22-8d45-4e0b-b7ea-9d1c00e9f090"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-050",
+          "question": "CF-314 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5dd216d7-9815-4b9b-8891-fb7b99ea548a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-051",
+          "question": "CF-314 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "9144e2b9-b534-4585-940c-cb438f648517"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-04-filter",
+          "question": "编号 CF-314 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "9144e2b9-b534-4585-940c-cb438f648517"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-053",
+          "question": "CF-314 报 E414 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E414 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "99c10fac-dbf8-4c1d-a992-34e6f23b2e2e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-04-network",
+          "question": "CF-314 错误 E414 的处置步骤？",
+          "reference_answer": "出现错误码 E414 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "99c10fac-dbf8-4c1d-a992-34e6f23b2e2e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-055",
+          "question": "CF-314 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "14b0cbdb-00bd-427b-8b4f-d955cad28574"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-056",
+          "question": "CF-315 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b40b9bf4-1033-43e8-a0bc-210052884801"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-057",
+          "question": "CF-315 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78c8a60e-ec6c-4cbb-9e06-084d5c49d527"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-058",
+          "question": "CF-315 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4e247783-8aab-4c22-ae24-3c248acb412e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-05-filter",
+          "question": "编号 CF-315 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4e247783-8aab-4c22-ae24-3c248acb412e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-060",
+          "question": "CF-315 报 E415 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E415 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "555026dd-7371-4c40-afc2-e9f47670732a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-05-network",
+          "question": "CF-315 错误 E415 的处置步骤？",
+          "reference_answer": "出现错误码 E415 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "555026dd-7371-4c40-afc2-e9f47670732a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-062",
+          "question": "CF-315 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "36deb7dd-9ddc-4ee7-81ca-f110062bb1b6"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-063",
+          "question": "CF-316 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6264edd1-f0c1-4d1f-9a69-d5a57c461b75"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-064",
+          "question": "CF-316 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "81aef156-a106-4544-90b3-e728314f0ec0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-065",
+          "question": "CF-316 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e4d16945-41fd-42b5-be55-93cbed6049d1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-06-filter",
+          "question": "编号 CF-316 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e4d16945-41fd-42b5-be55-93cbed6049d1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-067",
+          "question": "CF-316 报 E416 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E416 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "261da7c5-fd77-4434-919e-7d09c766a589"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-06-network",
+          "question": "CF-316 错误 E416 的处置步骤？",
+          "reference_answer": "出现错误码 E416 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "261da7c5-fd77-4434-919e-7d09c766a589"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-069",
+          "question": "CF-316 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "c6f065cd-2954-45cc-a011-0b7aa0e3558a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-070",
+          "question": "CF-317 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "cb97c1d0-c51c-4dfb-a547-a06803c58be1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-071",
+          "question": "CF-317 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b7ec885d-737d-4006-8a4a-0f65fd16e111"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-072",
+          "question": "CF-317 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "015f6850-9509-4307-abaf-b1d91f873c84"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-07-filter",
+          "question": "编号 CF-317 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "015f6850-9509-4307-abaf-b1d91f873c84"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-074",
+          "question": "CF-317 报 E417 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E417 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fa4cd7bf-083e-4f2e-bec0-6bee16f7b6e8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-07-network",
+          "question": "CF-317 错误 E417 的处置步骤？",
+          "reference_answer": "出现错误码 E417 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fa4cd7bf-083e-4f2e-bec0-6bee16f7b6e8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-076",
+          "question": "CF-317 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "381c1a3d-dd01-4760-9759-11d08f14c165"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-077",
+          "question": "CF-318 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "cd94f8db-4b41-4256-8547-e1d01bdba1b4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-078",
+          "question": "CF-318 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e583bbfe-2aae-470f-9d6e-71cf3f6c76dc"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-079",
+          "question": "CF-318 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6164f4d7-c42d-46a7-bab1-0c61362d0fa8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-08-filter",
+          "question": "编号 CF-318 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6164f4d7-c42d-46a7-bab1-0c61362d0fa8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-081",
+          "question": "CF-318 报 E418 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E418 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "dd52e6fc-9e8c-42cb-ab8d-17bae4755a35"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-08-network",
+          "question": "CF-318 错误 E418 的处置步骤？",
+          "reference_answer": "出现错误码 E418 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "dd52e6fc-9e8c-42cb-ab8d-17bae4755a35"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-083",
+          "question": "CF-318 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fb9b57c1-6f81-4ed0-a08a-54ae40139c1d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-084",
+          "question": "CF-319 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b8ca79b5-0cc9-4b3f-be4c-6227a5c318f8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-085",
+          "question": "CF-319 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "86edce19-5370-44d2-93b7-7077c9d87dea"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-086",
+          "question": "CF-319 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "737d961e-e672-4e73-a9b5-9e5e97fcc512"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-09-filter",
+          "question": "编号 CF-319 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "737d961e-e672-4e73-a9b5-9e5e97fcc512"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-088",
+          "question": "CF-319 报 E419 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E419 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ced4d465-7421-4547-864e-ff6a3c06615f"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-09-network",
+          "question": "CF-319 错误 E419 的处置步骤？",
+          "reference_answer": "出现错误码 E419 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ced4d465-7421-4547-864e-ff6a3c06615f"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-090",
+          "question": "CF-319 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "3acdc017-d664-4ac9-ae2e-58251c8c43cb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-01",
+          "question": "CF-310 官方售价是多少？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-02",
+          "question": "CF-311 有哪些机身颜色可选？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-03",
+          "question": "CF-312 支持哪些无线通信协议？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-04",
+          "question": "CF-313 重量是多少千克？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-05",
+          "question": "CF-314 生产工厂在哪个城市？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-06",
+          "question": "CF-315 有多少种语言的语音提示？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-07",
+          "question": "CF-316 能否用太阳能板直接供电？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-08",
+          "question": "CF-317 未来三年的价格会如何变化？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-09",
+          "question": "CF-318 是否提供上门安装服务？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-10",
+          "question": "CF-319 可否海运至南极站？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-11",
+          "question": "CF-310 包装箱长宽高是多少？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-12",
+          "question": "CF-311 保修能否转让给第三方？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-13",
+          "question": "CF-312 支持多少台设备组成集群？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-14",
+          "question": "CF-313 外壳采用什么合金？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-15",
+          "question": "CF-314 今天经销商还有多少库存？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-current",
+          "question": "CF-410 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-prior",
+          "question": "CF-410 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "8a7912a3-6063-4be5-b919-0e6dc8165189",
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-conflict",
+          "question": "CF-410 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "8a7912a3-6063-4be5-b919-0e6dc8165189",
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-current",
+          "question": "CF-411 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-prior",
+          "question": "CF-411 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "0a488657-8226-428b-97d8-e92d27b91e50",
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-conflict",
+          "question": "CF-411 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "0a488657-8226-428b-97d8-e92d27b91e50",
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-current",
+          "question": "CF-412 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-prior",
+          "question": "CF-412 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "670c914e-714d-412f-a139-514efe552229",
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-conflict",
+          "question": "CF-412 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "670c914e-714d-412f-a139-514efe552229",
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-current",
+          "question": "CF-413 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-prior",
+          "question": "CF-413 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4559d1df-3f21-41fa-8e8e-8736ceaebb76",
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-conflict",
+          "question": "CF-413 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "4559d1df-3f21-41fa-8e8e-8736ceaebb76",
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-current",
+          "question": "CF-414 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-prior",
+          "question": "CF-414 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "60d69ccf-1d95-42a4-b28b-677cb344f2b1",
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-conflict",
+          "question": "CF-414 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "60d69ccf-1d95-42a4-b28b-677cb344f2b1",
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        }
+      ]
+    },
+    {
+      "schema_version": 2,
+      "complete": true,
+      "label": "pilot-keyword",
+      "dataset_version_id": "391ad855-e79d-42a7-bdbf-d87b4253fd13",
+      "dataset_digest": "0b8cd0c15a05c1ff8845ead15cdf49083b4ca0a765202e2b7f228b0817373379",
+      "evidence_mapping_digest": "a0c7910787b3bc3e98c956447a537510892440ec38551d08c2ac26695dd50289",
+      "baseline_status": "PROVISIONAL_UNREVIEWED_LABELS",
+      "mode": "keyword",
+      "answer_generation_enabled": false,
+      "retrieval_top10_stage": "authorized_rerank_before_evidence_limit_and_threshold",
+      "final_evidence_limit": 6,
+      "summary": {
+        "cases": 120,
+        "failure_rate": 0.0,
+        "retrieval_top10_eligible": 105,
+        "recall_at_10": 1.0,
+        "hit_at_10": 1.0,
+        "mrr_at_10": 1.0,
+        "final_evidence_eligible": 105,
+        "recall_at_6": 1.0,
+        "hit_at_6": 1.0,
+        "mrr_at_6": 1.0,
+        "p50_ms": 4690,
+        "p95_ms": 9315,
+        "answer_failure_rate": null,
+        "search_p50_ms": 4690,
+        "search_p95_ms": 9315,
+        "answer_p50_ms": null,
+        "answer_p95_ms": null,
+        "human_review": {
+          "reviewed": 0,
+          "answer_correctness": null,
+          "evidence_support": null,
+          "citation_accuracy": null,
+          "unanswerable_refusal_rate": null,
+          "answerable_false_refusal_rate": null
+        },
+        "known_customer_costs_by_currency": {},
+        "unknown_cost_cases": 120
+      },
+      "limitations": [
+        "Human answer correctness, grounding, citation accuracy and refusal ratings remain pending",
+        "Debug-restricted identities have no Top10 metrics; final six is never relabeled Top10",
+        "Changing source publications requires preserving label meaning; changed evidence mappings require renewed label review",
+        "Generated answer text is private evaluation content; store reports outside Git unless all inputs are synthetic"
+      ],
+      "resume_cases": [
+        {
+          "id": "direct-001",
+          "question": "CF-310 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6a732f90-2bed-47c8-88dd-f6477283e2c5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-005-warranty",
+          "question": "CF-310 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6a732f90-2bed-47c8-88dd-f6477283e2c5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-003",
+          "question": "CF-310 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ac05cec1-fe67-4875-aefb-a3684d0109e0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-004-power",
+          "question": "CF-310 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ac05cec1-fe67-4875-aefb-a3684d0109e0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-005",
+          "question": "CF-310 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-002-filter",
+          "question": "CF-310 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-00-filter",
+          "question": "编号 CF-310 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "82116bef-5e0c-42c1-b2b4-3b05f7697e3b"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-008",
+          "question": "CF-310 报 E410 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-003-network",
+          "question": "CF-310 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-00-network",
+          "question": "CF-310 错误 E410 的处置步骤？",
+          "reference_answer": "出现错误码 E410 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5ebfa0ca-973b-4ac5-90ab-7a0837243dc1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-011",
+          "question": "CF-310 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a3b2ecd4-266b-454e-8870-9a9fdc264fa5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-001-backup",
+          "question": "CF-310 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a3b2ecd4-266b-454e-8870-9a9fdc264fa5"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-013",
+          "question": "CF-311 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "567266cf-7043-41d7-a08b-c63ec34526fa"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-010-warranty",
+          "question": "CF-311 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "567266cf-7043-41d7-a08b-c63ec34526fa"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-015",
+          "question": "CF-311 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "059f2621-9639-4353-b9d3-161f6cde0a8c"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-009-power",
+          "question": "CF-311 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "059f2621-9639-4353-b9d3-161f6cde0a8c"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-017",
+          "question": "CF-311 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-007-filter",
+          "question": "CF-311 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-01-filter",
+          "question": "编号 CF-311 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f1c4c092-01d4-449f-96d0-358b9d53a3d8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-020",
+          "question": "CF-311 报 E411 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-008-network",
+          "question": "CF-311 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-01-network",
+          "question": "CF-311 错误 E411 的处置步骤？",
+          "reference_answer": "出现错误码 E411 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ba04f187-0384-4951-ad5b-ad79311dd042"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-023",
+          "question": "CF-311 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d1e0ed21-01aa-4bab-9de9-3815473904ec"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-006-backup",
+          "question": "CF-311 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d1e0ed21-01aa-4bab-9de9-3815473904ec"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-025",
+          "question": "CF-312 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b78f29fc-cea0-499d-bea5-fabd89ce09ba"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-015-warranty",
+          "question": "CF-312 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b78f29fc-cea0-499d-bea5-fabd89ce09ba"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-027",
+          "question": "CF-312 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f5d32034-e593-4662-ae91-0ee04f0e8292"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-014-power",
+          "question": "CF-312 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "f5d32034-e593-4662-ae91-0ee04f0e8292"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-029",
+          "question": "CF-312 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-012-filter",
+          "question": "CF-312 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-02-filter",
+          "question": "编号 CF-312 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5a159e3-17f8-4ebf-ac9d-dbb88d203046"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-032",
+          "question": "CF-312 报 E412 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-013-network",
+          "question": "CF-312 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-02-network",
+          "question": "CF-312 错误 E412 的处置步骤？",
+          "reference_answer": "出现错误码 E412 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4d128e84-f395-4203-8fd0-d94c95ad9106"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-035",
+          "question": "CF-312 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "921cc7fa-1b91-4a5e-a6e3-55ec39a39c15"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-011-backup",
+          "question": "CF-312 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "921cc7fa-1b91-4a5e-a6e3-55ec39a39c15"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-037",
+          "question": "CF-313 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5fd0732-7af9-4dda-a05f-21687fdebcbb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-020-warranty",
+          "question": "CF-313 买了以后多久还能凭票修，得准备哪些材料？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a5fd0732-7af9-4dda-a05f-21687fdebcbb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-039",
+          "question": "CF-313 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ef8f3dd1-306a-49c5-bf87-3ba397c001f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-019-power",
+          "question": "CF-313 电源该选哪种，能直接接墙上的交流插座吗？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ef8f3dd1-306a-49c5-bf87-3ba397c001f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-041",
+          "question": "CF-313 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-017-filter",
+          "question": "CF-313 耗材到期怎么换，换好后还要点什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-03-filter",
+          "question": "编号 CF-313 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b5209d09-f101-4a77-91a9-8198023130a8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-044",
+          "question": "CF-313 报 E413 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-018-network",
+          "question": "CF-313 连不上网了，先看哪里，要恢复出厂设置吗？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-03-network",
+          "question": "CF-313 错误 E413 的处置步骤？",
+          "reference_answer": "出现错误码 E413 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78d94fe7-c95e-43f5-baca-10437f81b9a4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-047",
+          "question": "CF-313 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "7a228e2a-6abf-42f7-9fa0-6359a354802a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "para-016-backup",
+          "question": "CF-313 要更新系统了，怎样保存设置，升级完检查哪些项？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "PARAPHRASE",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "7a228e2a-6abf-42f7-9fa0-6359a354802a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-049",
+          "question": "CF-314 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "08bdfc22-8d45-4e0b-b7ea-9d1c00e9f090"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-050",
+          "question": "CF-314 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "5dd216d7-9815-4b9b-8891-fb7b99ea548a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-051",
+          "question": "CF-314 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "9144e2b9-b534-4585-940c-cb438f648517"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-04-filter",
+          "question": "编号 CF-314 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "9144e2b9-b534-4585-940c-cb438f648517"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-053",
+          "question": "CF-314 报 E414 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E414 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "99c10fac-dbf8-4c1d-a992-34e6f23b2e2e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-04-network",
+          "question": "CF-314 错误 E414 的处置步骤？",
+          "reference_answer": "出现错误码 E414 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "99c10fac-dbf8-4c1d-a992-34e6f23b2e2e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-055",
+          "question": "CF-314 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "14b0cbdb-00bd-427b-8b4f-d955cad28574"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-056",
+          "question": "CF-315 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b40b9bf4-1033-43e8-a0bc-210052884801"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-057",
+          "question": "CF-315 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "78c8a60e-ec6c-4cbb-9e06-084d5c49d527"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-058",
+          "question": "CF-315 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4e247783-8aab-4c22-ae24-3c248acb412e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-05-filter",
+          "question": "编号 CF-315 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4e247783-8aab-4c22-ae24-3c248acb412e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-060",
+          "question": "CF-315 报 E415 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E415 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "555026dd-7371-4c40-afc2-e9f47670732a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-05-network",
+          "question": "CF-315 错误 E415 的处置步骤？",
+          "reference_answer": "出现错误码 E415 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "555026dd-7371-4c40-afc2-e9f47670732a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-062",
+          "question": "CF-315 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "36deb7dd-9ddc-4ee7-81ca-f110062bb1b6"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-063",
+          "question": "CF-316 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6264edd1-f0c1-4d1f-9a69-d5a57c461b75"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-064",
+          "question": "CF-316 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "81aef156-a106-4544-90b3-e728314f0ec0"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-065",
+          "question": "CF-316 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e4d16945-41fd-42b5-be55-93cbed6049d1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-06-filter",
+          "question": "编号 CF-316 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e4d16945-41fd-42b5-be55-93cbed6049d1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-067",
+          "question": "CF-316 报 E416 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E416 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "261da7c5-fd77-4434-919e-7d09c766a589"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-06-network",
+          "question": "CF-316 错误 E416 的处置步骤？",
+          "reference_answer": "出现错误码 E416 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "261da7c5-fd77-4434-919e-7d09c766a589"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-069",
+          "question": "CF-316 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "c6f065cd-2954-45cc-a011-0b7aa0e3558a"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-070",
+          "question": "CF-317 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "cb97c1d0-c51c-4dfb-a547-a06803c58be1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-071",
+          "question": "CF-317 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b7ec885d-737d-4006-8a4a-0f65fd16e111"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-072",
+          "question": "CF-317 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "015f6850-9509-4307-abaf-b1d91f873c84"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-07-filter",
+          "question": "编号 CF-317 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "015f6850-9509-4307-abaf-b1d91f873c84"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-074",
+          "question": "CF-317 报 E417 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E417 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fa4cd7bf-083e-4f2e-bec0-6bee16f7b6e8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-07-network",
+          "question": "CF-317 错误 E417 的处置步骤？",
+          "reference_answer": "出现错误码 E417 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fa4cd7bf-083e-4f2e-bec0-6bee16f7b6e8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-076",
+          "question": "CF-317 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "381c1a3d-dd01-4760-9759-11d08f14c165"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-077",
+          "question": "CF-318 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "cd94f8db-4b41-4256-8547-e1d01bdba1b4"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-078",
+          "question": "CF-318 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "e583bbfe-2aae-470f-9d6e-71cf3f6c76dc"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-079",
+          "question": "CF-318 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6164f4d7-c42d-46a7-bab1-0c61362d0fa8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-08-filter",
+          "question": "编号 CF-318 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "6164f4d7-c42d-46a7-bab1-0c61362d0fa8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-081",
+          "question": "CF-318 报 E418 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E418 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "dd52e6fc-9e8c-42cb-ab8d-17bae4755a35"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-08-network",
+          "question": "CF-318 错误 E418 的处置步骤？",
+          "reference_answer": "出现错误码 E418 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "dd52e6fc-9e8c-42cb-ab8d-17bae4755a35"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-083",
+          "question": "CF-318 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "fb9b57c1-6f81-4ed0-a08a-54ae40139c1d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-084",
+          "question": "CF-319 保修多久，申请需要什么？",
+          "reference_answer": "购买凭证开具日起保修十二个月；申请时提交设备序列号和购买凭证。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "b8ca79b5-0cc9-4b3f-be4c-6227a5c318f8"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-085",
+          "question": "CF-319 供电规格和接线要求是什么？",
+          "reference_answer": "使用额定二十四伏直流电源；接线前先断电，不连接交流市电。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "86edce19-5370-44d2-93b7-7077c9d87dea"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-086",
+          "question": "CF-319 滤芯多久更换，更换后做什么？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "737d961e-e672-4e73-a9b5-9e5e97fcc512"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-09-filter",
+          "question": "编号 CF-319 的滤芯更换周期与计数器处理要求？",
+          "reference_answer": "每六个月更换一次滤芯；更换前关闭电源，更换后复位耗材计数器。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "737d961e-e672-4e73-a9b5-9e5e97fcc512"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-088",
+          "question": "CF-319 报 E419 时应按什么顺序排查？",
+          "reference_answer": "出现错误码 E419 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ced4d465-7421-4547-864e-ff6a3c06615f"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "identifier-09-network",
+          "question": "CF-319 错误 E419 的处置步骤？",
+          "reference_answer": "出现错误码 E419 时先检查网线两端，再检查路由器供电；网络故障期间不要执行出厂重置。",
+          "category": "IDENTIFIER",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "ced4d465-7421-4547-864e-ff6a3c06615f"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "direct-090",
+          "question": "CF-319 升级固件前后各需要做什么？",
+          "reference_answer": "升级固件前导出配置备份到本地加密目录；升级后核对网络参数和设备时间。",
+          "category": "DIRECT",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "3acdc017-d664-4ac9-ae2e-58251c8c43cb"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-01",
+          "question": "CF-310 官方售价是多少？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-02",
+          "question": "CF-311 有哪些机身颜色可选？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-03",
+          "question": "CF-312 支持哪些无线通信协议？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-04",
+          "question": "CF-313 重量是多少千克？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-05",
+          "question": "CF-314 生产工厂在哪个城市？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-06",
+          "question": "CF-315 有多少种语言的语音提示？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-07",
+          "question": "CF-316 能否用太阳能板直接供电？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-08",
+          "question": "CF-317 未来三年的价格会如何变化？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-09",
+          "question": "CF-318 是否提供上门安装服务？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-10",
+          "question": "CF-319 可否海运至南极站？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-11",
+          "question": "CF-310 包装箱长宽高是多少？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-12",
+          "question": "CF-311 保修能否转让给第三方？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-13",
+          "question": "CF-312 支持多少台设备组成集群？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-14",
+          "question": "CF-313 外壳采用什么合金？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "unknown-15",
+          "question": "CF-314 今天经销商还有多少库存？",
+          "reference_answer": "所提供资料未说明该信息，应明确无法确认，不补造参数或承诺。",
+          "category": "UNANSWERABLE",
+          "answerability": "UNANSWERABLE",
+          "expected_chunk_ids": [],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-current",
+          "question": "CF-410 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-prior",
+          "question": "CF-410 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "8a7912a3-6063-4be5-b919-0e6dc8165189",
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-0-conflict",
+          "question": "CF-410 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "8a7912a3-6063-4be5-b919-0e6dc8165189",
+            "de386407-8afc-40f2-841d-f9f731f6591e"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-current",
+          "question": "CF-411 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-prior",
+          "question": "CF-411 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "0a488657-8226-428b-97d8-e92d27b91e50",
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-1-conflict",
+          "question": "CF-411 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "0a488657-8226-428b-97d8-e92d27b91e50",
+            "67600e99-fb51-4a8e-ab5e-d400acadfb74"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-current",
+          "question": "CF-412 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-prior",
+          "question": "CF-412 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "670c914e-714d-412f-a139-514efe552229",
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-2-conflict",
+          "question": "CF-412 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "670c914e-714d-412f-a139-514efe552229",
+            "d14549cc-ed70-4c67-8041-8176f9be126d"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-current",
+          "question": "CF-413 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-prior",
+          "question": "CF-413 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "4559d1df-3f21-41fa-8e8e-8736ceaebb76",
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-3-conflict",
+          "question": "CF-413 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "4559d1df-3f21-41fa-8e8e-8736ceaebb76",
+            "a30c3db8-c6f6-488a-9ad4-66835d2ac671"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-current",
+          "question": "CF-414 在2026年3月购买，保修多久？",
+          "reference_answer": "2026年购买批次适用修订B，保修十八个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-prior",
+          "question": "CF-414 在2025年8月购买，是否自动获得十八个月保修？",
+          "reference_answer": "不自动获得；2025年购买批次适用修订A，保修十二个月。",
+          "category": "VERSION",
+          "answerability": "ANSWERABLE",
+          "expected_chunk_ids": [
+            "60d69ccf-1d95-42a4-b28b-677cb344f2b1",
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        },
+        {
+          "id": "version-4-conflict",
+          "question": "CF-414 资料里十二个月和十八个月保修是否矛盾，如何选择？",
+          "reference_answer": "两项规定针对不同购买批次：2025年批次十二个月，2026年批次十八个月；按购买日期选择。",
+          "category": "VERSION",
+          "answerability": "CONFLICT",
+          "expected_chunk_ids": [
+            "60d69ccf-1d95-42a4-b28b-677cb344f2b1",
+            "0076c8a4-156b-4ed3-899a-e8d8cf9967f1"
+          ],
+          "test_subject_kind": "MEMBER",
+          "test_subject_id": "101823fc-0d20-4c31-bd1d-5397b162fac3",
+          "knowledge_base_ids": [
+            "8b22d54e-6262-458f-b600-5f3f7030a8a9"
+          ],
+          "application_id": null
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Candidate expected evidence has not completed human review; these are automated metrics only",
+    "Results use 60 synthetic source documents, not 100000-chunk performance workload",
+    "Measurements include background development load and are not an SLA",
+    "No configured price book; monetary cost is unknown",
+    "Answer experiment is still running; no human answer quality rating"
+  ]
+}

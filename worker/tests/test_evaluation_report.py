@@ -94,7 +94,7 @@ def test_resume_preserves_failures_and_checkpoints_each_new_case(monkeypatch):
         def search(self, query):
             calls.append(query.query)
             if query.query == "fails":
-                raise careflow_sdk.ApiError(429, "RATE_LIMITED")
+                raise careflow_sdk.ApiError(429, "RATE_LIMITED", "rate-limit-trace")
             return {
                 "query_record_id": "query",
                 "evidence": [{"id": "source"}],
@@ -139,6 +139,7 @@ def test_resume_preserves_failures_and_checkpoints_each_new_case(monkeypatch):
     assert [len(rows) for rows in saved] == [2, 3]
     assert report["results"][0] == previous
     assert report["results"][1]["status"] == 429
+    assert report["results"][1]["request_id"] == "rate-limit-trace"
     assert report["results"][2]["answer"] == "partial"
     assert report["results"][2]["answer_completed"] is False
     assert report["summary"]["human_review"]["answer_correctness"] is None

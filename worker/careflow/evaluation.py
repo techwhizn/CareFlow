@@ -334,6 +334,9 @@ def run(
             except (ApiError, StreamError, httpx.HTTPError) as error:
                 record.update(
                     status=error.status if isinstance(error, ApiError) else 503,
+                    request_id=error.request_id
+                    if isinstance(error, ApiError)
+                    else None,
                     error_code=error.code
                     if isinstance(error, ApiError)
                     else "STREAM_INTERRUPTED"

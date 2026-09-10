@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "annotation_method": "Source-authored expected evidence for deterministic feature acceptance; not a human-reviewed production evaluation set.",
+  "documents": [
+    {"id": "offline", "model": "CF-100", "text": "CF-100 网络故障 E404：设备显示离线时，先检查网线两端是否插紧，再确认路由器已通电。网络恢复后刷新连接状态。不要在网络故障时执行出厂重置。"},
+    {"id": "reset", "model": "CF-100", "text": "CF-100 恢复出厂设置：先导出配置备份，再持续按住复位按钮十秒。状态灯变为蓝色后松开按钮。恢复出厂设置会删除用户设置，需要重新配置网络。"},
+    {"id": "filter", "model": "CF-200", "text": "CF-200 滤芯维护 E207：出现滤芯寿命告警时，关闭电源后更换滤芯。装好滤芯并复位耗材计数器，告警即可解除。滤芯不得用水冲洗后重复使用。"},
+    {"id": "warranty", "model": "CF-200", "text": "CF-200 保修政策：保修期为购买后十二个月，申请保修时须提供购买凭证和设备序列号。人为损坏与自然消耗的滤芯不属于保修范围。"}
+  ],
+  "cases": [
+    {"id": "error-code", "query": "CF-100 E404 网络故障如何处理", "expected_document": "offline", "modes": ["semantic", "keyword", "hybrid"]},
+    {"id": "offline-synonym", "query": "设备连不上网，该先排查哪里？", "expected_document": "offline", "modes": ["semantic", "hybrid"]},
+    {"id": "reset-synonym", "query": "怎样把设备还原成刚买来时的设置？", "expected_document": "reset", "modes": ["semantic", "hybrid"]},
+    {"id": "consumable-code", "query": "CF-200 E207 滤芯告警", "expected_document": "filter", "modes": ["semantic", "keyword", "hybrid"]},
+    {"id": "warranty-synonym", "query": "购买多久之内可以凭发票免费维修？", "expected_document": "warranty", "modes": ["semantic", "hybrid"]}
+  ]
+}

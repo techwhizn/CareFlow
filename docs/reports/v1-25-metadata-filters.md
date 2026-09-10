@@ -6,4 +6,4 @@
 
 Java SDK6项、Python SDK18项通过；OpenAPI契约测试最初提示filters字段缺少，刷新真实运行OpenAPI后通过。Ruff与前端构建通过。本机Java/MySQL实际空范围请求返回空证据、tenant_id非法过滤返回400。浏览器添加语言条件并提交合成检索请求。
 
-真实Milvus、Embedding与Rerank命中/排除链路现已通过：产品型号CF-100匹配已发布证据，CF-200返回空；见 [真实报告](v1-15-24-25-real.json)。本项功能验证通过，依赖V1-24整体关闭后再勾选完成。Java内存求值尚未进行V1-45规模压测。见 [过滤契约](../metadata-filters.md)。
+真实Milvus、Embedding与Rerank命中/排除链路现已通过：产品型号CF-100匹配已发布证据，CF-200返回空；见 [真实报告](v1-15-24-25-real.json)。补充验收：V1-24的12个预标注真实检索案例及型号过滤再次通过，前置依赖已关闭，本项完成。见 [标注检索验收](v1-24-annotated.md)。Java内存求值尚未进行V1-45规模压测。见 [过滤契约](../metadata-filters.md)。

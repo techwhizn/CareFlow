@@ -871,12 +871,12 @@
   {
     "id": "V1-51",
     "group": "工程与开源",
-    "kind": "待决策",
+    "kind": "完成",
     "title": "许可证、维护者与安全报告渠道",
     "requirements": [],
     "dependencies": [],
     "acceptance": "所有者选定许可证并添加LICENSE及必要第三方声明；确定真实仓库/维护者；启用可用的私密漏洞报告渠道，明确支持版本；不猜测版权主体或联系人。",
-    "status": "开发中",
+    "status": "完成",
     "evidence": "docs/reports/v1-51-license.md"
   },
   {

@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-11",
+  "source_changes": {
+    "source_actions": "Public Java API after cold backup",
+    "document_id": "f22fb602-5a78-4606-ad72-fda1f5df5a4b",
+    "revoked_credential_id": "ab28f78b-4c37-4141-84c1-f73e9991cbcf",
+    "versions_after_acl_revoke": 404,
+    "old_credential_after_revoke": 401,
+    "document_deleted": true,
+    "replacement_credential_created": true
+  },
+  "before_replay": {
+    "document_status": "ACTIVE",
+    "old_credential_active": true
+  },
+  "after_replay": {
+    "document_status": "DELETED",
+    "original_credential_active": 0,
+    "credential_count": 3,
+    "document_read_grants": 0,
+    "replayed_security_audit_rows": 4
+  },
+  "api_verification": {
+    "old_credential": 401,
+    "replacement_credential": 200,
+    "deleted_document_versions": 404,
+    "deleted_source_download": 404,
+    "historical_answers_visible": 0
+  },
+  "mysql_replay": {
+    "status": "APPLIED_ACCESS_CLOSED",
+    "started_at": "2026-09-10T18:49:22.692814+00:00",
+    "latest_checkpoint": {
+      "files": [
+        {
+          "file": "binlog.000001",
+          "bytes": 2985360,
+          "sha256": "f359819ac6012aa861f469cf3d9bef382806ca7641edbf4a97463b6662eb92c2"
+        },
+        {
+          "file": "binlog.000002",
+          "bytes": 173976,
+          "sha256": "a1018c18c56c4d58ad446111efe46ac0b60d4bd806df868c99ee43e1c0b08ce4"
+        },
+        {
+          "file": "binlog.000003",
+          "bytes": 7478,
+          "sha256": "7660c1622569a6cc466fd03ff129dbefc07054698caba270b833e0eeb230ed4e"
+        }
+      ],
+      "server_identity_sha256": "64587d60611640039e66af916c4b763790a79dc5401c32f171d070e0f2ab0c54"
+    },
+    "finished_at": "2026-09-10T18:49:23.409552+00:00"
+  },
+  "mysqlbinlog_version": "mysqlbinlog  Ver 8.4.6 for Linux on x86_64 (MySQL Community Server - GPL)",
+  "tool_rpm_signature": "Verified upstream RSA/SHA256 key ID a8d3785c; no signature bypass",
+  "network": "Database and API shared a network-none namespace; no published ports",
+  "limitations": [
+    "Full service RTO and restored index rebuild remain pending",
+    "Controlled source was stopped at capture; disaster log archival continuity is an independent operational requirement",
+    "No post-backup file uploads in this scenario; file increment recovery still needs verification",
+    "Linux amd64 recovery helper only"
+  ]
+}

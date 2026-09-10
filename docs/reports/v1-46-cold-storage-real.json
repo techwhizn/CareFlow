@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-11",
+  "scope": "Encrypted cold backup and isolated storage restoration; full recovery acceptance pending",
+  "encrypted_bytes": 293089472,
+  "volumes": 5,
+  "backup_seconds": 22.643735,
+  "storage_restore_seconds": 15.44872,
+  "restored_database": {
+    "migrations": 36,
+    "tenants": 1,
+    "documents": 1,
+    "chunks": 5,
+    "answers": 1,
+    "revoked_credentials": 1
+  },
+  "recovery_mysql_network": "none; no published ports",
+  "configuration_plaintext_archive_on_disk": false,
+  "business_api_started_by_restore": false,
+  "rpo": null,
+  "full_service_rto": null,
+  "limitations": [
+    "RPO and full service RTO require latest-state replay and full application verification",
+    "External model weights are retained separately by fixed identity",
+    "Cold backups require storage lifecycle retention; old MySQL-only retirement does not cover them"
+  ]
+}

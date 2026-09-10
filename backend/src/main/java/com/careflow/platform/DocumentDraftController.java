@@ -16,9 +16,10 @@ public class DocumentDraftController {
   @PutMapping("/chunks/{id}")
   public Object edit(
       @RequestAttribute Actor actor,
+      @RequestHeader("Authorization") String authorization,
       @PathVariable String id,
       @RequestBody @Valid DocumentDraftService.Edit body) {
-    return service.edit(actor, id, body);
+    return service.edit(actor, authorization, id, body);
   }
 
   @PostMapping("/document-versions/{id}/draft")

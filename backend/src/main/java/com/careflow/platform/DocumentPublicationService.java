@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentPublicationService {
   private final Db db;
   private final Identity auth;
+  private final ContentConflictService conflicts;
 
-  public DocumentPublicationService(Db db, Identity auth) {
+  public DocumentPublicationService(Db db, Identity auth, ContentConflictService conflicts) {
     this.db = db;
     this.auth = auth;
+    this.conflicts = conflicts;
   }
 
   public record Publish(
@@ -48,6 +50,7 @@ public class DocumentPublicationService {
     var document = auth.document(actor, id, "publish");
     var v = auth.version(actor, body.version_id(), "publish");
     if (!str(v, "document_id").equals(id)) throw ApiException.hidden();
+    conflicts.requireResolved(actor, body.version_id());
     if (body.version_revision() == null || num(v, "revision") != body.version_revision())
       throw ApiException.conflict();
     if (!str(v, "state").equals("READY")) throw new ApiException(409, "NOT_READY", "真实索引校验完成后才能发布");

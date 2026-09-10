@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-10",
+  "java_zone": "Asia/Shanghai",
+  "mysql_session_zone": "+00:00",
+  "issued_expires_at": "2026-09-11T12:54:12.694999Z",
+  "read_expires_at": "2026-09-11T12:54:13.000+00:00",
+  "database_epoch_matches_requested_instant": true,
+  "temporary_credential_revoked": true
+}

@@ -1,0 +1,53 @@
+{
+  "started_at": "2026-09-10T12:47:08Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "real_split_merge_manual_edit_tags_and_disable_preserve_content",
+      "passed": true,
+      "version_id": "f969c344-2d29-4f52-883a-62bcf99ee5e0",
+      "changes": 5
+    },
+    {
+      "name": "all_mutations_have_actor_reason_and_previous_snapshot",
+      "passed": true
+    },
+    {
+      "name": "real_reparse_freezes_three_changes_and_blocks_index_and_publication",
+      "passed": true,
+      "version_id": "9cd7aca2-6736-454c-995b-df7e18f0657d",
+      "conflicts": 3
+    },
+    {
+      "name": "browser_compares_and_applies_reviewed_correction_with_tags",
+      "passed": true
+    },
+    {
+      "name": "mysql_generated_audit_time_reads_as_correct_utc_instant",
+      "passed": true,
+      "created_at": "2026-09-10T12:49:19.000+00:00"
+    },
+    {
+      "name": "explicit_conflict_resolution_retains_disabled_state_and_manual_provenance",
+      "passed": true
+    },
+    {
+      "name": "resolved_version_real_index_publish_retrieval_and_immutable_edit_guard",
+      "passed": true,
+      "evidence_count": 3
+    },
+    {
+      "name": "browser_bulk_tags_updates_two_draft_chunks_atomically",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "fixture": {
+    "knowledge_base_id": "5f313337-b2aa-4173-8dea-870c32b2b9fb",
+    "document_id": "e51784e4-d95a-4b2a-ace7-55086a4a77e5",
+    "source_version": "f969c344-2d29-4f52-883a-62bcf99ee5e0",
+    "target_version": "9cd7aca2-6736-454c-995b-df7e18f0657d"
+  },
+  "awaiting_browser_review": false,
+  "browser_draft": "fd149051-dc44-47c2-abef-4237ad25a204"
+}

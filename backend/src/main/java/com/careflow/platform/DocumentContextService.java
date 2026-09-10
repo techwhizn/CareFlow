@@ -117,8 +117,30 @@ public class DocumentContextService {
           if (!actor.equals(auth.authenticate(authorization))) throw ApiException.hidden();
           editable(actor, version, input.revision());
           String target = context == null ? id() : context;
+          boolean enabled = true;
+          Set<String> tags = new LinkedHashSet<>();
           if (context != null) {
             var previous = requireFaq(actor, version, context);
+            var children =
+                db.list(
+                    "SELECT * FROM chunks WHERE tenant_id=? AND version_id=? AND context_id=?",
+                    actor.tenant(),
+                    version,
+                    context);
+            Set<Boolean> states = new HashSet<>();
+            for (var child : children) {
+              states.add(bool(child, "enabled"));
+              try {
+                for (var tag : json.readTree(str(child, "tags_json"))) tags.add(tag.asText());
+              } catch (Exception error) {
+                throw new IllegalArgumentException();
+              }
+            }
+            if (states.size() > 1 || tags.size() > 20)
+              throw new ApiException(409, "FAQ_METADATA_CONFLICT", "请先统一该FAQ各切片的启用状态，并将标签整理到20个以内");
+            enabled = states.isEmpty() || states.contains(true);
+            previous = new HashMap<>(previous);
+            previous.put("children", children);
             remember(actor, version, context, previous, input.reason());
             db.exec(
                 "DELETE FROM chunks WHERE tenant_id=? AND version_id=? AND context_id=?",
@@ -169,7 +191,7 @@ public class DocumentContextService {
                   "next_ordinal");
           for (var chunk : parsed.chunks())
             db.exec(
-                "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count,context_id,origin) VALUES(?,?,?,?,'',?,?,?,?,'MANUAL')",
+                "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count,context_id,origin,enabled,tags_json) VALUES(?,?,?,?,'',?,?,?,?,'MANUAL',?,?)",
                 id(),
                 actor.tenant(),
                 version,
@@ -177,7 +199,9 @@ public class DocumentContextService {
                 chunk.content(),
                 location,
                 chunk.token_count(),
-                target);
+                target,
+                enabled,
+                encode(tags));
           advance(actor, version, input.revision());
           auth.audit(actor, "FAQ_SAVE", target, input.reason());
           return Map.of("id", target, "revision", input.revision() + 1);

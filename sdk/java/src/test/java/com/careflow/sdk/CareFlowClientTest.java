@@ -121,6 +121,25 @@ class CareFlowClientTest {
   }
 
   @Test
+  void chunkOperationsAndConflictResolutionKeepObservedRevisions() throws Exception {
+    var ref = new CareFlowClient.ChunkRef(ID, 2);
+    client.chunkOperation(
+        ID,
+        new CareFlowClient.ChunkOperation(
+            3, "SPLIT", List.of(ref), List.of(8), null, null, "review"),
+        "operation");
+    client.resolveContentConflict(
+        ID,
+        ID,
+        new CareFlowClient.ConflictResolution(3, "APPLY_TO_CHUNK", ref, "review"),
+        "resolve");
+    assertEquals("/api/v1/document-versions/" + ID + "/chunk-operations", paths.getFirst());
+    assertTrue(bodies.getFirst().contains("\"split_offsets\":[8]"));
+    assertTrue(bodies.get(1).contains("\"revision\":2"));
+    assertEquals("resolve", keys.get(1));
+  }
+
+  @Test
   void documentVersionsPreservesContentRevision() throws Exception {
     response = "[{\"id\":\"" + ID + "\",\"revision\":7}]";
     assertEquals(7, client.documentVersions(ID).get(0).get("revision").asInt());

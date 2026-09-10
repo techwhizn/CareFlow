@@ -1,0 +1,1 @@
+ALTER TABLE document_versions ADD COLUMN sequence_no BIGINT AUTO_INCREMENT UNIQUE;

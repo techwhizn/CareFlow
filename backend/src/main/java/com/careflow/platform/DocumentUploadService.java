@@ -16,6 +16,7 @@ public class DocumentUploadService {
   private final UploadStaging staging;
   private final TransactionTemplate tx;
   private final EntitlementService entitlements;
+  private final ContentConflictService conflicts;
 
   public DocumentUploadService(
       Db db,
@@ -23,13 +24,15 @@ public class DocumentUploadService {
       BlobStore blobs,
       UploadStaging staging,
       TransactionTemplate tx,
-      EntitlementService entitlements) {
+      EntitlementService entitlements,
+      ContentConflictService conflicts) {
     this.db = db;
     this.auth = auth;
     this.blobs = blobs;
     this.staging = staging;
     this.tx = tx;
     this.entitlements = entitlements;
+    this.conflicts = conflicts;
   }
 
   private record Upload(
@@ -135,6 +138,7 @@ public class DocumentUploadService {
                     fingerprint,
                     auth.kb(actor, kb, "edit").get("published_configuration"));
                 db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
+                if (document != null) conflicts.snapshotLatest(actor, nextDocument, version);
                 auth.audit(actor, "DOCUMENT_UPLOAD", nextDocument, version);
                 return Map.<String, Object>of(
                     "document_id", nextDocument, "version_id", version, "job_id", job);

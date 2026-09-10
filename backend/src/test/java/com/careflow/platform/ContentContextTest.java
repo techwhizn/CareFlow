@@ -250,6 +250,8 @@ class ContentContextTest {
     assertThat(Db.str(parent, "location")).contains("manual").doesNotContain("page");
     var child = db.one("SELECT * FROM chunks WHERE context_id=?", id);
     assertThat(Db.str(child, "source_text")).isEmpty();
+    db.exec(
+        "UPDATE chunks SET enabled=FALSE,tags_json='[\"reviewed\"]' WHERE id=?", child.get("id"));
     when(worker.call(eq("/internal/v1/faq/chunk"), any()))
         .thenReturn(result("How now?", "Reconnect."));
     contexts.saveFaq(
@@ -259,6 +261,9 @@ class ContentContextTest {
         id,
         new DocumentContextService.Faq(1L, "How now?", List.of(), "Reconnect.", "correct answer"));
     assertThat(db.list("SELECT id FROM chunks WHERE id=?", child.get("id"))).isEmpty();
+    var updatedChild = db.one("SELECT * FROM chunks WHERE context_id=?", id);
+    assertThat(Db.bool(updatedChild, "enabled")).isFalse();
+    assertThat(Db.str(updatedChild, "tags_json")).contains("reviewed");
     assertThat(db.list("SELECT id FROM chunk_context_revisions WHERE context_id=?", id)).hasSize(1);
     assertThat(
             Db.num(

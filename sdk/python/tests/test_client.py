@@ -229,6 +229,10 @@ def test_routes_and_query_fields_exist_in_openapi():
         ("/document-versions/{version}/faqs/{context}", "put"),
         ("/document-versions/{version}/contexts/{context}/detach", "post"),
         ("/document-versions/{version}/quality", "get"),
+        ("/document-versions/{version}/chunk-operations", "post"),
+        ("/document-versions/{version}/content-conflicts", "get"),
+        ("/document-versions/{version}/chunk-changes", "get"),
+        ("/document-versions/{version}/content-conflicts/{id}/resolution", "post"),
     ]:
         assert method in schema["paths"]["/api/v1" + path]
     assert set(Query.__dataclass_fields__) <= set(
@@ -395,3 +399,51 @@ def test_quality_routes_in_sync_and_async_clients():
             assert (await client.document_quality(ID, page=2))["issue_count"] == 203
 
     asyncio.run(run())
+
+
+def test_chunk_operations_and_conflicts_preserve_target_revisions():
+    from careflow_sdk import ChunkOperation, ChunkRef, ConflictResolution
+
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"revision": 4})
+
+    operation = ChunkOperation(
+        3, "SPLIT", (ChunkRef(ID, 2),), "review", split_offsets=(8,)
+    )
+    resolution = ConflictResolution(3, "APPLY_TO_CHUNK", "review", ChunkRef(ID, 2))
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.chunk_operation(ID, operation, idempotency_key="operation")
+        client.resolve_content_conflict(ID, ID, resolution, idempotency_key="resolve")
+        client.content_conflicts(ID, page=1)
+        client.chunk_changes(ID, page=2)
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            await client.chunk_operation(ID, operation, idempotency_key="operation")
+            await client.resolve_content_conflict(
+                ID, ID, resolution, idempotency_key="resolve"
+            )
+            await client.content_conflicts(ID, page=1)
+            await client.chunk_changes(ID, page=2)
+
+    asyncio.run(run())
+    for group in [seen[:4], seen[4:]]:
+        assert group[0].url.path.endswith("/chunk-operations")
+        assert json.loads(group[0].content)["chunks"] == [{"id": ID, "revision": 2}]
+        assert json.loads(group[0].content)["split_offsets"] == [8]
+        assert json.loads(group[1].content)["target"]["revision"] == 2
+        assert group[2].url.params["page"] == "1"
+        assert group[3].url.params["page"] == "2"
+
+
+def test_python_character_boundaries_convert_for_non_bmp_split_offsets():
+    from careflow_sdk.content import utf16_offset
+
+    assert utf16_offset("A😀B", 2) == 3
+    with pytest.raises(ValueError):
+        utf16_offset("abc", 4)

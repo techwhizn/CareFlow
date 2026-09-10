@@ -238,6 +238,62 @@ public final class CareFlowClient {
   public record FaqInput(
       long revision, String question, List<String> alternatives, String answer, String reason) {}
 
+  public record ChunkRef(String id, long revision) {}
+
+  public record ChunkOperation(
+      long revision,
+      String action,
+      List<ChunkRef> chunks,
+      List<Integer> split_offsets,
+      Boolean enabled,
+      List<String> tags,
+      String reason) {}
+
+  public record ConflictResolution(long revision, String action, ChunkRef target, String reason) {}
+
+  public record ChunkEdit(String content, boolean enabled, long revision, String reason) {}
+
+  public JsonNode editChunk(String chunkId, ChunkEdit input) throws IOException {
+    return request("PUT", "chunks/" + id(chunkId), input, null);
+  }
+
+  public JsonNode documentChunks(String versionId, int page) throws IOException {
+    return request(
+        "GET", "document-versions/" + id(versionId) + "/chunks?page=" + page, null, null);
+  }
+
+  public JsonNode chunkOperation(String versionId, ChunkOperation input, String key)
+      throws IOException {
+    return request("POST", "document-versions/" + id(versionId) + "/chunk-operations", input, key);
+  }
+
+  public JsonNode contentConflicts(String versionId, int page) throws IOException {
+    return request(
+        "GET",
+        "document-versions/" + id(versionId) + "/content-conflicts?page=" + page,
+        null,
+        null);
+  }
+
+  public JsonNode chunkChanges(String versionId, int page) throws IOException {
+    return request(
+        "GET", "document-versions/" + id(versionId) + "/chunk-changes?page=" + page, null, null);
+  }
+
+  public JsonNode resolveContentConflict(
+      String versionId, String conflictId, ConflictResolution input, String key)
+      throws IOException {
+    return request(
+        "POST",
+        "document-versions/"
+            + id(versionId)
+            + "/content-conflicts/"
+            + id(conflictId)
+            + "/resolution",
+        input,
+        key);
+  }
+
   public JsonNode documentContexts(String versionId, int page) throws IOException {
     return request(
         "GET", "document-versions/" + id(versionId) + "/contexts?page=" + page, null, null);

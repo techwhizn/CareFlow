@@ -6,6 +6,9 @@ import { knowledgeClient, knowledgePaths } from "./client";
 import ContextPanel, { FaqForm } from "./ContextPanel";
 import QualityPanel from "./QualityPanel";
 import SourcePreview from "./SourcePreview";
+import ChunkTools from "./ChunkTools";
+import ContentConflicts from "./ContentConflicts";
+import ChunkHistory from "./ChunkHistory";
 
 function sourceLocation(raw: unknown): Record<string, unknown> {
   try {
@@ -33,19 +36,23 @@ export default function ChunkWorkspace({
   afterPublish: () => void;
 }) {
   const [page, setPage] = useState(0),
-    chunks = useData<Row[]>(
-      knowledgePaths.chunks(version.id, page),
-      [],
-    ),
+    chunks = useData<Row[]>(knowledgePaths.chunks(version.id, page), []),
     [selected, setSelected] = useState<Row | null>(null),
-    [pendingSelection,setPendingSelection]=useState<string|null>(null),
+    [pendingSelection, setPendingSelection] = useState<string | null>(null),
     [edit, setEdit] = useState(""),
     [reason, setReason] = useState(""),
-    [editing, setEditing] = useState(false), [addingFaq,setAddingFaq]=useState(false);
+    [editing, setEditing] = useState(false),
+    [addingFaq, setAddingFaq] = useState(false);
   useEffect(() => {
-    const requested=chunks.data.find(row=>row.id===pendingSelection);
-    setSelected(previous=>requested || chunks.data.find(row=>row.id===previous?.id) || chunks.data[0] || null);
-    if(requested)setPendingSelection(null);
+    const requested = chunks.data.find((row) => row.id === pendingSelection);
+    setSelected(
+      (previous) =>
+        requested ||
+        chunks.data.find((row) => row.id === previous?.id) ||
+        chunks.data[0] ||
+        null,
+    );
+    if (requested) setPendingSelection(null);
   }, [chunks.data, pendingSelection]);
   const location = selected ? sourceLocation(selected.location) : {};
   return (
@@ -56,10 +63,15 @@ export default function ChunkWorkspace({
           <p className="muted">核对原文、修订知识，再发布给应用使用。</p>
         </div>
         <div className="button-row">
-          {!version.ever_published && ["PARSED","READY"].includes(version.state) && <button onClick={()=>setAddingFaq(true)}>人工补充FAQ</button>}
+          {!version.ever_published &&
+            ["PARSED", "READY"].includes(version.state) && (
+              <button onClick={() => setAddingFaq(true)}>人工补充FAQ</button>
+            )}
           <button
             onClick={() =>
-              void action(() => knowledgeClient.download(version.id, version.filename))
+              void action(() =>
+                knowledgeClient.download(version.id, version.filename),
+              )
             }
           >
             下载原文
@@ -78,9 +90,7 @@ export default function ChunkWorkspace({
             <button
               disabled={busy || !["PARSED", "FAILED"].includes(version.state)}
               onClick={() =>
-                void action(() =>
-                  knowledgeClient.index(version.id),
-                )
+                void action(() => knowledgeClient.index(version.id))
               }
             >
               建立索引
@@ -105,9 +115,24 @@ export default function ChunkWorkspace({
         </div>
       </div>
       <ErrorNote error={chunks.error} />
-      <QualityPanel key={`${version.id}:${version.revision}`} versionId={version.id} select={(target,id)=>{
-        setPendingSelection(id);setPage(target);
-      }}/>
+      {!version.ever_published && (
+        <ContentConflicts
+          key={`conflicts:${version.id}:${version.revision}`}
+          version={version}
+          saved={async () => {
+            await chunks.reload();
+            await action(async () => {});
+          }}
+        />
+      )}
+      <QualityPanel
+        key={`${version.id}:${version.revision}`}
+        versionId={version.id}
+        select={(target, id) => {
+          setPendingSelection(id);
+          setPage(target);
+        }}
+      />
       {typeof location.warning === "string" && location.warning && (
         <div className="notice" role="note">
           解析质量提示：{location.warning}
@@ -132,7 +157,7 @@ export default function ChunkWorkspace({
             </header>
             {selected && (
               <>
-                <SourcePreview chunk={selected} location={location}/>
+                <SourcePreview chunk={selected} location={location} />
               </>
             )}
           </div>
@@ -160,7 +185,20 @@ export default function ChunkWorkspace({
                     </span>
                   </div>
                   <p>{c.content}</p>
-                  <small>修订 {c.revision}{c.context_id ? " · 有关联上下文" : ""}{c.origin==="MANUAL" ? " · 人工补充" : c.origin==="MANUAL_EDIT" ? " · 人工修订" : ""}</small>
+                  {c.tags_json && c.tags_json !== "[]" && (
+                    <small>
+                      标签：{(JSON.parse(c.tags_json) as string[]).join("、")}
+                    </small>
+                  )}
+                  <small>
+                    修订 {c.revision}
+                    {c.context_id ? " · 有关联上下文" : ""}
+                    {c.origin === "MANUAL"
+                      ? " · 人工补充"
+                      : c.origin === "MANUAL_EDIT"
+                        ? " · 人工修订"
+                        : ""}
+                  </small>
                 </button>
               ))}
             </div>
@@ -181,9 +219,39 @@ export default function ChunkWorkspace({
           </div>
         </div>
       )}
-      {selected?.context_id && <ContextPanel key={selected.context_id} version={version} contextId={selected.context_id} saved={async()=>{await chunks.reload();await action(async()=>{});}}/>}
-      {addingFaq && <FaqForm version={version} close={()=>setAddingFaq(false)} saved={async()=>{await chunks.reload();await action(async()=>{});}}/>}
+      {selected?.context_id && (
+        <ContextPanel
+          key={selected.context_id}
+          version={version}
+          contextId={selected.context_id}
+          saved={async () => {
+            await chunks.reload();
+            await action(async () => {});
+          }}
+        />
+      )}
+      {addingFaq && (
+        <FaqForm
+          version={version}
+          close={() => setAddingFaq(false)}
+          saved={async () => {
+            await chunks.reload();
+            await action(async () => {});
+          }}
+        />
+      )}
       <div className="pagination">
+        {!version.ever_published && (
+          <ChunkTools
+            version={version}
+            rows={chunks.data}
+            selected={selected}
+            saved={async () => {
+              await chunks.reload();
+              await action(async () => {});
+            }}
+          />
+        )}
         <button disabled={!page} onClick={() => setPage(page - 1)}>
           上一页
         </button>
@@ -195,6 +263,10 @@ export default function ChunkWorkspace({
           下一页
         </button>
       </div>
+      <ChunkHistory
+        key={`history:${version.id}:${version.revision}`}
+        version={version.id}
+      />
       {editing && selected && (
         <Dialog title="修订知识切片" close={() => setEditing(false)}>
           <form
@@ -219,7 +291,7 @@ export default function ChunkWorkspace({
                 value={edit}
                 onChange={(e) => setEdit(e.target.value)}
                 required
-                maxLength={2000}
+                maxLength={10000}
               />
             </label>
             <label>

@@ -11,6 +11,10 @@ from urllib.parse import urlsplit
 import httpx
 
 from .configuration import KnowledgeConfiguration as KnowledgeConfiguration
+from .content import ChunkEdit as ChunkEdit
+from .content import ChunkOperation as ChunkOperation
+from .content import ChunkRef as ChunkRef
+from .content import ConflictResolution as ConflictResolution
 from .content import FaqInput as FaqInput
 
 
@@ -257,6 +261,53 @@ class Client:
     def document_versions(self, document_id):
         return self._request("GET", f"documents/{_id(document_id)}/versions")
 
+    def document_chunks(self, version_id, *, page=0):
+        return self._request(
+            "GET", f"document-versions/{_id(version_id)}/chunks", params={"page": page}
+        )
+
+    def edit_chunk(self, chunk_id, edit: ChunkEdit):
+        return self._request("PUT", f"chunks/{_id(chunk_id)}", json=asdict(edit))
+
+    def chunk_operation(
+        self, version_id, operation: ChunkOperation, *, idempotency_key=None
+    ):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/chunk-operations",
+            json=asdict(operation),
+            headers=_headers(idempotency_key),
+        )
+
+    def content_conflicts(self, version_id, *, page=0):
+        return self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/content-conflicts",
+            params={"page": page},
+        )
+
+    def chunk_changes(self, version_id, *, page=0):
+        return self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/chunk-changes",
+            params={"page": page},
+        )
+
+    def resolve_content_conflict(
+        self,
+        version_id,
+        conflict_id,
+        resolution: ConflictResolution,
+        *,
+        idempotency_key=None,
+    ):
+        return self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/content-conflicts/{_id(conflict_id)}/resolution",
+            json=asdict(resolution),
+            headers=_headers(idempotency_key),
+        )
+
     def document_contexts(self, version_id, *, page=0):
         return self._request(
             "GET",
@@ -470,6 +521,53 @@ class AsyncClient:
 
     async def document_versions(self, document_id):
         return await self._request("GET", f"documents/{_id(document_id)}/versions")
+
+    async def document_chunks(self, version_id, *, page=0):
+        return await self._request(
+            "GET", f"document-versions/{_id(version_id)}/chunks", params={"page": page}
+        )
+
+    async def edit_chunk(self, chunk_id, edit: ChunkEdit):
+        return await self._request("PUT", f"chunks/{_id(chunk_id)}", json=asdict(edit))
+
+    async def chunk_operation(
+        self, version_id, operation: ChunkOperation, *, idempotency_key=None
+    ):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/chunk-operations",
+            json=asdict(operation),
+            headers=_headers(idempotency_key),
+        )
+
+    async def content_conflicts(self, version_id, *, page=0):
+        return await self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/content-conflicts",
+            params={"page": page},
+        )
+
+    async def chunk_changes(self, version_id, *, page=0):
+        return await self._request(
+            "GET",
+            f"document-versions/{_id(version_id)}/chunk-changes",
+            params={"page": page},
+        )
+
+    async def resolve_content_conflict(
+        self,
+        version_id,
+        conflict_id,
+        resolution: ConflictResolution,
+        *,
+        idempotency_key=None,
+    ):
+        return await self._request(
+            "POST",
+            f"document-versions/{_id(version_id)}/content-conflicts/{_id(conflict_id)}/resolution",
+            json=asdict(resolution),
+            headers=_headers(idempotency_key),
+        )
 
     async def document_contexts(self, version_id, *, page=0):
         return await self._request(

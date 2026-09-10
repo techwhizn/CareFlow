@@ -155,6 +155,7 @@ class KnowledgeConfigurationTest {
             () ->
                 drafts.edit(
                     actor,
+                    token,
                     chunk,
                     new DocumentDraftService.Edit("synthetic edited text", true, 0, "fixture")))
         .isInstanceOfSatisfying(

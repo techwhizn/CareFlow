@@ -309,6 +309,54 @@
         }
       }
     },
+    "/api/v1/entitlement": {
+      "get": {
+        "tags": [
+          "entitlements-controller"
+        ],
+        "operationId": "get_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "entitlements-controller"
+        ],
+        "operationId": "update_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PackageChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/documents/{id}/permissions": {
       "get": {
         "tags": [
@@ -377,7 +425,7 @@
         "tags": [
           "document-metadata-controller"
         ],
-        "operationId": "get_1",
+        "operationId": "get_2",
         "parameters": [
           {
             "name": "id",
@@ -405,7 +453,7 @@
         "tags": [
           "document-metadata-controller"
         ],
-        "operationId": "update_2",
+        "operationId": "update_3",
         "parameters": [
           {
             "name": "id",
@@ -2498,6 +2546,182 @@
           "grants"
         ]
       },
+      "PackageChange": {
+        "type": "object",
+        "properties": {
+          "member_limit": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 100000,
+            "minimum": 0
+          },
+          "knowledge_base_limit": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 100000,
+            "minimum": 0
+          },
+          "storage_limit_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 1000000000000000,
+            "minimum": 0
+          },
+          "processing_limit": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 1000000000,
+            "minimum": 0
+          },
+          "query_limit": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 1000000000000,
+            "minimum": 0
+          },
+          "query_concurrency_limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1000,
+            "minimum": 1
+          },
+          "task_concurrency_limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100,
+            "minimum": 1
+          },
+          "pdf_page_limit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 500,
+            "minimum": 1
+          },
+          "warning_percent": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100,
+            "minimum": 1
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "PackageConfiguration": {
+        "type": "object",
+        "properties": {
+          "member_limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "knowledge_base_limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "storage_limit_bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "processing_limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "query_limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "query_concurrency_limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "task_concurrency_limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pdf_page_limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warning_percent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "used": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "warning": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Snapshot": {
+        "type": "object",
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/PackageConfiguration"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "resources": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "unknown_source_objects": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Metadata": {
         "type": "object",
         "properties": {
@@ -2700,6 +2924,10 @@
           },
           "filename": {
             "type": "string"
+          },
+          "pdf_page_limit": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

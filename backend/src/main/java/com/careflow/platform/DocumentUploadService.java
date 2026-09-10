@@ -15,14 +15,21 @@ public class DocumentUploadService {
   private final BlobStore blobs;
   private final UploadStaging staging;
   private final TransactionTemplate tx;
+  private final EntitlementService entitlements;
 
   public DocumentUploadService(
-      Db db, Identity auth, BlobStore blobs, UploadStaging staging, TransactionTemplate tx) {
+      Db db,
+      Identity auth,
+      BlobStore blobs,
+      UploadStaging staging,
+      TransactionTemplate tx,
+      EntitlementService entitlements) {
     this.db = db;
     this.auth = auth;
     this.blobs = blobs;
     this.staging = staging;
     this.tx = tx;
+    this.entitlements = entitlements;
   }
 
   private record Upload(
@@ -84,7 +91,8 @@ public class DocumentUploadService {
               var existing = existing(upload);
               if (existing != null) return existing;
               duplicate(upload);
-              staging.reserve(stage, actor.tenant(), objectKey);
+              entitlements.upload(actor.tenant(), data.bytes().length);
+              staging.reserve(stage, actor.tenant(), objectKey, data.bytes().length);
               return null;
             });
     if (previous != null) return previous;
@@ -99,6 +107,7 @@ public class DocumentUploadService {
                 var existing = existing(upload);
                 if (existing != null) return existing;
                 duplicate(upload);
+                entitlements.upload(actor.tenant(), 0);
                 staging.attach(stage, actor.tenant());
                 if (document == null)
                   db.exec(

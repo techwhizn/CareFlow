@@ -22,10 +22,12 @@ public class MembershipService {
 
   private final Db db;
   private final Identity auth;
+  private final EntitlementService entitlements;
 
-  public MembershipService(Db db, Identity auth) {
+  public MembershipService(Db db, Identity auth, EntitlementService entitlements) {
     this.db = db;
     this.auth = auth;
+    this.entitlements = entitlements;
   }
 
   public List<Map<String, Object>> list(Actor actor) {
@@ -37,6 +39,7 @@ public class MembershipService {
   public Map<String, Object> create(Actor actor, Create input) {
     auth.admin(actor);
     auth.lock(actor);
+    entitlements.newMember(actor.tenant());
     String member = id();
     db.exec(
         "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,?)",
@@ -59,6 +62,7 @@ public class MembershipService {
         || (!str(before, "role").equals("OWNER") && input.role().equals("OWNER")))
       throw new ApiException(409, "OWNER_REQUIRED", "此操作不能修改企业所有权或禁用所有者");
     boolean active = input.state().equals("ACTIVE"), removed = input.state().equals("REMOVED");
+    if (active && !bool(before, "active")) entitlements.newMember(actor.tenant());
     if (removed
         && !db.list(
                 "SELECT id FROM knowledge_bases WHERE tenant_id=? AND owner_id=? AND status<>'DELETED'",

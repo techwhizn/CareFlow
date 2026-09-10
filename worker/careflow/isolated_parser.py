@@ -1,6 +1,7 @@
 """One bounded process per document; parent always reaps timed-out children."""
 
 import multiprocessing
+import os
 import sys
 import time
 
@@ -14,8 +15,12 @@ class ParseFailure(InvalidFile):
         self.code = code
 
 
-def _child(connection, data, filename):
+def _child(connection, data, filename, pdf_page_limit):
     try:
+        if pdf_page_limit is not None:
+            os.environ["PARSE_MAX_PDF_PAGES"] = str(
+                min(Limits.environment().pdf_pages, pdf_page_limit)
+            )
         if sys.platform == "linux":
             import resource
 
@@ -37,11 +42,15 @@ def _child(connection, data, filename):
         connection.close()
 
 
-def parse_document(data: bytes, filename: str, cancelled=None) -> list[dict]:
+def parse_document(
+    data: bytes, filename: str, cancelled=None, pdf_page_limit=None
+) -> list[dict]:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)
-    process = context.Process(target=_child, args=(sender, data, filename), daemon=True)
+    process = context.Process(
+        target=_child, args=(sender, data, filename, pdf_page_limit), daemon=True
+    )
     try:
         process.start()
         sender.close()

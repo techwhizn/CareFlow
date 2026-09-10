@@ -36,12 +36,17 @@ public class KnowledgeBaseService {
   private final KnowledgeBaseRepository repository;
   private final Identity auth;
   private final ObjectMapper json;
+  private final EntitlementService entitlements;
 
   public KnowledgeBaseService(
-      KnowledgeBaseRepository repository, Identity auth, ObjectMapper json) {
+      KnowledgeBaseRepository repository,
+      Identity auth,
+      ObjectMapper json,
+      EntitlementService entitlements) {
     this.repository = repository;
     this.auth = auth;
     this.json = json;
+    this.entitlements = entitlements;
   }
 
   private boolean readable(Actor actor, String id) {
@@ -84,6 +89,7 @@ public class KnowledgeBaseService {
   public Map<String, Object> create(Actor actor, Create input) {
     auth.manager(actor);
     auth.lock(actor);
+    entitlements.newKnowledgeBase(actor.tenant());
     String id = id();
     repository.create(
         actor.tenant(),

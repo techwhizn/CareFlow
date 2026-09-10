@@ -13,12 +13,19 @@ public class RetrievalService {
   private final Identity auth;
   private final WorkerClient worker;
   private final TransactionTemplate tx;
+  private final EntitlementService entitlements;
 
-  public RetrievalService(Db db, Identity auth, WorkerClient worker, TransactionTemplate tx) {
+  public RetrievalService(
+      Db db,
+      Identity auth,
+      WorkerClient worker,
+      TransactionTemplate tx,
+      EntitlementService entitlements) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
     this.tx = tx;
+    this.entitlements = entitlements;
   }
 
   public record Query(
@@ -103,6 +110,7 @@ public class RetrievalService {
                   key);
           if (!previous.isEmpty())
             throw new ApiException(409, "DUPLICATE_REQUEST", "此请求已处理或处理中，请查询历史结果，勿重复计费");
+          entitlements.query(actor.tenant());
           if (db.exec(
                   "UPDATE tenants SET queries_reserved=queries_reserved+1 WHERE id=? AND queries_used+queries_reserved<query_limit",
                   actor.tenant())

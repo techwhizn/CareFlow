@@ -58,7 +58,10 @@ def run_job(job_id):
                 checkpoint("SOURCE_READY")
                 result = {
                     "chunks": parse_document(
-                        source.content, job["filename"], cancelled=lease_lost.is_set
+                        source.content,
+                        job["filename"],
+                        cancelled=lease_lost.is_set,
+                        pdf_page_limit=job["pdf_page_limit"],
                     )
                 }
                 result = ParseCompletion.model_validate(result).model_dump()

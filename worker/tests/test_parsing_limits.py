@@ -80,3 +80,18 @@ def test_lease_loss_terminates_parser_child():
         )
     assert error.value.code == "LEASE_LOST"
     assert {p.pid for p in multiprocessing.active_children()} == before
+
+
+def test_tenant_pdf_limit_rejects_in_child_without_changing_parent(monkeypatch):
+    from pypdf import PdfWriter
+
+    writer = PdfWriter()
+    for _ in range(2):
+        writer.add_blank_page(width=100, height=100)
+    stream = BytesIO()
+    writer.write(stream)
+    monkeypatch.setenv("PARSE_MAX_PDF_PAGES", "500")
+    with pytest.raises(ParseFailure) as error:
+        parse_document(stream.getvalue(), "two.pdf", pdf_page_limit=1)
+    assert error.value.code == "INVALID_FILE"
+    assert Limits.environment().pdf_pages == 500

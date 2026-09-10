@@ -602,7 +602,8 @@
       "V1-04"
     ],
     "acceptance": "管理员设置成员/库数/空间/处理/查询/并发限制及有效期；到期停用规则清楚，超限原子校验，额度预警；不要求在线支付。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-36-entitlements.md"
   },
   {
     "id": "V1-37",

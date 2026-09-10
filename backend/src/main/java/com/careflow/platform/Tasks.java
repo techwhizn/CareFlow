@@ -21,17 +21,20 @@ public class Tasks {
   private final TransactionTemplate tx;
   private final boolean enabled;
   private final Identity auth;
+  private final EntitlementService entitlements;
 
   public Tasks(
       Db db,
       RabbitTemplate rabbit,
       TransactionTemplate tx,
       Identity auth,
+      EntitlementService entitlements,
       @Value("${careflow.scheduling}") boolean enabled) {
     this.db = db;
     this.rabbit = rabbit;
     this.tx = tx;
     this.auth = auth;
+    this.entitlements = entitlements;
     this.enabled = enabled;
   }
 
@@ -140,6 +143,7 @@ public class Tasks {
               db.one(
                   "SELECT v.* FROM document_versions v JOIN documents d ON d.id=v.document_id JOIN knowledge_bases k ON k.id=d.kb_id WHERE v.id=? AND d.status='ACTIVE' AND k.status='ACTIVE'",
                   str(j, "version_id"));
+          entitlements.claimTask(str(j, "tenant_id"), j);
           String lease = id();
           db.exec(
               "UPDATE jobs SET state='RUNNING',attempts=attempts+1,checkpoint='STARTED',error_code=NULL,heartbeat_at=CURRENT_TIMESTAMP,lease_token=?,lease_until=? WHERE id=?",
@@ -162,7 +166,11 @@ public class Tasks {
               "version_id",
               str(j, "version_id"),
               "filename",
-              str(v, "filename"));
+              str(v, "filename"),
+              "pdf_page_limit",
+              num(
+                  db.one("SELECT pdf_page_limit FROM tenants WHERE id=?", str(j, "tenant_id")),
+                  "pdf_page_limit"));
         });
   }
 

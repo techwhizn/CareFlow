@@ -56,7 +56,8 @@ public final class WorkerProtocolV1 {
       String kind,
       String tenant_id,
       String version_id,
-      String filename) {}
+      String filename,
+      int pdf_page_limit) {}
 
   public record IndexChunk(String id, String content) {}
 

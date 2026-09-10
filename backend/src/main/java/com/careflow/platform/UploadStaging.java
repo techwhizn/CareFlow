@@ -29,13 +29,14 @@ public class UploadStaging {
   }
 
   // Called inside the short prepare transaction; every object key is unique and never reused.
-  public void reserve(String id, String tenant, String key) {
+  public void reserve(String id, String tenant, String key, long bytes) {
     db.exec(
-        "INSERT INTO upload_staging(id,tenant_id,object_key,expires_at) VALUES(?,?,?,?)",
+        "INSERT INTO upload_staging(id,tenant_id,object_key,expires_at,size_bytes) VALUES(?,?,?,?,?)",
         id,
         tenant,
         key,
-        Timestamp.from(Instant.now().plusSeconds(900)));
+        Timestamp.from(Instant.now().plusSeconds(900)),
+        bytes);
   }
 
   public void attach(String id, String tenant) {

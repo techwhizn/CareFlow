@@ -86,6 +86,158 @@ class PlatformBoundaryTest {
         version);
   }
 
+  @Autowired EntitlementService entitlements;
+
+  @Test
+  void entitlementUpdatesValidatePeriodRevisionAndWarnWithoutResettingUsage() throws Exception {
+    var snapshot = entitlements.snapshot(actor);
+    assertThat(snapshot.unknown_source_objects()).isEqualTo(1);
+    assertThat(snapshot.resources().get("storage_bytes").used()).isEqualTo(52428800);
+    var input = json.convertValue(snapshot.configuration(), Map.class);
+    input.put("reason", "Synthetic quota test");
+    input.put("member_limit", 1);
+    input.put("active", false);
+    mvc.perform(
+            put("/api/v1/entitlement")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(input)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.available").value(false))
+        .andExpect(jsonPath("$.resources.members.warning").value(true));
+    mvc.perform(
+            put("/api/v1/entitlement")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(input)))
+        .andExpect(status().isConflict());
+    assertThatThrownBy(() -> retrieval.reserve(actor, Db.id(), ""))
+        .isInstanceOf(ApiException.class)
+        .hasMessageContaining("套餐");
+    input.put("revision", 1);
+    input.put("active", true);
+    input.put("starts_at", "2027-01-01T00:00:00Z");
+    input.put("expires_at", "2026-01-01T00:00:00Z");
+    mvc.perform(
+            put("/api/v1/entitlement")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(input)))
+        .andExpect(status().isBadRequest());
+    input.put("starts_at", null);
+    input.put("expires_at", "2000-01-01T00:00:00Z");
+    mvc.perform(
+            put("/api/v1/entitlement")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(input)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.available").value(false));
+    input.put("revision", 2);
+    input.put("expires_at", null);
+    mvc.perform(
+            put("/api/v1/entitlement")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsBytes(input)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.available").value(true));
+    String user = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'USER')", user, tenant, "Reader");
+    mvc.perform(
+            get("/api/v1/entitlement")
+                .header("Authorization", "Bearer " + auth.credential(tenant, user, "MEMBER", null)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void resourceLimitsRejectBeforeCreatingMembersBasesOrUploadingBytes() throws Exception {
+    db.exec(
+        "UPDATE tenants SET member_limit=1,knowledge_base_limit=1,storage_limit_bytes=52428800 WHERE id=?",
+        tenant);
+    mvc.perform(
+            post("/api/v1/members")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"name\":\"Synthetic\",\"role\":\"USER\"}"))
+        .andExpect(status().isTooManyRequests());
+    mvc.perform(
+            post("/api/v1/knowledge-bases")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content("{\"name\":\"Synthetic\",\"description\":\"\"}"))
+        .andExpect(status().isTooManyRequests());
+    mvc.perform(
+            multipart("/api/v1/knowledge-bases/" + kb + "/documents")
+                .file(new MockMultipartFile("file", "quota.txt", "text/plain", new byte[] {1}))
+                .header("Authorization", token)
+                .header("Idempotency-Key", Db.id()))
+        .andExpect(status().isTooManyRequests());
+    org.mockito.Mockito.verifyNoInteractions(blobs);
+  }
+
+  @Test
+  void taskQuotaCountsFirstClaimOnlyAndConcurrencyPreventsAnotherLease() {
+    db.exec(
+        "UPDATE tenants SET processing_limit=1,task_concurrency_limit=1,pdf_page_limit=2 WHERE id=?",
+        tenant);
+    String first = Db.id(), second = Db.id();
+    for (String job : List.of(first, second))
+      db.exec(
+          "INSERT INTO jobs(id,tenant_id,version_id,kind,request_key) VALUES(?,?,?,'PARSE',?)",
+          job,
+          tenant,
+          version,
+          Db.id());
+    assertThat(Db.num(tasks.claim(first), "pdf_page_limit")).isEqualTo(2);
+    assertThatThrownBy(() -> tasks.claim(second)).isInstanceOf(ApiException.class);
+    db.exec(
+        "UPDATE jobs SET lease_until=? WHERE id=?",
+        java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),
+        first);
+    tasks.recover();
+    tasks.claim(first);
+    assertThat(
+            Db.num(
+                db.one("SELECT processing_used FROM tenants WHERE id=?", tenant),
+                "processing_used"))
+        .isEqualTo(1);
+    tasks.cancel(actor, first);
+    assertThatThrownBy(() -> tasks.claim(second)).isInstanceOf(ApiException.class);
+    assertThat(Db.num(db.one("SELECT attempts FROM jobs WHERE id=?", second), "attempts")).isZero();
+  }
+
+  @Test
+  void queryConcurrencyIsAtomicAndReleasesOnFailure() throws Exception {
+    db.exec("UPDATE tenants SET query_concurrency_limit=1 WHERE id=?", tenant);
+    try (var pool = Executors.newFixedThreadPool(4)) {
+      var calls = new ArrayList<Future<String>>();
+      for (int i = 0; i < 4; i++)
+        calls.add(
+            pool.submit(
+                () -> {
+                  try {
+                    return retrieval.reserve(actor, Db.id(), "");
+                  } catch (ApiException e) {
+                    return "rejected";
+                  }
+                }));
+      var accepted = new ArrayList<String>();
+      for (var call : calls) {
+        String value = call.get();
+        if (!value.equals("rejected")) accepted.add(value);
+      }
+      assertThat(accepted).hasSize(1);
+      retrieval.settle(actor, accepted.getFirst(), false);
+      String next = retrieval.reserve(actor, Db.id(), "");
+      retrieval.settle(actor, next, false);
+      assertThat(
+              Db.num(db.one("SELECT queries_used FROM tenants WHERE id=?", tenant), "queries_used"))
+          .isZero();
+    }
+  }
+
   @Test
   void archiveRestoreAndDeleteKeepAuthorizationAndEnqueueCleanup() throws Exception {
     var query = new Query("fixture", null, List.of(kb), "keyword", 6, false, null);

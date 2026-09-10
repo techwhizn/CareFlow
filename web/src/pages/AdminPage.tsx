@@ -1,3 +1,4 @@
+import EntitlementPanel from "../features/entitlements/EntitlementPanel";
 import { Plus } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Row } from "../api";
@@ -56,32 +57,7 @@ export default function AdminPage({ page }: { page: Page }) {
               <span>正在处理</span>
             </div>
           </div>
-          <form
-            className="inline-form"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              try {
-                await put("/quota", {
-                  limit: Number(f.get("limit")),
-                  reason: f.get("reason"),
-                });
-                await data.reload();
-              } catch (e) {
-                setError((e as Error).message);
-              }
-            }}
-          >
-            <label>
-              调整总额度
-              <input name="limit" type="number" min="0" required />
-            </label>
-            <label>
-              调整原因
-              <input name="reason" required />
-            </label>
-            <button>保存额度</button>
-          </form>
+          <EntitlementPanel changed={data.reload} />
           <DataTable
             rows={data.data.events}
             fields={["resource_type", "amount", "state", "created_at"]}

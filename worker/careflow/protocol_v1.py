@@ -79,6 +79,7 @@ class TaskClaim(Contract):
     tenant_id: str
     version_id: str
     filename: str
+    pdf_page_limit: int = Field(default=500, ge=1, le=500)
 
 
 class ParsedChunk(Contract):

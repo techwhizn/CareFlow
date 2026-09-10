@@ -38,7 +38,10 @@ public class UsageAdministrationService {
     auth.admin(actor);
     auth.lock(actor);
     var old = db.one("SELECT query_limit FROM tenants WHERE id=?", actor.tenant());
-    db.exec("UPDATE tenants SET query_limit=? WHERE id=?", body.limit(), actor.tenant());
+    db.exec(
+        "UPDATE tenants SET query_limit=?,entitlement_revision=entitlement_revision+1 WHERE id=?",
+        body.limit(),
+        actor.tenant());
     auth.audit(
         actor,
         "QUOTA_ADJUST",

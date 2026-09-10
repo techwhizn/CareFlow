@@ -58,4 +58,6 @@ docker run -d --name careflow-local-models --cpus=2 --memory=4g --pids-limit=128
 
 用量返回真实attention mask Token数，包含特殊token；这是本地推理输入量，不是云供应商账单。CPU延迟与资源上限需实际验证，不能视为生产性能承诺。
 
+现提供认证后的 `POST /v1/tokenize`：请求与Embedding一致，返回固定模型修订、每条完整输入的原生Token数及512窗口，包含特殊Token且不截断。知识库切片配置选择 `model_tokenizer=provider`，可在索引前自动细分长文，详见[切片契约](../../docs/chunking.md)。重排窗口包含问题与候选，仍独立校验。
+
 接口单元测试使用明确的FixtureEngine，运行`PYTHONPATH=tools/local-models uv run --project worker pytest tools/local-models/tests -q`；这些测试不代表模型已下载或真实推理通过。

@@ -7,7 +7,7 @@ type Model = { id: string; name: string; kind: Kind; model: string; revision: nu
 type Definition = {
   name: string;
   parsing: { pdf_page_limit: number };
-  chunking: { target: number; maximum: number; overlap: number };
+  chunking: { target: number; maximum: number; overlap: number; strategy: string; include_context: boolean; model_tokenizer: string; model_maximum: number };
   retrieval: { mode: string; limit: number; minimum_rerank_score: number | null; allow_degraded: boolean };
   models: { embedding_profile_id: string; rerank_profile_id: string; generation_profile_id: string;
     embedding_profile_revision: number; rerank_profile_revision: number; generation_profile_revision: number };
@@ -66,7 +66,7 @@ function DefinitionForm({ models, initial, close, save }: { models: Model[]; ini
       const revision = (kind: string) => models.find(model => model.id === id(kind))!.revision;
       const score = String(data.get("minimum_rerank_score"));
       try { await save({ name: String(data.get("name")), parsing: { pdf_page_limit: number("pdf_page_limit") },
-        chunking: { target: number("target"), maximum: number("maximum"), overlap: number("overlap") },
+        chunking: { target: number("target"), maximum: number("maximum"), overlap: number("overlap"), strategy: String(data.get("strategy")), include_context: data.has("include_context"), model_tokenizer: String(data.get("model_tokenizer")), model_maximum: number("model_maximum") },
         retrieval: { mode: String(data.get("mode")), limit: number("limit"), minimum_rerank_score: score === "" ? null : Number(score), allow_degraded: data.has("allow_degraded") },
         models: { embedding_profile_id: id("embedding"), rerank_profile_id: id("rerank"), generation_profile_id: id("generation"),
           embedding_profile_revision: revision("embedding"), rerank_profile_revision: revision("rerank"), generation_profile_revision: revision("generation") } });
@@ -82,11 +82,15 @@ function DefinitionForm({ models, initial, close, save }: { models: Model[]; ini
       <label>切片目标Token<input name="target" type="number" required min={1} max={600} defaultValue={initial?.chunking.target ?? 200} /></label>
       <label>切片Token上限<input name="maximum" type="number" required min={1} max={600} defaultValue={initial?.chunking.maximum ?? 300} /></label>
       <label>重叠Token<input name="overlap" type="number" required min={0} max={599} defaultValue={initial?.chunking.overlap ?? 30} /></label>
+      <label>切片方式<select name="strategy" defaultValue={initial?.chunking.strategy ?? "recursive"}><option value="recursive">按段落和句子递归细分</option><option value="token">按Token预算细分</option></select></label>
+      <label><input name="include_context" type="checkbox" defaultChecked={initial?.chunking.include_context ?? true} />每个片段保留标题和表头上下文</label>
+      <label>模型输入计数<select name="model_tokenizer" defaultValue={initial?.chunking.model_tokenizer ?? "cl100k_base"}><option value="cl100k_base">cl100k_base（模型须使用相同计数方式）</option><option value="provider">模型原生计数（服务须支持）</option></select></label>
+      <label>模型输入Token上限<input name="model_maximum" type="number" required min={1} max={131072} defaultValue={initial?.chunking.model_maximum ?? 600} /></label>
       <label>默认检索模式<select name="mode" defaultValue={initial?.retrieval.mode ?? "hybrid"}><option value="hybrid">混合检索</option><option value="semantic">语义检索</option><option value="keyword">关键词检索</option></select></label>
       <label>最多证据数<input name="limit" type="number" required min={1} max={6} defaultValue={initial?.retrieval.limit ?? 6} /></label>
       <label>最低重排分数（可选）<input name="minimum_rerank_score" type="number" step="any" defaultValue={initial?.retrieval.minimum_rerank_score ?? ""} /></label>
       <label><input name="allow_degraded" type="checkbox" defaultChecked={initial?.retrieval.allow_degraded ?? false} />允许明确标记的检索降级</label>
-      <p className="muted">要求重叠小于目标，目标不超过上限。处理Token与模型自身Token窗口可能不同，模型超限会明确失败。</p>
+      <p className="muted">标题与表头计入预算。原生计数采用配置上限与服务实际窗口中的较小值，超限片段继续细分；不能容纳上下文或计数服务不可用时明确失败。BGE请选择原生计数。</p>
       <button className="primary" disabled={busy || kindFields.some(([kind]) => !models.some(model => model.kind === kind))}>保存草稿</button>
     </form>
   </Dialog>;

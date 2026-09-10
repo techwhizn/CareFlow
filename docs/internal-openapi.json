@@ -561,11 +561,37 @@
       },
       "Tokenize": {
         "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "text": {
             "type": "string",
             "maxLength": 10000,
             "minLength": 1,
             "title": "Text"
+          },
+          "model_tokenizer": {
+            "type": "string",
+            "enum": [
+              "cl100k_base",
+              "provider"
+            ],
+            "title": "Model Tokenizer",
+            "default": "cl100k_base"
+          },
+          "model_maximum": {
+            "type": "integer",
+            "maximum": 131072.0,
+            "minimum": 1.0,
+            "title": "Model Maximum",
+            "default": 600
           }
         },
         "additionalProperties": false,
@@ -582,12 +608,26 @@
             "maximum": 100000.0,
             "minimum": 0.0,
             "title": "Token Count"
+          },
+          "model_token_count": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Model Token Count"
+          },
+          "model_limit": {
+            "type": "integer",
+            "maximum": 131072.0,
+            "minimum": 1.0,
+            "title": "Model Limit"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "token_count"
+          "token_count",
+          "model_token_count",
+          "model_limit"
         ],
         "title": "TokenizeResponse"
       },

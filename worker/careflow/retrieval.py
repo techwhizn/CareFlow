@@ -73,14 +73,27 @@ def ensure_collection(tenant):
     return name
 
 
-def index(tenant, version, chunks):
+def index(tenant, version, chunks, chunking=None):
     import tiktoken
 
     if not chunks:
         raise ValueError("Cannot index empty document")
     encoding = tiktoken.get_encoding("cl100k_base")
-    if any(len(encoding.encode(c["content"])) > 600 for c in chunks):
+    if any(
+        len(encoding.encode(c["content"], disallowed_special=())) > 600 for c in chunks
+    ):
         raise ValueError("Edited chunk exceeds 600-token limit")
+    if chunking:
+        counts, actual_limit = models.input_tokens(
+            [c["content"] for c in chunks], chunking.model_tokenizer
+        )
+        if any(count > min(actual_limit, chunking.model_maximum) for count in counts):
+            raise ValueError("Edited chunk exceeds model input limit")
+        if any(
+            len(encoding.encode(c["content"], disallowed_special=())) > chunking.maximum
+            for c in chunks
+        ):
+            raise ValueError("Edited chunk exceeds configured token limit")
     name = ensure_collection(tenant)
     vectors, usage = models.embed([c["content"] for c in chunks])
     records = [

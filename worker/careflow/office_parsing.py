@@ -68,6 +68,7 @@ def docx_blocks(data: bytes) -> list[Block]:
                         "column_start": 1,
                         "column_end": len(row.cells),
                         "title_path": [t for _, t in headings],
+                        "headers": header,
                     },
                     warning,
                 )
@@ -118,6 +119,7 @@ def xlsx_blocks(data: bytes) -> list[Block]:
                             "column_start": 1,
                             "column_end": len(row),
                             "cell_range": f"A{row_no}:{get_column_letter(len(row))}{row_no}",
+                            "headers": header,
                         },
                         warning,
                     )

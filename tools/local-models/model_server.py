@@ -91,6 +91,10 @@ class Models:
             vectors = self.torch.nn.functional.normalize(vectors, p=2, dim=1)
         return vectors.tolist(), int(batch["attention_mask"].sum().item())
 
+    def token_counts(self, texts):
+        batch = self.tokenizers["embedding"](texts, padding=False, truncation=False)
+        return [len(ids) for ids in batch["input_ids"]]
+
     def rerank(self, query, documents):
         scores, tokens = [], 0
         for start in range(0, len(documents), 4):
@@ -159,6 +163,18 @@ def create_app(engine=None, token=None):
                 {"index": i, "embedding": vector} for i, vector in enumerate(vectors)
             ],
             "usage": {"total_tokens": tokens},
+        }
+
+    @app.post("/v1/tokenize")
+    def tokenize(request: EmbeddingRequest):
+        counts = run(
+            "embedding", request.model, lambda model: model.token_counts(request.input)
+        )
+        return {
+            "model": request.model,
+            "revision": MODELS["embedding"][1],
+            "counts": counts,
+            "max_input_tokens": 512,
         }
 
     @app.post("/v1/rerank")

@@ -131,6 +131,49 @@ class KnowledgeConfigurationTest {
   }
 
   @Test
+  void editedChunksMustFitTheFrozenModelWindowBeforeSaving() throws Exception {
+    var original = definition("native tokenizer", 120);
+    var configured =
+        new Definition(
+            original.name(),
+            original.parsing(),
+            new Chunking(120, 200, 10, "recursive", true, "provider", 512),
+            original.retrieval(),
+            original.models());
+    publish(configurations.create(actor, kb, configured).id(), 0);
+    var uploaded = upload("model-budget.txt");
+    String version = Db.str(uploaded, "version_id"), chunk = Db.id();
+    db.exec("UPDATE document_versions SET state='PARSED' WHERE id=?", version);
+    db.exec(
+        "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count) VALUES(?,?,?,0,'source','source','{}',1)",
+        chunk,
+        tenant,
+        version);
+    when(worker.call(eq("/internal/v1/tokenize"), any()))
+        .thenReturn(Map.of("token_count", 100, "model_token_count", 600, "model_limit", 512));
+    assertThatThrownBy(
+            () ->
+                drafts.edit(
+                    actor,
+                    chunk,
+                    new DocumentDraftService.Edit("synthetic edited text", true, 0, "fixture")))
+        .isInstanceOfSatisfying(
+            ApiException.class, error -> assertThat(error.code).isEqualTo("MODEL_INPUT_TOO_LONG"));
+    assertThat(Db.str(db.one("SELECT content FROM chunks WHERE id=?", chunk), "content"))
+        .isEqualTo("source");
+    verify(worker)
+        .call(
+            eq("/internal/v1/tokenize"),
+            argThat(
+                body ->
+                    body instanceof Map<?, ?> values
+                        && "provider".equals(values.get("model_tokenizer"))
+                        && Integer.valueOf(512).equals(values.get("model_maximum"))
+                        && values.get("model_configuration")
+                            instanceof WorkerProtocolV1.ModelConfiguration));
+  }
+
+  @Test
   void immutableDraftsFreezeProfilesHideCredentialsAndRequirePublication() throws Exception {
     String config = configuration("first", 120);
     assertThat(

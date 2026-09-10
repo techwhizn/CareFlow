@@ -67,9 +67,21 @@ public final class WorkerProtocolV1 {
       @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence,
       @Valid ModelConfiguration model_configuration) {}
 
-  public record TokenizeRequest(@NotBlank @Size(max = 10000) String text) {}
+  public record TokenizeRequest(
+      @NotBlank @Size(max = 10000) String text,
+      @Valid ModelConfiguration model_configuration,
+      @Pattern(regexp = "cl100k_base|provider") String model_tokenizer,
+      @Min(1) @Max(131072) Integer model_maximum) {
+    public TokenizeRequest {
+      model_tokenizer = model_tokenizer == null ? "cl100k_base" : model_tokenizer;
+      model_maximum = model_maximum == null ? 600 : model_maximum;
+    }
+  }
 
-  public record TokenizeResponse(@NotNull @Min(0) @Max(100000) Integer token_count) {}
+  public record TokenizeResponse(
+      @NotNull @Min(0) @Max(100000) Integer token_count,
+      @NotNull @Min(0) @Max(100000) Integer model_token_count,
+      @NotNull @Min(1) @Max(131072) Integer model_limit) {}
 
   public record TaskClaim(
       String id,

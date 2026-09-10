@@ -79,6 +79,7 @@ def run_job(job_id):
                         chunking=configuration.chunking.model_dump()
                         if configuration
                         else None,
+                        embedding=configuration.embedding if configuration else None,
                     )
                 }
                 result = ParseCompletion.model_validate(result).model_dump()
@@ -91,7 +92,10 @@ def run_job(job_id):
                     configuration.embedding if configuration else None
                 ):
                     result = retrieval.index(
-                        job["tenant_id"], job["version_id"], chunks.json()
+                        job["tenant_id"],
+                        job["version_id"],
+                        chunks.json(),
+                        chunking=configuration.chunking if configuration else None,
                     )
                 result = IndexCompletion.model_validate(result).model_dump()
                 checkpoint("INDEX_VERIFIED")

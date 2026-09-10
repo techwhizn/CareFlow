@@ -38,14 +38,24 @@ public class DocumentDraftService {
       throw new ApiException(409, "IMMUTABLE_PUBLICATION", "已发布版本不可修改，请先复制为草稿");
     if (!Set.of("PARSED", "READY", "FAILED").contains(str(v, "state")))
       throw new ApiException(409, "PROCESSING", "任务执行中不可编辑");
-    var tokenized = worker.call("/internal/v1/tokenize", Map.of("text", body.content()));
-    long tokens = num(tokenized, "token_count");
     String configuration = str(v, "configuration_id");
+    Map<String, Object> tokenRequest = new HashMap<>(Map.of("text", body.content()));
+    if (!configuration.isBlank()) {
+      var runtime = configurations.runtime(actor.tenant(), configuration);
+      tokenRequest.put("model_configuration", runtime.embedding());
+      tokenRequest.put("model_tokenizer", runtime.chunking().model_tokenizer());
+      tokenRequest.put("model_maximum", runtime.chunking().model_maximum());
+    }
+    var tokenized = worker.call("/internal/v1/tokenize", tokenRequest);
+    long tokens = num(tokenized, "token_count");
     int maximum =
         configuration.isBlank()
             ? 600
             : configurations.definition(actor.tenant(), configuration).chunking().maximum();
     if (tokens > maximum) throw new ApiException(400, "CHUNK_TOO_LONG", "切片超过配置的Token上限，请缩短后保存");
+    if (tokenized.get("model_token_count") != null
+        && num(tokenized, "model_token_count") > num(tokenized, "model_limit"))
+      throw new ApiException(400, "MODEL_INPUT_TOO_LONG", "切片超过模型实际输入窗口，请拆分后保存");
     if (db.exec(
             "UPDATE chunks SET content=?,token_count=?,enabled=?,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
             body.content(),

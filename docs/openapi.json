@@ -3210,6 +3210,23 @@
             "format": "int32",
             "maximum": 599,
             "minimum": 0
+          },
+          "strategy": {
+            "type": "string",
+            "pattern": "recursive|token"
+          },
+          "include_context": {
+            "type": "boolean"
+          },
+          "model_tokenizer": {
+            "type": "string",
+            "pattern": "cl100k_base|provider"
+          },
+          "model_maximum": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 131072,
+            "minimum": 1
           }
         }
       },

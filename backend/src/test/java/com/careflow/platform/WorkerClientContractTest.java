@@ -27,7 +27,7 @@ class WorkerClientContractTest {
 
   @BeforeEach
   void start() throws Exception {
-    response = "{\"token_count\":3}";
+    response = "{\"token_count\":3,\"model_token_count\":4,\"model_limit\":512}";
     status = 200;
     delay = 0;
     validation = Validation.buildDefaultValidatorFactory();
@@ -84,6 +84,9 @@ class WorkerClientContractTest {
     assertThat(client.call("/internal/v1/tokenize", Map.of("text", "fixture")).get("token_count"))
         .isEqualTo(3);
     assertThat(receivedToken).isEqualTo(TOKEN);
+    response = "{\"token_count\":3}";
+    assertThatThrownBy(() -> client.call("/internal/v1/tokenize", Map.of("text", "fixture")))
+        .isInstanceOf(ApiException.class);
     response = "{}";
     assertThatThrownBy(() -> client.call("/internal/v1/tokenize", Map.of("text", "fixture")))
         .isInstanceOf(ApiException.class);

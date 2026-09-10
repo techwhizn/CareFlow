@@ -122,6 +122,19 @@ def stream(body: Generate):
 
 @app.post("/internal/v1/tokenize", response_model=TokenizeResponse)
 def tokenize(body: Tokenize):
-    import tiktoken
-
-    return {"token_count": len(tiktoken.get_encoding("cl100k_base").encode(body.text))}
+    try:
+        if (
+            body.model_configuration is not None
+            and body.model_configuration.kind != "EMBEDDING"
+        ):
+            raise ValueError("Embedding tokenizer required")
+        with use_configuration(body.model_configuration):
+            counts, limit = models.input_tokens([body.text], body.model_tokenizer)
+        logical, _ = models.input_tokens([body.text])
+        return {
+            "token_count": logical[0],
+            "model_token_count": counts[0],
+            "model_limit": min(limit, body.model_maximum),
+        }
+    except Exception as exc:
+        raise HTTPException(503, "TOKENIZER_UNAVAILABLE") from exc

@@ -20,6 +20,22 @@ class FixtureEngine:
     def rerank(self, query, documents):
         return [0.1, 0.9][: len(documents)], 7
 
+    def token_counts(self, texts):
+        return [len(text) + 2 for text in texts]
+
+
+def test_tokenizer_reports_pinned_identity_and_includes_special_tokens():
+    with TestClient(create_app(FixtureEngine(), TOKEN)) as client:
+        body = {"model": MODELS["embedding"][0], "input": ["ab", "abcdef"]}
+        assert client.post("/v1/tokenize", json=body).status_code == 401
+        response = client.post("/v1/tokenize", headers=HEADERS, json=body)
+        assert response.json() == {
+            "model": MODELS["embedding"][0],
+            "revision": MODELS["embedding"][1],
+            "counts": [4, 8],
+            "max_input_tokens": 512,
+        }
+
 
 def test_authentication_model_identity_input_and_actual_usage_contract():
     with TestClient(create_app(FixtureEngine(), TOKEN)) as client:

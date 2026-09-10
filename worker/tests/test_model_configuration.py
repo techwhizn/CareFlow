@@ -184,7 +184,7 @@ def test_consumer_uses_claim_snapshot_without_serializing_secret_as_mask(monkeyp
             completed.append(json.loads(request.content))
         return httpx.Response(200, json={})
 
-    def index(*args):
+    def index(*args, **kwargs):
         assert value("EMBEDDING_MODEL") == "snapshot-model"
         assert value("EMBEDDING_API_KEY") == "unmasked-fixture-secret"
         return {

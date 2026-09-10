@@ -14,6 +14,10 @@ class ChunkingConfiguration:
     target: int = 200
     maximum: int = 300
     overlap: int = 30
+    strategy: Literal["recursive", "token"] = "recursive"
+    include_context: bool = True
+    model_tokenizer: Literal["cl100k_base", "provider"] = "cl100k_base"
+    model_maximum: int = 600
 
 
 @dataclass(frozen=True)

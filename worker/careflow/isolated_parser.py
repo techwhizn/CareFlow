@@ -5,6 +5,7 @@ import os
 import sys
 import time
 
+from careflow.models import ModelUnavailable
 from careflow.parsing_limits import Limits, bounded
 from careflow.parsing_types import InvalidFile
 
@@ -25,18 +26,22 @@ def _limit_process():
         resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
 
 
-def _child(connection, data, filename, pdf_page_limit, chunking):
+def _child(connection, data, filename, pdf_page_limit, chunking, embedding):
     try:
         if pdf_page_limit is not None:
             os.environ["PARSE_MAX_PDF_PAGES"] = str(
                 min(Limits.environment().pdf_pages, pdf_page_limit)
             )
         _limit_process()
+        from careflow.model_configuration import use_configuration
         from careflow.parsing import chunk, parse
 
-        connection.send(("OK", chunk(parse(data, filename), **(chunking or {}))))
+        with use_configuration(embedding):
+            connection.send(("OK", chunk(parse(data, filename), **(chunking or {}))))
     except MemoryError:
         connection.send(("PARSE_RESOURCE_LIMIT", None))
+    except ModelUnavailable:
+        connection.send(("MODEL_TOKENIZER_UNAVAILABLE", None))
     except InvalidFile:
         connection.send(("INVALID_FILE", None))
     except Exception:
@@ -47,14 +52,19 @@ def _child(connection, data, filename, pdf_page_limit, chunking):
 
 
 def parse_document(
-    data: bytes, filename: str, cancelled=None, pdf_page_limit=None, chunking=None
+    data: bytes,
+    filename: str,
+    cancelled=None,
+    pdf_page_limit=None,
+    chunking=None,
+    embedding=None,
 ) -> list[dict]:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)
     process = context.Process(
         target=_child,
-        args=(sender, data, filename, pdf_page_limit, chunking),
+        args=(sender, data, filename, pdf_page_limit, chunking, embedding),
         daemon=True,
     )
     try:

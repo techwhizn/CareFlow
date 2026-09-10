@@ -1,16 +1,16 @@
 """Bounded, source-addressable parsing; parser exceptions are terminal failures."""
 
 import csv
-import json
 import re
 import zipfile
 from io import BytesIO, StringIO
 from pathlib import PurePath
 
+from careflow.chunking import chunk as chunk
 from careflow.office_parsing import docx_blocks, xlsx_blocks
 from careflow.parsing_limits import Limits
 from careflow.parsing_types import Block, InvalidFile
-from careflow.text_parsing import clean_segment, markdown_blocks, repeated_page_margins
+from careflow.text_parsing import markdown_blocks, repeated_page_margins
 
 
 def _zip_guard(data: bytes, expected: str):
@@ -71,6 +71,7 @@ def parse(data: bytes, filename: str) -> list[Block]:
                             "columns": len(row),
                             "column_start": 1,
                             "column_end": len(row),
+                            "headers": header,
                         },
                         "列数与表头不一致，请核对" if len(row) != len(header) else "",
                     )
@@ -145,68 +146,3 @@ def parse(data: bytes, filename: str) -> list[Block]:
     if sum(len(b.text) for b in blocks) > 10_000_000:
         raise InvalidFile("Extracted text exceeds processing limit")
     return repeated_page_margins(blocks)
-
-
-def chunk(blocks: list[Block], target=400, maximum=600, overlap=60) -> list[dict]:
-    import tiktoken
-
-    if not 0 <= overlap < target <= maximum <= 600:
-        raise ValueError("Invalid token configuration")
-    encoding = tiktoken.get_encoding("cl100k_base")
-    output = []
-    for block in blocks:
-        # Split on Unicode character boundaries; encoding budgets count actual token IDs.
-        start = 0
-        while start < len(block.text):
-            lo, hi = start + 1, len(block.text)
-            while lo < hi:
-                mid = (lo + hi + 1) // 2
-                if len(encoding.encode(block.text[start:mid])) <= target:
-                    lo = mid
-                else:
-                    hi = mid - 1
-            end = lo
-            if end < len(block.text):
-                cut = max(
-                    block.text.rfind("\n", start, end),
-                    block.text.rfind("。", start, end),
-                    block.text.rfind(". ", start, end),
-                )
-                if cut > start + (end - start) // 2:
-                    end = cut + 1
-            raw = block.text[start:end]
-            cleaned = clean_segment(block, start, end)
-            if cleaned:
-                location = {
-                    **block.location,
-                    "block_start": start,
-                    "block_end": end,
-                    "cleaning": {
-                        "whitespace_normalized": cleaned != raw,
-                        "ignored_spans": block.ignored_spans,
-                    },
-                    "warning": block.warning
-                    or (
-                        "切片较短，请检查上下文是否完整"
-                        if len(encoding.encode(cleaned)) < 20
-                        else ""
-                    ),
-                }
-                output.append(
-                    {
-                        "source_text": raw,
-                        "content": cleaned,
-                        "token_count": len(encoding.encode(cleaned)),
-                        "location": json.dumps(location, ensure_ascii=False),
-                    }
-                )
-            if end >= len(block.text):
-                break
-            next_start = end
-            while (
-                next_start > start + 1
-                and len(encoding.encode(block.text[next_start - 1 : end])) <= overlap
-            ):
-                next_start -= 1
-            start = max(start + 1, next_start)
-    return output

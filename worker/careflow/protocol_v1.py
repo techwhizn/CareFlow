@@ -61,12 +61,16 @@ class Generate(ConfiguredOperation):
     evidence: list[Candidate] = Field(min_length=1, max_length=6)
 
 
-class Tokenize(Contract):
+class Tokenize(ConfiguredOperation):
     text: str = Field(min_length=1, max_length=10000)
+    model_tokenizer: Literal["cl100k_base", "provider"] = "cl100k_base"
+    model_maximum: int = Field(default=600, ge=1, le=131072)
 
 
 class TokenizeResponse(Contract):
     token_count: int = Field(ge=0, le=100000)
+    model_token_count: int = Field(ge=0, le=100000)
+    model_limit: int = Field(ge=1, le=131072)
 
 
 class GenerationEvent(Contract):
@@ -89,6 +93,10 @@ class ChunkingConfiguration(Contract):
     target: int = Field(ge=1, le=600)
     maximum: int = Field(ge=1, le=600)
     overlap: int = Field(ge=0, le=599)
+    strategy: Literal["recursive", "token"] = "recursive"
+    include_context: bool = True
+    model_tokenizer: Literal["cl100k_base", "provider"] = "cl100k_base"
+    model_maximum: int = Field(default=600, ge=1, le=131072)
 
     @model_validator(mode="after")
     def bounded_overlap(self):

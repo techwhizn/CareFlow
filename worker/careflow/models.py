@@ -72,6 +72,52 @@ def embed(texts):
     return vectors, usage
 
 
+def input_tokens(texts, tokenizer="cl100k_base"):
+    if tokenizer == "cl100k_base":
+        import tiktoken
+
+        encoding = tiktoken.get_encoding(tokenizer)
+        return [
+            len(encoding.encode(text, disallowed_special=())) for text in texts
+        ], 131072
+    if tokenizer != "provider":
+        raise ModelUnavailable("Unknown model tokenizer")
+    url, model, headers = endpoint("EMBEDDING", "/tokenize")
+    counts = []
+    limit = 131072
+    try:
+        with httpx.Client(timeout=30) as client:
+            for start in range(0, len(texts), 32):
+                batch = texts[start : start + 32]
+                response = client.post(
+                    url, headers=headers, json={"model": model, "input": batch}
+                )
+                response.raise_for_status()
+                payload = response.json()
+                values = payload.get("counts")
+                maximum = payload.get("max_input_tokens")
+                if (
+                    payload.get("model") != model
+                    or payload.get("revision") != value("EMBEDDING_REVISION", "")
+                    or not isinstance(values, list)
+                    or len(values) != len(batch)
+                    or any(
+                        type(number) is not int or number < 1 or number > 100000
+                        for number in values
+                    )
+                    or type(maximum) is not int
+                    or not 1 <= maximum <= 131072
+                ):
+                    raise ModelUnavailable(
+                        "Model tokenizer identity or result mismatch"
+                    )
+                counts.extend(values)
+                limit = min(limit, maximum)
+    except (httpx.HTTPError, ValueError, TypeError, AttributeError) as exc:
+        raise ModelUnavailable("Model tokenizer unavailable or invalid") from exc
+    return counts, limit
+
+
 def rerank(query, candidates):
     url, model, headers = endpoint("RERANK", "/rerank")
     with httpx.Client(timeout=30) as client:

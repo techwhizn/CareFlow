@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-09-10T11:53:30Z",
+  "real_dependencies": true,
+  "checks": [
+    {
+      "name": "real_BGE_tokenizer_splits_long_body_with_counted_heading_and_exact_source",
+      "passed": true,
+      "chunks": 9,
+      "max_logical_tokens": 155,
+      "max_model_tokens": 367
+    },
+    {
+      "name": "all_chunks_pass_actual_BGE_embedding_and_Milvus_index",
+      "passed": true
+    },
+    {
+      "name": "manual_edit_with_small_logical_count_but_large_native_count_is_rejected",
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "knowledge_base_id": "a313b4a2-afb8-4fd9-88c3-a7bf8ab00a9e"
+}

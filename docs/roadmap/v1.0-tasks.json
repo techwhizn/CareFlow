@@ -264,7 +264,8 @@
       "V1-12"
     ],
     "acceptance": "目标长度、上限、重叠可配置；标题和表头计入Token；超限按结构递归细分并保留来源；模型输入上限始终满足。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-16-chunking.md"
   },
   {
     "id": "V1-17",

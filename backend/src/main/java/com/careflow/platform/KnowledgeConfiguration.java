@@ -13,10 +13,24 @@ public final class KnowledgeConfiguration {
 
   @Schema(name = "KnowledgeChunking")
   public record Chunking(
-      @Min(1) @Max(600) int target, @Min(1) @Max(600) int maximum, @Min(0) @Max(599) int overlap) {
+      @Min(1) @Max(600) int target,
+      @Min(1) @Max(600) int maximum,
+      @Min(0) @Max(599) int overlap,
+      @Pattern(regexp = "recursive|token") String strategy,
+      Boolean include_context,
+      @Pattern(regexp = "cl100k_base|provider") String model_tokenizer,
+      @Min(1) @Max(131072) Integer model_maximum) {
     public Chunking {
+      strategy = strategy == null ? "recursive" : strategy;
+      include_context = include_context == null ? true : include_context;
+      model_tokenizer = model_tokenizer == null ? "cl100k_base" : model_tokenizer;
+      model_maximum = model_maximum == null ? 600 : model_maximum;
       if (!(0 <= overlap && overlap < target && target <= maximum && maximum <= 600))
         throw new IllegalArgumentException("Expected overlap < target <= maximum <= 600");
+    }
+
+    public Chunking(int target, int maximum, int overlap) {
+      this(target, maximum, overlap, "recursive", true, "cl100k_base", 600);
     }
   }
 

@@ -1,0 +1,80 @@
+{
+  "date": "2026-09-11",
+  "default_compose_changed": false,
+  "mysql_upgrade": {
+    "version": "8.4.11",
+    "source_version": "8.4.6",
+    "migrations": 36,
+    "retained_document_status": "ACTIVE",
+    "isolated_volume": true,
+    "network": "none",
+    "initial_probe_error": "Used nonexistent documents.state column; corrected read-only query to documents.status; upgrade itself completed successfully"
+  },
+  "rabbitmq_upgrade": {
+    "source_hostname": "810bb25fc805",
+    "stages": [
+      {
+        "image": "rabbitmq:4.1.4-management",
+        "version": "4.1.4",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      },
+      {
+        "image": "public.ecr.aws/docker/library/rabbitmq:4.2.9-management",
+        "version": "4.2.9",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      },
+      {
+        "image": "public.ecr.aws/docker/library/rabbitmq:4.3.5-management",
+        "version": "4.3.5",
+        "node": "rabbit@810bb25fc805",
+        "durable_message_recovered": true,
+        "feature_flags_enabled": true
+      }
+    ],
+    "synthetic_queue": "careflow.recovery.probe",
+    "complete": true
+  },
+  "s3_compatibility": {
+    "java": "21.0.9+10-LTS",
+    "old_source_sha256": "2aa91f9782725bfc37313be095855c8cc85f2fd9ca1cd6fc8de658d538a17d0f",
+    "multipart_bytes": 8388608,
+    "multipart_roundtrip": true,
+    "delete_status": 404,
+    "anonymous_read_status": 403
+  },
+  "mysql-hardened": {
+    "raw_sha256": "ef4bbfcb8da31b5e429214df6a742c4acd3a8763951375bd488768fa424c6a34",
+    "counts": {
+      "MEDIUM": 29,
+      "UNKNOWN": 1,
+      "CRITICAL": 1,
+      "HIGH": 21,
+      "LOW": 2
+    }
+  },
+  "rabbitmq-updated": {
+    "raw_sha256": "bb7144b292b833f7ff3572985fd49758ce9fe512156b50b57ff64aca4c013eb6",
+    "counts": {
+      "MEDIUM": 6,
+      "LOW": 4
+    }
+  },
+  "silo": {
+    "raw_sha256": "840904a48070de212fdd405e40fcb13e8af427b79ca57765d1c4a97922a5b447",
+    "counts": {
+      "HIGH": 2,
+      "UNKNOWN": 1
+    }
+  },
+  "gosu_binary_scan": {
+    "tool": "govulncheck v1.8.0",
+    "raw_sha256": "f489badc40a4a4fdf869bdb978bb1290abfda6fb8b0ca84a4002fefb62cb05bc",
+    "symbol_findings": 0,
+    "module_package_findings": 48,
+    "scope": "Only this exact gosu binary; not a blanket exemption for other Go executables"
+  }
+}

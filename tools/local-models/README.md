@@ -7,7 +7,7 @@
 - [bge-small-zh-v1.5](https://huggingface.co/BAAI/bge-small-zh-v1.5)：7999e1d3359715c523056ef9478215996d62a620；CLS向量L2归一化，不加查询指令，实际维度从模型配置读取。
 - [bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base)：2cfc18c9415c912f9d8155881c133215df768a70；交叉编码器，logit经sigmoid转为0～1分数，尚未按业务测试集标定阈值。
 
-上游模型卡标注MIT许可。权重和下载的上游README只保存在被Git忽略的`.local/models`；本仓库不重新分发权重。模型许可不能代替CareFlow自身待确定的许可证。
+上游模型卡标注MIT许可。权重和下载的上游README只保存在被Git忽略的`.local/models`；本仓库不重新分发权重。CareFlow代码采用Apache-2.0；上游模型保持各自MIT许可。
 
 ## 构建与下载
 

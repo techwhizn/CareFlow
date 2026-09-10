@@ -1,6 +1,6 @@
 # 贡献指南
 
-CareFlow 当前是 0.1 开发增量。开始贡献前阅读 [README](README.md)、[架构](docs/architecture.md)、[质量标准](docs/quality.md) 与 [需求状态](docs/reports/requirements.md)。开源许可证尚待项目所有者确定；确定并添加 LICENSE 前，不宣称仓库已完成开源发布。
+CareFlow 当前是 0.1 开发增量。开始贡献前阅读 [README](README.md)、[架构](docs/architecture.md)、[质量标准](docs/quality.md) 与 [需求状态](docs/reports/requirements.md)。项目所有者已选择 [Apache-2.0](LICENSE)。贡献按该许可证提供；添加许可证不代表1.0功能或发布验收完成。
 
 ## 开发与变更
 

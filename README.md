@@ -93,7 +93,7 @@ npm audit --prefix web
 
 ## 参与开发
 
-请先阅读 [贡献指南](CONTRIBUTING.md)、[质量基线与架构改进计划](docs/quality.md) 和 [安全政策](SECURITY.md)。当前许可证待确定，尚未完成开源发布；公开发布前需补齐许可证与发布检查。
+请先阅读 [贡献指南](CONTRIBUTING.md)、[质量基线与架构改进计划](docs/quality.md) 和 [安全政策](SECURITY.md)。本项目采用 [Apache-2.0 许可证](LICENSE)。目前仍在完善1.0产品与工程验收，尚未公开发布。
 
 套餐人工开通、限制单位、有效期和迁移规则见 [套餐与资源限制](docs/entitlements.md)。
 

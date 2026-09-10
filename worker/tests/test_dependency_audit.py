@@ -48,11 +48,7 @@ def test_python_audit_rejects_empty_coverage_and_unapproved_skips():
     module_spec.loader.exec_module(checker)
     with pytest.raises(ValueError):
         checker.check({"dependencies": []})
-    skipped = {
-        "dependencies": [
-            {"name": "torch", "version": "2.14.0+cpu", "skip_reason": "not on PyPI"}
-        ]
-    }
+    skipped = {"dependencies": [{"name": "torch", "skip_reason": "not on PyPI"}]}
     with pytest.raises(ValueError):
         checker.check(skipped)
     result = checker.check(

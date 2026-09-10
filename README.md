@@ -23,7 +23,9 @@ docker compose up -d --build
 
 Embedding 需配置 `EMBEDDING_REVISION` 和真实维度；模型输出维度不匹配时任务失败，不裁切或伪造向量。Rerank 使用 `/rerank` 的 `results[].index/relevance_score` 契约。生成模型必须支持 `/chat/completions` SSE。使用自托管模型时 key 可空，地址和模型名仍为必填。
 
-DeepSeek 生成服务：`GENERATION_BASE_URL=https://api.deepseek.com`，`GENERATION_MODEL=deepseek-v4-flash`，在 `.env` 的 `GENERATION_API_KEY` 填写个人密钥，然后重启 Worker API。密钥仅保存在本地配置，不写入前端。Embedding 与 Rerank 仍需分别配置。
+DeepSeek 生成服务：`GENERATION_BASE_URL=https://api.deepseek.com`，`GENERATION_MODEL=deepseek-v4-flash`，在 `.env` 的 `GENERATION_API_KEY` 填写个人密钥，然后重启 Worker API。密钥仅保存在本地配置，不写入前端。Embedding 与 Rerank 仍需分别配置；本机开发可按 [可选 CPU 模型服务](tools/local-models/README.md) 部署固定版本的真实 BGE 模型。
+
+显式连接检测：`uv run --project worker python scripts/check-models.py --env-file .env`。命令使用合成输入调用三个已配置服务，可能产生模型费用；返回脱敏状态、维度、耗时和可获得的输入量，不输出密钥或生成正文。配置、认证、超时、格式或流中断时返回非零退出码。
 
 ### 在主机开发
 

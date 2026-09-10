@@ -30,7 +30,8 @@
       "V1-01"
     ],
     "acceptance": "各接通至少一个真实Embedding和Rerank；检测认证、维度、格式、超时、用量；复测DeepSeek Flash；失败明确报错，不伪造结果。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-02-models.md"
   },
   {
     "id": "V1-03",

@@ -26,9 +26,10 @@ jobs:
           version: '0.8.15'
           python-version: '3.12'
       - run: uv sync --project worker --frozen
-      - run: uv run --project worker ruff check worker scripts sdk/python
-      - run: uv run --project worker ruff format --check worker scripts sdk/python
+      - run: uv run --project worker ruff check worker scripts sdk/python tools/local-models
+      - run: uv run --project worker ruff format --check worker scripts sdk/python tools/local-models
       - run: uv run --project worker pytest worker/tests -q
+      - run: PYTHONPATH=tools/local-models uv run --project worker pytest tools/local-models/tests -q
       - run: PYTHONPATH=sdk/python uv run --project worker pytest sdk/python/tests -q
       - run: uv build --project sdk/python --out-dir sdk/python/dist
   web:

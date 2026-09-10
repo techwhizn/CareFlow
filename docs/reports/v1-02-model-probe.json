@@ -1,0 +1,30 @@
+{
+  "synthetic_input": true,
+  "checks": [
+    {
+      "kind": "EMBEDDING",
+      "model": "BAAI/bge-small-zh-v1.5",
+      "identity": "71fdbcf92c1d94a24fd0fa2566d397c2318f6ec11aa5bea2e6b33d60e020e170",
+      "dimensions": 512,
+      "input_tokens": 29,
+      "status": "passed",
+      "elapsed_ms": 961
+    },
+    {
+      "kind": "RERANK",
+      "model": "BAAI/bge-reranker-base",
+      "ranked_count": 2,
+      "status": "passed",
+      "elapsed_ms": 923
+    },
+    {
+      "kind": "GENERATION",
+      "model": "deepseek-v4-flash",
+      "stream_done": true,
+      "answer_characters": 51,
+      "status": "passed",
+      "elapsed_ms": 2373
+    }
+  ],
+  "complete": true
+}

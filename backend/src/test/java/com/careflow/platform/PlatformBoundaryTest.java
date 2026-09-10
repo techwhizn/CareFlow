@@ -106,6 +106,76 @@ class PlatformBoundaryTest {
         version);
   }
 
+  @Test
+  void revocationBeforeRecallPreventsOutboundQuery() {
+    Query query = new Query("synthetic", null, List.of(kb), "hybrid", 6, false, null);
+    var scope = retrieval.scope(actor, query);
+    db.exec("UPDATE credentials SET active=FALSE WHERE tenant_id=?", tenant);
+    assertThatThrownBy(() -> retrieval.search(actor, query, scope, token))
+        .isInstanceOf(ApiException.class);
+    org.mockito.Mockito.verifyNoInteractions(worker);
+  }
+
+  @Test
+  void revocationDuringGenerationStopsFurtherTextAndHistoryPersistence() throws Exception {
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/recall"),
+                org.mockito.ArgumentMatchers.any()))
+        .thenReturn(
+            Map.of(
+                "dense",
+                List.of(),
+                "bm25",
+                List.of(),
+                "fused",
+                List.of(Map.of("id", chunk, "score", 1)),
+                "degraded",
+                false));
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/rerank"),
+                org.mockito.ArgumentMatchers.any()))
+        .thenReturn(Map.of("results", List.of(Map.of("id", chunk, "score", 1)), "degraded", false));
+    org.mockito.Mockito.doAnswer(
+        invocation -> {
+          java.util.function.Consumer<String> deliver = invocation.getArgument(1);
+          deliver.accept("ALLOWED_BEFORE_REVOCATION");
+          db.exec("UPDATE credentials SET active=FALSE WHERE tenant_id=?", tenant);
+          deliver.accept("FORBIDDEN_AFTER_REVOCATION");
+          return null;
+        })
+        .when(worker)
+        .stream(
+            org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.any());
+    var result =
+        mvc.perform(
+                post("/api/v1/answers")
+                    .header("Authorization", token)
+                    .header("Idempotency-Key", Db.id())
+                    .contentType("application/json")
+                    .content(
+                        json.writeValueAsString(
+                            Map.of("query", "synthetic", "mode", "hybrid", "limit", 6))))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+    result.getAsyncResult(5000);
+    mvc.perform(asyncDispatch(result))
+        .andExpect(status().isOk())
+        .andExpect(
+            content().string(org.hamcrest.Matchers.containsString("ALLOWED_BEFORE_REVOCATION")))
+        .andExpect(content().string(org.hamcrest.Matchers.containsString("event:error")))
+        .andExpect(
+            content()
+                .string(
+                    org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("FORBIDDEN_AFTER_REVOCATION"))));
+    assertThat(db.list("SELECT id FROM answers WHERE tenant_id=?", tenant)).isEmpty();
+  }
+
   @Autowired EntitlementService entitlements;
 
   @Test

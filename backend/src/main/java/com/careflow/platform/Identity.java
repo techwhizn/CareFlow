@@ -61,6 +61,12 @@ public class Identity {
   }
 
   public void authorizeRequest(Actor actor, String method, String path) {
+    if (actor.role().equals("OPS")) {
+      if (!method.equals("GET")
+          || !Set.of("/api/v1/me", "/api/v1/operations/status").contains(path))
+        throw ApiException.hidden();
+      return;
+    }
     if (!actor.app()) return;
     String required =
         method.equals("GET")
@@ -86,6 +92,7 @@ public class Identity {
   }
 
   public boolean granted(Actor a, String resource, String action) {
+    if (a.role().equals("OPS")) return false;
     return !db.list(
             "SELECT action FROM permissions WHERE tenant_id=? AND resource_id=? AND subject_id=? AND action=?",
             a.tenant(),
@@ -96,6 +103,13 @@ public class Identity {
   }
 
   public Map<String, Object> kb(Actor a, String id, String action) {
+    if (a.role().equals("OPS")) throw ApiException.hidden();
+    if (a.app())
+      db.one(
+          "SELECT b.kb_id FROM application_bindings b JOIN applications app ON app.id=b.application_id AND app.tenant_id=b.tenant_id WHERE b.tenant_id=? AND b.application_id=? AND b.kb_id=? AND app.published=TRUE",
+          a.tenant(),
+          a.subject(),
+          id);
     var k =
         db.one(
             "SELECT * FROM knowledge_bases WHERE tenant_id=? AND id=? AND status<>'DELETED'",

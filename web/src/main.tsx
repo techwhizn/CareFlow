@@ -14,8 +14,9 @@ import Login from "./pages/Login";
 import Overview from "./pages/Overview";
 import SearchPage from "./pages/SearchPage";
 import TasksPage from "./pages/TasksPage";
+import OperationsPage from "./pages/OperationsPage";
 import "./styles.css";
-import { ErrorNote } from "./ui";
+import { ErrorNote, Loading } from "./ui";
 function App() {
   const [logged, setLogged] = useState(!!getToken()),
     [page, setPage] = useState<Page>("overview"),
@@ -36,6 +37,12 @@ function App() {
         });
   }, [logged]);
   if (!logged) return <Login done={() => setLogged(true)} />;
+  const visibleNav = nav.filter((item) =>
+    me?.role === "OPS"
+      ? item.id === "operations"
+      : item.id !== "operations" || ["OWNER", "ADMIN"].includes(me?.role),
+  );
+  const effectivePage = me?.role === "OPS" ? "operations" : page;
   return (
     <div className="app">
       <aside className="sidebar">
@@ -60,22 +67,22 @@ function App() {
           </div>
         </div>
         <nav>
-          {nav.map((item, i) => (
+          {visibleNav.map((item, i) => (
             <React.Fragment key={item.id}>
-              {(i === 0 || nav[i - 1].group !== item.group) && (
+              {(i === 0 || visibleNav[i - 1].group !== item.group) && (
                 <p>{item.group}</p>
               )}
               <button
                 title={item.label}
-                className={page === item.id ? "active" : ""}
+                className={effectivePage === item.id ? "active" : ""}
                 onClick={() => setPage(item.id)}
               >
                 <item.icon
                   size={21}
-                  weight={page === item.id ? "duotone" : "regular"}
+                  weight={effectivePage === item.id ? "duotone" : "regular"}
                 />
                 {item.label}
-                {page === item.id && <span className="nav-dot" />}
+                {effectivePage === item.id && <span className="nav-dot" />}
               </button>
             </React.Fragment>
           ))}
@@ -109,16 +116,22 @@ function App() {
           <span>
             工作空间
             <CaretRight size={13} />
-            <b>{nav.find((n) => n.id === page)?.label}</b>
+            <b>{nav.find((n) => n.id === effectivePage)?.label}</b>
           </span>
           <div>
             <span className="environment">开发预览</span>
             <span className="muted">CareFlow / 0.1</span>
           </div>
         </header>
-        <main className="main-content" key={page}>
+        <main className="main-content" key={effectivePage}>
           <ErrorNote error={connectionError} />
-          {page === "models" ? (<ModelsPage />) : page === "overview" ? (
+          {!me ? (
+            <Loading />
+          ) : effectivePage === "operations" ? (
+            <OperationsPage />
+          ) : page === "models" ? (
+            <ModelsPage />
+          ) : page === "overview" ? (
             <Overview go={setPage} />
           ) : page === "knowledge" ? (
             <Knowledge />

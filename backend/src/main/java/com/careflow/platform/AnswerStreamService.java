@@ -123,6 +123,7 @@ public class AnswerStreamService {
             cancellation.finish();
             emitter.complete();
           } catch (Exception e) {
+            cancellation.finish();
             try {
               emitter.send(
                   SseEmitter.event()

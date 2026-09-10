@@ -11,6 +11,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 export type Page =
+  | "operations"
   | "overview"
   | "knowledge"
   | "tasks"
@@ -22,6 +23,7 @@ export type Page =
   | "audit"
   | "models";
 export const nav: { id: Page; label: string; icon: Icon; group: string }[] = [
+  { id: "operations", label: "运行状态", icon: ChartBar, group: "企业管理" },
   { id: "overview", label: "工作台", icon: SquaresFour, group: "工作空间" },
   { id: "knowledge", label: "知识库", icon: Books, group: "工作空间" },
   { id: "tasks", label: "任务中心", icon: Stack, group: "工作空间" },

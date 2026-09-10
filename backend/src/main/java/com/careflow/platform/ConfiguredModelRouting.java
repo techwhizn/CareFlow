@@ -57,6 +57,17 @@ public class ConfiguredModelRouting {
   @SuppressWarnings("unchecked")
   public Map<String, Object> recall(
       String tenant, List<String> versions, String query, String mode, boolean degraded) {
+    return recall(tenant, versions, query, mode, degraded, () -> {});
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> recall(
+      String tenant,
+      List<String> versions,
+      String query,
+      String mode,
+      boolean degraded,
+      Runnable revalidate) {
     if (versions.isEmpty())
       return Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false);
     Map<Group, List<String>> groups = new LinkedHashMap<>();
@@ -84,6 +95,7 @@ public class ConfiguredModelRouting {
     boolean anyDegraded = false;
     List<Map<String, Object>> usage = new ArrayList<>();
     for (var group : groups.entrySet()) {
+      revalidate.run();
       var configuration = configurations.runtime(tenant, group.getKey().configuration());
       Map<String, Object> request =
           new LinkedHashMap<>(

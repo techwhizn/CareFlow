@@ -173,6 +173,9 @@ class Client:
         _check(response)
         return response.json() if response.content else None
 
+    def operations_status(self):
+        return self._request("GET", "operations/status")
+
     def knowledge_bases(self):
         return self._request("GET", "knowledge-bases")
 
@@ -462,6 +465,9 @@ class AsyncClient:
         response = await self._http.request(method, path, **kwargs)
         _check(response)
         return response.json() if response.content else None
+
+    async def operations_status(self):
+        return await self._request("GET", "operations/status")
 
     async def knowledge_bases(self):
         return await self._request("GET", "knowledge-bases")

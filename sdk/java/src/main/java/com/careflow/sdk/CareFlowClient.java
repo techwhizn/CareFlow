@@ -170,6 +170,10 @@ public final class CareFlowClient {
     }
   }
 
+  public JsonNode operationsStatus() throws IOException {
+    return request("GET", "operations/status", null, null);
+  }
+
   public JsonNode knowledgeBases() throws IOException {
     return request("GET", "knowledge-bases", null, null);
   }

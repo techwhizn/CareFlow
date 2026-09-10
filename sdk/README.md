@@ -148,3 +148,5 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 搜索响应新增证据Token总数、上限、Tokenizer及同版本扩展来源字段，两种SDK保留这些字段；具体语义见 [证据整理](../docs/evidence-context.md)。
 
 生成流还可返回`usage`事件，计数来自供应商，缺失字段表示未知；事件不表示回答已完成。取消和迁移说明见[流式问答](../docs/answer-streaming.md)。
+
+运维汇总可通过Python `operations_status()`或Java `operationsStatus()`读取，仅OPS/OWNER/ADMIN允许；OPS不能读取知识内容。详见[访问边界](../docs/access-boundaries.md)。

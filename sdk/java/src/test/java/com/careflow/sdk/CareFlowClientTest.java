@@ -255,4 +255,10 @@ class CareFlowClientTest {
     assertTrue(bodies.get(1).contains("storage recovered"));
     assertEquals("retry", keys.get(1));
   }
+
+  @Test
+  void operationsUsesPublicAuthenticatedRoute() throws Exception {
+    client.operationsStatus();
+    assertEquals(List.of("/api/v1/operations/status"), paths);
+  }
 }

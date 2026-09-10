@@ -223,7 +223,17 @@ public class RetrievalService {
             q.mode() == null
                 ? (queryConfiguration == null ? "hybrid" : queryConfiguration.retrieval().mode())
                 : q.mode(),
-            allowDegraded);
+            allowDegraded,
+            () -> {
+              reauthenticate(actor, authorization);
+              for (String version : scope.versions()) {
+                var row = auth.version(actor, version, "read");
+                checkEvidence(
+                    actor,
+                    Map.of("document_id", str(row, "document_id"), "version_id", version),
+                    scope);
+              }
+            });
     long recallFinished = System.nanoTime();
     List<Map<String, Object>> evidence = new ArrayList<>();
     var fused = (List<Map<String, Object>>) recall.getOrDefault("fused", List.of());

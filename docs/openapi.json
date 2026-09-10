@@ -2467,6 +2467,26 @@
         }
       }
     },
+    "/api/v1/operations/status": {
+      "get": {
+        "tags": [
+          "operations-controller"
+        ],
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/model-profiles/policy": {
       "get": {
         "tags": [
@@ -3447,7 +3467,7 @@
           },
           "role": {
             "type": "string",
-            "pattern": "OWNER|ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER"
+            "pattern": "OWNER|ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER|OPS"
           },
           "state": {
             "type": "string",
@@ -4303,7 +4323,7 @@
           },
           "role": {
             "type": "string",
-            "pattern": "ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER"
+            "pattern": "ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER|OPS"
           }
         },
         "required": [

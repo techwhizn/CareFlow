@@ -517,3 +517,23 @@ def test_cleanup_contract_sync_and_async():
         assert group[1].url.path.endswith(f"/cleanup-requests/{ID}/retry")
         assert json.loads(group[1].content) == {"reason": "storage recovered"}
         assert group[1].headers["Idempotency-Key"] == "retry"
+
+
+def test_operations_status_uses_the_same_authorized_public_api():
+    calls = []
+
+    def handler(request):
+        calls.append(request.url.path)
+        return httpx.Response(200, json={"jobs": [], "cleanup": [], "generation": []})
+
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        assert client.operations_status()["jobs"] == []
+
+    async def run():
+        async with AsyncClient(
+            ORIGIN, "test-token", transport=httpx.MockTransport(handler)
+        ) as client:
+            assert (await client.operations_status())["generation"] == []
+
+    asyncio.run(run())
+    assert calls == ["/api/v1/operations/status"] * 2

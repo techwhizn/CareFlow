@@ -12,11 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class MembershipService {
   public record Create(
       @NotBlank @Size(max = 200) String name,
-      @NotNull @Pattern(regexp = "ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER") String role) {}
+      @NotNull @Pattern(regexp = "ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER|OPS") String role) {}
 
   public record Change(
       @NotBlank @Size(max = 200) String name,
-      @NotNull @Pattern(regexp = "OWNER|ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER") String role,
+      @NotNull @Pattern(regexp = "OWNER|ADMIN|KNOWLEDGE_MANAGER|DEVELOPER|USER|OPS") String role,
       @NotNull @Pattern(regexp = "ACTIVE|DISABLED|REMOVED") String state,
       @Min(0) long revision) {}
 

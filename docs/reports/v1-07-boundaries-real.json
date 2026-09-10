@@ -1,0 +1,24 @@
+{
+  "complete": true,
+  "synthetic": true,
+  "checks": [
+    {
+      "name": "ops_grants_cannot_open_content",
+      "paths": 16,
+      "passed": true
+    },
+    {
+      "name": "tenant_boundary_and_download_permission_separate",
+      "passed": true
+    },
+    {
+      "name": "app_direct_content_requires_binding_and_debug_is_hidden",
+      "passed": true
+    },
+    {
+      "name": "real_generated_history_hidden_after_revocation_and_python_sdk_uses_same_boundary",
+      "passed": true
+    }
+  ],
+  "java_sdk_real_operations_boundary": true
+}

@@ -1,0 +1,44 @@
+{
+  "started_at": "2026-09-10T20:41:44.133094+00:00",
+  "containers": {
+    "worker-api": {
+      "user": "careflow",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/app/cache": "rw,noexec,nosuid,size=128m,uid=10001,gid=10001,mode=0700",
+        "/tmp": "rw,noexec,nosuid,size=256m,mode=1777"
+      }
+    },
+    "worker-consumer": {
+      "user": "careflow",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/app/cache": "rw,noexec,nosuid,size=128m,uid=10001,gid=10001,mode=0700",
+        "/tmp": "rw,noexec,nosuid,size=256m,mode=1777"
+      }
+    }
+  },
+  "complete": true,
+  "uploaded": {
+    "job_id": "749ffd22-185d-4b76-97ec-2c221a033640",
+    "version_id": "49a131ab-21a9-4c29-8a52-cc09c54aff1e",
+    "document_id": "867995c9-e525-49fb-9e59-c6fac90c096b"
+  },
+  "index_job_id": "e5eb6203-ed23-4a77-8409-5ac15b0e68e9",
+  "ocr_chunks": 1,
+  "published_version": "49a131ab-21a9-4c29-8a52-cc09c54aff1e",
+  "search_found_source": true,
+  "finished_at": "2026-09-10T20:42:09.959632+00:00"
+}

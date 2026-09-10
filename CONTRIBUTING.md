@@ -45,3 +45,10 @@ SDK 变更还需执行 [客户端验证命令](sdk/README.md#验证)，同步维
 合并前所有适用 CI 检查通过。发布前按 [质量标准](docs/quality.md) 核验许可证、依赖、真实集成、升级与恢复证据。GitHub 分支保护需要仓库管理员在远端开启；本地 CI 文件不等于已经启用远端保护。
 
 针对已运行的合成测试企业，可设置`CAREFLOW_URL`与个人所有者`CAREFLOW_TOKEN`，执行`node web/e2e/live-pages.mjs`。它检查12个管理页面的窄屏、键盘登录/弹窗，并在独立浏览器上下文注入一次503以验证错误展示；不提交表单或调用生成模型。只输出布局/状态元数据，不保存业务正文或凭证。该检查与不联网的组件回归分开，不在普通CI中使用真实凭证。
+
+独立`milvus-integration` CI作业会创建临时环境，仅启动etcd、对象存储与Milvus，执行真实中文BM25及租户/版本过滤测试，并在结束后删除该CI项目的临时卷。它不需要付费模型，也不替代混合检索、生成或整个产品的端到端验收。本地连接已启动测试实例可运行：
+
+```bash
+RUN_MILVUS_INTEGRATION=1 MILVUS_URI=http://127.0.0.1:19530 \
+  uv run --project worker pytest worker/tests/test_milvus_integration.py -q
+```

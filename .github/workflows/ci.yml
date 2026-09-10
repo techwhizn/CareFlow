@@ -54,6 +54,24 @@ jobs:
       - run: uv export --project tools/local-models --frozen --no-dev --no-hashes --no-emit-project --output-file /tmp/careflow-model-runtime.txt
       - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r /tmp/careflow-model-runtime.txt --format json --output /tmp/careflow-model-audit.json
       - run: python scripts/check-python-audit.py /tmp/careflow-model-audit.json --torch-cpu-requirements /tmp/careflow-model-runtime.txt
+  milvus-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.8.15'
+          python-version: '3.12'
+      - run: uv sync --project worker --frozen
+      - run: python3 scripts/init-local-env.py
+      - run: docker compose -p careflow-ci up -d --wait --wait-timeout 300 etcd minio milvus
+      - run: uv run --project worker pytest worker/tests/test_milvus_integration.py -q
+        env:
+          RUN_MILVUS_INTEGRATION: '1'
+          MILVUS_URI: http://127.0.0.1:19530
+      - if: always()
+        run: docker compose -p careflow-ci down --volumes
   web:
     runs-on: ubuntu-latest
     steps:

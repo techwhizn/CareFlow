@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dialog regression fixture</title></head>
+<body><div id="root"></div><script type="module">
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {Dialog} from '/src/ui.tsx';
+import '/src/styles.css';
+function Fixture() {
+  const [open,setOpen] = React.useState(false);
+  return React.createElement(React.Fragment,null,
+    React.createElement('button',{onClick:()=>setOpen(true)},'打开测试弹窗'),
+    React.createElement('button',null,'背景操作'),
+    open && React.createElement(Dialog,{title:'键盘回归测试',close:()=>setOpen(false)},
+      React.createElement('label',null,'测试名称',React.createElement('input',{name:'name'})),
+      React.createElement('button',{onClick:()=>setOpen(false)},'完成')));
+}
+createRoot(document.getElementById('root')).render(React.createElement(React.StrictMode,null,React.createElement(Fixture)));
+</script></body></html>

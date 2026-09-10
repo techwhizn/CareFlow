@@ -827,22 +827,17 @@ td button {
     transform: rotate(360deg);
   }
 }
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
+.dialog::backdrop {
   background: #152d2455;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
 }
 .dialog {
+  border: 0;
+  margin: auto;
   background: white;
   border-radius: 12px;
   box-shadow: 0 25px 80px #15382630;
   width: 530px;
-  max-width: 100%;
+  max-width: calc(100% - 48px);
   max-height: 90dvh;
   overflow: auto;
   padding: 25px 28px;

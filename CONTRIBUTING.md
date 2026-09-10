@@ -20,6 +20,8 @@ uv run --project worker ruff format --check worker scripts
 uv run --project worker pytest worker/tests -q
 npm ci --prefix web
 npm test --prefix web
+npm exec --prefix web -- playwright-core install chromium
+npm run test:browser --prefix web
 npm run build --prefix web
 npm audit --prefix web --omit=dev --audit-level=high
 ```
@@ -33,6 +35,8 @@ npm audit --prefix web --omit=dev --audit-level=high
 提交前使用Gitleaks 8.30.1执行 `gitleaks git --redact=100 --log-opts=--all .` 检查可达历史。误报必须逐项核对并记录原因；只允许精确历史指纹，禁止以整目录排除掩盖新凭证。
 
 SDK 变更还需执行 [客户端验证命令](sdk/README.md#验证)，同步维护两种语言的协议行为。
+
+浏览器组件回归使用Playwright与真实Chromium，不连接业务API。已安装Chrome时可设置`CHROME_EXECUTABLE`为其可执行文件绝对路径，测试创建隔离浏览器上下文，不读取个人浏览器资料。Linux CI安装浏览器系统依赖；本地首次运行需安装Chromium或显式指定Chrome。
 
 ## 评审与发布
 

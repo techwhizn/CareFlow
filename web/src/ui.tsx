@@ -89,28 +89,45 @@ export function Dialog({
   children: React.ReactNode;
   close: () => void;
 }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current!;
+    const opener = document.activeElement;
+    element.showModal();
+    return () => {
+      element.close();
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+    };
+  }, []);
   return (
-    <div
-      className="backdrop"
+    <dialog
+      ref={dialog}
+      aria-label={title}
+      className="dialog"
+      onCancel={(event) => {
+        event.preventDefault();
+        close();
+      }}
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) close();
+        if (e.target !== e.currentTarget) return;
+        const bounds = e.currentTarget.getBoundingClientRect();
+        if (
+          e.clientX < bounds.left || e.clientX > bounds.right ||
+          e.clientY < bounds.top || e.clientY > bounds.bottom
+        ) {
+          e.preventDefault();
+          close();
+        }
       }}
     >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="dialog"
-      >
-        <header>
-          <h2>{title}</h2>
-          <button className="text-button" onClick={close}>
-            关闭
-          </button>
-        </header>
-        {children}
-      </section>
-    </div>
+      <header>
+        <h2>{title}</h2>
+        <button className="text-button" onClick={close}>
+          关闭
+        </button>
+      </header>
+      {children}
+    </dialog>
   );
 }
 

@@ -1,0 +1,41 @@
+package com.careflow.platform;
+
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/** The deployment key is kept outside the database and never returned to clients. */
+@Component
+public class ModelKeyVault {
+  private final String configured;
+
+  public ModelKeyVault(@Value("${careflow.model-encryption-key:}") String configured) {
+    this.configured = configured;
+  }
+
+  public String encrypt(String tenant, String profile, String value) {
+    if (value == null || value.isEmpty()) return "";
+    try {
+      byte[] key = Base64.getDecoder().decode(configured);
+      if (key.length != 32) throw new IllegalArgumentException();
+      byte[] nonce = new byte[12];
+      new SecureRandom().nextBytes(nonce);
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(
+          Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(128, nonce));
+      cipher.updateAAD((tenant + ":" + profile).getBytes(StandardCharsets.UTF_8));
+      return "v1:"
+          + Base64.getEncoder().encodeToString(nonce)
+          + ":"
+          + Base64.getEncoder()
+              .encodeToString(cipher.doFinal(value.getBytes(StandardCharsets.UTF_8)));
+    } catch (Exception e) {
+      throw new ApiException(503, "MODEL_KEY_STORAGE_UNAVAILABLE", "模型密钥存储未正确配置");
+    }
+  }
+}

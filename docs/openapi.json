@@ -34,6 +34,47 @@
         }
       }
     },
+    "/api/v1/model-profiles/{id}": {
+      "put": {
+        "tags": [
+          "model-profiles-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/View"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}/state": {
       "put": {
         "tags": [
@@ -427,6 +468,57 @@
               "*/*": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model-profiles": {
+      "get": {
+        "tags": [
+          "model-profiles-controller"
+        ],
+        "operationId": "list",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/View"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "model-profiles-controller"
+        ],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/View"
                 }
               }
             }
@@ -1259,6 +1351,27 @@
         }
       }
     },
+    "/api/v1/model-profiles/policy": {
+      "get": {
+        "tags": [
+          "model-profiles-controller"
+        ],
+        "operationId": "policy",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/me": {
       "get": {
         "tags": [
@@ -1598,6 +1711,98 @@
           "reason"
         ]
       },
+      "Input": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "kind": {
+            "type": "string",
+            "pattern": "GENERATION|EMBEDDING|RERANK"
+          },
+          "base_url": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "model_revision": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "dimensions": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 65536,
+            "minimum": 1
+          },
+          "external_processing": {
+            "type": "boolean"
+          },
+          "api_key": {
+            "type": "string",
+            "maxLength": 8192,
+            "minLength": 0
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "base_url",
+          "kind",
+          "model",
+          "model_revision",
+          "name"
+        ]
+      },
+      "View": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "base_url": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "model_revision": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "external_processing": {
+            "type": "boolean"
+          },
+          "key_configured": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "State": {
         "type": "object",
         "properties": {
@@ -1706,8 +1911,7 @@
           },
           "minimum_rerank_score": {
             "type": "number",
-            "format": "double",
-            "description": "Optional finite minimum raw rerank score; unavailable scores fail the threshold."
+            "format": "double"
           }
         }
       },

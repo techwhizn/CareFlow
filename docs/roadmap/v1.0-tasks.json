@@ -12,7 +12,8 @@
     ],
     "dependencies": [],
     "acceptance": "提供生成、Embedding、Rerank配置及脱敏管理；服务端安全保存或引用密钥；限制配置权限和目标地址，禁止未授权外发及任意内网探测；更改可审计。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-01-model-profiles.md"
   },
   {
     "id": "V1-02",

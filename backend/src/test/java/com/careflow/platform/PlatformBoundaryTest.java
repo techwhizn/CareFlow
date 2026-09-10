@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
       "spring.datasource.username=sa",
       "spring.datasource.password=",
       "careflow.scheduling=false",
+      "careflow.model-encryption-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
       "careflow.internal-token=internal-testing-secret-at-least-32-chars",
       "careflow.bootstrap-token=bootstrap-testing-secret-at-least-32-chars"
     })
@@ -507,5 +508,129 @@ class PlatformBoundaryTest {
     org.mockito.Mockito.verify(worker, org.mockito.Mockito.never()).stream(
         org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     assertThat(db.list("SELECT * FROM answers WHERE tenant_id=?", tenant)).hasSize(1);
+  }
+
+  private Map<String, Object> modelInput(String key) {
+    Map<String, Object> input = new HashMap<>();
+    input.put("name", "DeepSeek test");
+    input.put("kind", "GENERATION");
+    input.put("base_url", "https://api.deepseek.com");
+    input.put("model", "deepseek-v4-flash");
+    input.put("model_revision", "");
+    input.put("external_processing", true);
+    input.put("api_key", key);
+    input.put("revision", 0);
+    return input;
+  }
+
+  @Test
+  void modelProfilesEncryptKeysHideThemAndAuditChanges() throws Exception {
+    var result =
+        mvc.perform(
+                post("/api/v1/model-profiles")
+                    .header("Authorization", token)
+                    .contentType("application/json")
+                    .content(json.writeValueAsString(modelInput("test-profile-secret"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.key_configured").value(true))
+            .andReturn();
+    String body = result.getResponse().getContentAsString();
+    assertThat(body).doesNotContain("test-profile-secret", "encrypted_key", "api_key");
+    String id = json.readTree(body).get("id").asText();
+    String encrypted =
+        Db.str(db.one("SELECT * FROM model_profiles WHERE id=?", id), "encrypted_key");
+    assertThat(encrypted).startsWith("v1:").doesNotContain("test-profile-secret");
+    mvc.perform(get("/api/v1/model-profiles").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].key_configured").value(true));
+    assertThat(
+            db.list(
+                "SELECT * FROM audit_events WHERE tenant_id=? AND action='MODEL_PROFILE_CREATE'",
+                tenant))
+        .hasSize(1);
+    mvc.perform(
+            put("/api/v1/model-profiles/" + id)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(modelInput(null))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.revision").value(1));
+    assertThat(Db.str(db.one("SELECT * FROM model_profiles WHERE id=?", id), "encrypted_key"))
+        .isEqualTo(encrypted);
+    mvc.perform(
+            put("/api/v1/model-profiles/" + id)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(modelInput("new-test-secret"))))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void modelProfilesRejectUnapprovedEndpointsAndInvalidMetadata() throws Exception {
+    for (String base :
+        List.of(
+            "http://127.0.0.1:8090",
+            "https://api.deepseek.com.evil.test",
+            "https://api.deepseek.com/v1/../internal",
+            "https://user:password@api.deepseek.com",
+            "https://api.deepseek.com?target=internal")) {
+      var input = modelInput(null);
+      input.put("base_url", base);
+      mvc.perform(
+              post("/api/v1/model-profiles")
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(json.writeValueAsString(input)))
+          .andExpect(status().isBadRequest());
+    }
+    var input = modelInput(null);
+    input.put("external_processing", false);
+    mvc.perform(
+            post("/api/v1/model-profiles")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(input)))
+        .andExpect(status().isBadRequest());
+    input = modelInput(null);
+    input.put("kind", "EMBEDDING");
+    mvc.perform(
+            post("/api/v1/model-profiles")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(input)))
+        .andExpect(status().isBadRequest());
+    assertThat(db.list("SELECT * FROM model_profiles WHERE tenant_id=?", tenant)).isEmpty();
+  }
+
+  @Test
+  void modelProfilesAreAdminOnlyAndTenantScoped() throws Exception {
+    String other = Db.id();
+    db.exec("INSERT INTO tenants(id,name) VALUES(?,?)", other, "other");
+    String hidden = Db.id();
+    db.exec(
+        "INSERT INTO model_profiles(id,tenant_id,name,kind,base_url,model,model_revision,external_processing,encrypted_key) VALUES(?,?,?,'GENERATION','https://api.deepseek.com','model','',TRUE,'')",
+        hidden,
+        other,
+        "hidden");
+    mvc.perform(get("/api/v1/model-profiles").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isEmpty());
+    mvc.perform(
+            put("/api/v1/model-profiles/" + hidden)
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(modelInput(null))))
+        .andExpect(status().isNotFound());
+    db.exec("UPDATE members SET role='USER' WHERE id=?", member);
+    mvc.perform(get("/api/v1/model-profiles").header("Authorization", token))
+        .andExpect(status().isNotFound());
+    mvc.perform(get("/api/v1/model-profiles/policy").header("Authorization", token))
+        .andExpect(status().isNotFound());
+    mvc.perform(
+            post("/api/v1/model-profiles")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(modelInput("secret"))))
+        .andExpect(status().isNotFound());
   }
 }

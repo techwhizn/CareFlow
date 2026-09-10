@@ -9,6 +9,7 @@ import AdminPage from "./pages/AdminPage";
 import AnswerPage from "./pages/AnswerPage";
 import AppsPage from "./pages/AppsPage";
 import Knowledge from "./pages/Knowledge";
+import ModelsPage from "./pages/ModelsPage";
 import Login from "./pages/Login";
 import Overview from "./pages/Overview";
 import SearchPage from "./pages/SearchPage";
@@ -117,7 +118,7 @@ function App() {
         </header>
         <main className="main-content" key={page}>
           <ErrorNote error={connectionError} />
-          {page === "overview" ? (
+          {page === "models" ? (<ModelsPage />) : page === "overview" ? (
             <Overview go={setPage} />
           ) : page === "knowledge" ? (
             <Knowledge />

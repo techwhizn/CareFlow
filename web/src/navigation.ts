@@ -19,7 +19,8 @@ export type Page =
   | "apps"
   | "usage"
   | "members"
-  | "audit";
+  | "audit"
+  | "models";
 export const nav: { id: Page; label: string; icon: Icon; group: string }[] = [
   { id: "overview", label: "工作台", icon: SquaresFour, group: "工作空间" },
   { id: "knowledge", label: "知识库", icon: Books, group: "工作空间" },
@@ -29,5 +30,6 @@ export const nav: { id: Page; label: string; icon: Icon; group: string }[] = [
   { id: "apps", label: "应用中心", icon: PlugsConnected, group: "知识应用" },
   { id: "usage", label: "套餐与用量", icon: ChartBar, group: "企业管理" },
   { id: "members", label: "成员与权限", icon: Users, group: "企业管理" },
+  { id: "models", label: "模型配置", icon: PlugsConnected, group: "企业管理" },
   { id: "audit", label: "审计日志", icon: ShieldCheck, group: "企业管理" },
 ];

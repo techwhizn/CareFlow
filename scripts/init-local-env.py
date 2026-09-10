@@ -1,5 +1,6 @@
 """Generate local infrastructure secrets without printing them or overwriting user settings."""
 
+import base64
 from pathlib import Path
 import secrets
 
@@ -16,6 +17,12 @@ for key in [
     "S3_SECRET_KEY",
 ]:
     text = text.replace(key + "=\n", key + "=" + secrets.token_urlsafe(36) + "\n")
+text = text.replace(
+    "MODEL_CONFIG_ENCRYPTION_KEY=\n",
+    "MODEL_CONFIG_ENCRYPTION_KEY="
+    + base64.b64encode(secrets.token_bytes(32)).decode()
+    + "\n",
+)
 path.write_text(text)
 path.chmod(0o600)
 print(

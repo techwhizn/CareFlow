@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DocumentDraftService {
+  private final BillingRulesService billing;
   private final Db db;
   private final Identity auth;
   private final ChunkMutationService mutations;
@@ -18,12 +19,14 @@ public class DocumentDraftService {
   private final ContentConflictService conflicts;
 
   public DocumentDraftService(
+      BillingRulesService billing,
       Db db,
       Identity auth,
       ChunkMutationService mutations,
       KnowledgeConfigurationService configurations,
       ParsedContentService parsedContent,
       ContentConflictService conflicts) {
+    this.billing = billing;
     this.db = db;
     this.auth = auth;
     this.mutations = mutations;
@@ -150,6 +153,7 @@ public class DocumentDraftService {
         next,
         key,
         configuration);
+    billing.attachJob(actor.tenant(), job, 0);
     db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
     conflicts.snapshot(actor, id, next);
     auth.audit(
@@ -178,6 +182,7 @@ public class DocumentDraftService {
         id,
         key,
         v.get("configuration_id"));
+    billing.attachJob(actor.tenant(), job, 0);
     db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
     db.exec(
         "UPDATE document_versions SET state='QUEUED' WHERE tenant_id=? AND id=?",

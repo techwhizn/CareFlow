@@ -248,6 +248,41 @@ public final class CareFlowClient {
     return request("GET", path + "/" + id(requestId), null, null);
   }
 
+  public record BillingRule(
+      String name,
+      String currency,
+      Map<String, java.math.BigDecimal> customer_rates,
+      Map<String, java.math.BigDecimal> provider_rates) {}
+
+  public JsonNode billingRules() throws IOException {
+    return request("GET", "billing/rules", null, null);
+  }
+
+  public JsonNode createBillingRule(BillingRule input) throws IOException {
+    return request("POST", "billing/rules", input, null);
+  }
+
+  public JsonNode activateBillingRule(String rule, long revision) throws IOException {
+    var body = new java.util.LinkedHashMap<String, Object>();
+    body.put("rule_id", rule == null ? null : id(rule));
+    body.put("revision", revision);
+    return request("PUT", "billing/active-rule", body, null);
+  }
+
+  public JsonNode requestCost(String application, String requestId) throws IOException {
+    String path =
+        application == null ? "usage/requests" : "applications/" + id(application) + "/requests";
+    return request("GET", path + "/" + id(requestId) + "/cost", null, null);
+  }
+
+  public JsonNode jobCost(String job) throws IOException {
+    return request("GET", "jobs/" + id(job) + "/cost", null, null);
+  }
+
+  public JsonNode importEstimate(String knowledgeBase, Path file) throws IOException {
+    return uploadTo("knowledge-bases/" + id(knowledgeBase) + "/import-estimate", file, null);
+  }
+
   public JsonNode modelUsage() throws IOException {
     return request("GET", "usage/models", null, null);
   }
@@ -539,12 +574,27 @@ public final class CareFlowClient {
   }
 
   public JsonNode upload(String knowledgeBaseId, Path file, String key) throws IOException {
+    return upload(knowledgeBaseId, file, key, null);
+  }
+
+  public JsonNode upload(String knowledgeBaseId, Path file, String key, Long billingRevision)
+      throws IOException {
+    if (billingRevision != null && billingRevision < 0) throw new IllegalArgumentException();
+    return uploadTo(
+        "knowledge-bases/"
+            + id(knowledgeBaseId)
+            + "/documents"
+            + (billingRevision == null ? "" : "?billing_revision=" + billingRevision),
+        file,
+        key);
+  }
+
+  private JsonNode uploadTo(String path, Path file, String key) throws IOException {
     String name = file.getFileName().toString();
     if (name.contains("\r") || name.contains("\n") || name.contains("\"") || name.contains("\\"))
       throw new IllegalArgumentException("Invalid multipart filename");
     String boundary = "careflow-" + UUID.randomUUID();
-    var connection =
-        connection("POST", "knowledge-bases/" + id(knowledgeBaseId) + "/documents", key);
+    var connection = connection("POST", path, key);
     try {
       connection.setDoOutput(true);
       connection.setChunkedStreamingMode(8192);

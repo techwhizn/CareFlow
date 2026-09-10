@@ -1,3 +1,4 @@
+import PricingPanel from "../features/billing/PricingPanel";
 import RequestLogsPanel from "../features/usage/RequestLogsPanel";
 import ModelUsagePanel from "../features/usage/ModelUsagePanel";
 import EntitlementPanel from "../features/entitlements/EntitlementPanel";
@@ -59,6 +60,7 @@ export default function AdminPage({ page }: { page: Page }) {
               <span>正在处理</span>
             </div>
           </div>
+          <PricingPanel />
           <ModelUsagePanel />
           <RequestLogsPanel />
           <EntitlementPanel changed={data.reload} />

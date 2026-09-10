@@ -1,3 +1,4 @@
+import { ExecutionCost } from "../billing/CostView";
 import { useState } from "react";
 import type { Row } from "../../api";
 import { ErrorNote, useData } from "../../ui";
@@ -15,6 +16,7 @@ function Details({ path }: { path: string }) {
   return (
     <div>
       <ErrorNote error={data.error} />
+      <ExecutionCost path={`${path}/cost`} />
       {data.data && (
         <>
           <p>

@@ -23,9 +23,10 @@ public class DocumentTransferController {
       @PathVariable String id,
       @RequestHeader("Idempotency-Key") String key,
       @RequestHeader("Authorization") String authorization,
-      @RequestParam MultipartFile file)
+      @RequestParam MultipartFile file,
+      @RequestParam(required = false) Long billing_revision)
       throws Exception {
-    return uploads.upload(actor, authorization, id, null, key, file);
+    return uploads.upload(actor, authorization, id, null, key, file, billing_revision);
   }
 
   @PostMapping("/documents/{id}/versions")
@@ -34,9 +35,10 @@ public class DocumentTransferController {
       @PathVariable String id,
       @RequestHeader("Idempotency-Key") String key,
       @RequestHeader("Authorization") String authorization,
-      @RequestParam MultipartFile file)
+      @RequestParam MultipartFile file,
+      @RequestParam(required = false) Long billing_revision)
       throws Exception {
-    return uploads.replace(actor, authorization, id, key, file);
+    return uploads.replace(actor, authorization, id, key, file, billing_revision);
   }
 
   @GetMapping("/document-versions/{id}/source")

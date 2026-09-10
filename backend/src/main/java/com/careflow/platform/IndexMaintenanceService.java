@@ -12,6 +12,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class IndexMaintenanceService {
+  private final BillingRulesService billing;
   private final Db db;
   private final Identity auth;
   private final KnowledgeConfigurationService configurations;
@@ -20,12 +21,14 @@ public class IndexMaintenanceService {
   private final ObjectMapper json;
 
   public IndexMaintenanceService(
+      BillingRulesService billing,
       Db db,
       Identity auth,
       KnowledgeConfigurationService configurations,
       WorkerClient worker,
       TransactionTemplate tx,
       ObjectMapper json) {
+    this.billing = billing;
     this.db = db;
     this.auth = auth;
     this.configurations = configurations;
@@ -67,6 +70,7 @@ public class IndexMaintenanceService {
               key,
               str(current, "configuration_id"),
               preserve);
+          billing.attachJob(actor.tenant(), job, 0);
           db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
           if (!preserve)
             db.exec(

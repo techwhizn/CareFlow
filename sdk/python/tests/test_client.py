@@ -678,3 +678,36 @@ def test_request_log_scope_and_cursor_are_explicit():
     assert seen[0].url.params["before"] == ID
     assert seen[1].url.path.endswith(f"/applications/{ID}/requests/{ID}")
     assert seen[2].url.path.endswith("/usage/requests")
+
+
+def test_billing_decimal_prices_and_import_revision(tmp_path):
+    from decimal import Decimal
+
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"state": "COMPLETE"})
+
+    file = tmp_path / "estimate.txt"
+    file.write_text("Synthetic estimate")
+    with Client(ORIGIN, "test-token", transport=httpx.MockTransport(handler)) as client:
+        client.create_billing_rule(
+            "Synthetic",
+            "CNY",
+            {"QUERY": Decimal("0.10")},
+            {"EMBEDDING_TOKEN": Decimal("0.000001")},
+        )
+        client.activate_billing_rule(None, 3)
+        client.import_estimate(ID, file)
+        client.upload(ID, file, billing_revision=3)
+        client.request_cost(ID, application_id=ID)
+        client.job_cost(ID)
+    assert (
+        json.loads(seen[0].content)["provider_rates"]["EMBEDDING_TOKEN"] == "0.000001"
+    )
+    assert json.loads(seen[1].content)["rule_id"] is None
+    assert seen[2].url.path.endswith("/import-estimate")
+    assert seen[3].url.params["billing_revision"] == "3"
+    assert seen[4].url.path.endswith(f"/requests/{ID}/cost")
+    assert seen[5].url.path.endswith(f"/jobs/{ID}/cost")

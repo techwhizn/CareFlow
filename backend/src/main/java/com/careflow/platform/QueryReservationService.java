@@ -13,6 +13,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 /** Owns admission, durable completion markers and recovery under one tenant lock. */
 @Service
 public class QueryReservationService {
+  private final BillingRulesService billing;
   private final Db db;
   private final Identity auth;
   private final TransactionTemplate tx;
@@ -21,12 +22,14 @@ public class QueryReservationService {
   private final boolean scheduled;
 
   public QueryReservationService(
+      BillingRulesService billing,
       Db db,
       Identity auth,
       TransactionTemplate tx,
       EntitlementService entitlements,
       ApplicationAdmissionService admission,
       @Value("${careflow.scheduling:true}") boolean scheduled) {
+    this.billing = billing;
     this.db = db;
     this.auth = auth;
     this.tx = tx;
@@ -84,6 +87,7 @@ public class QueryReservationService {
                   ? null
                   : scope.applicationPolicy().id(),
               event);
+          billing.attachRequest(actor.tenant(), event);
           return event;
         });
   }

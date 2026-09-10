@@ -1,0 +1,226 @@
+{
+  "complete": true,
+  "synthetic_prices": true,
+  "published": false,
+  "old_request_id": "ab194326-90d9-43d2-9e1c-d9500edbdaf9",
+  "new_request_id": "05b1a078-4545-403a-a57a-e9d667fc8859",
+  "first_rule_id": "430c0eac-1801-4bd6-afd0-407b3f1b45a3",
+  "second_rule_id": "de180172-c810-4937-a464-73736f13ae86",
+  "estimate": {
+    "rule_id": "de180172-c810-4937-a464-73736f13ae86",
+    "currency": "CNY",
+    "basis": "ESTIMATE",
+    "customer": {
+      "state": "COMPLETE",
+      "amount": "0.8",
+      "known_subtotal": "0.8",
+      "lines": [
+        {
+          "resource": "PROCESSING_TASK",
+          "units": 2,
+          "unit_price": 0.4,
+          "known_amount": "0.8",
+          "state": "KNOWN"
+        }
+      ]
+    },
+    "provider": {
+      "state": "COMPLETE",
+      "amount": "0.000053104",
+      "known_subtotal": "0.000053104",
+      "lines": [
+        {
+          "resource": "SOURCE_WRITE_BYTE",
+          "units": 104,
+          "unit_price": 1e-09,
+          "known_amount": "0.000000104",
+          "state": "KNOWN"
+        },
+        {
+          "resource": "OCR_PAGE",
+          "units": 0,
+          "unit_price": 0.01,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        },
+        {
+          "resource": "EMBEDDING_TOKEN",
+          "units": 53,
+          "unit_price": 1e-06,
+          "known_amount": "0.000053",
+          "state": "KNOWN"
+        }
+      ]
+    },
+    "billing_revision": 6,
+    "file_digest": "186644a1c5091a4ef00dc5b18ed28bc7c636f617b8f25ea06fa7eeca222dc13c",
+    "source_bytes": 104,
+    "estimated_embedding_tokens": 53,
+    "estimated_ocr_pages": 0,
+    "method": "NATIVE_TOKENS_WITH_OVERLAP_ESTIMATE",
+    "assumptions": [
+      "计划执行解析和索引两个任务；实际按执行的任务核算",
+      "文本估算基于原生Tokenizer及重叠比例，结构扩展和缓存复用可能改变实际消耗",
+      "PDF页与OCR识别文本、超过10000字符和Office文件的Embedding量在解析前未知",
+      "预估不上传存储、不创建任务、不执行OCR或Embedding；规则可能在实际提交前改变"
+    ]
+  },
+  "upload": {
+    "job_id": "a061e46a-1481-4b82-8edb-9be3ba47fd4b",
+    "document_id": "9a119d1c-fc95-49bb-bf4f-a94af54bbcff",
+    "version_id": "4c66f284-8fc7-4063-8b44-3bbb1ae3e55b"
+  },
+  "job_cost": {
+    "rule_id": "de180172-c810-4937-a464-73736f13ae86",
+    "currency": "CNY",
+    "basis": "ACTUAL",
+    "customer": {
+      "state": "COMPLETE",
+      "amount": "0.4",
+      "known_subtotal": "0.4",
+      "lines": [
+        {
+          "resource": "PROCESSING_TASK",
+          "units": 1,
+          "unit_price": 0.4,
+          "known_amount": "0.4",
+          "state": "KNOWN"
+        }
+      ]
+    },
+    "provider": {
+      "state": "COMPLETE",
+      "amount": "0.000000104",
+      "known_subtotal": "0.000000104",
+      "lines": [
+        {
+          "resource": "OCR_PAGE",
+          "units": 0,
+          "unit_price": 0.01,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        },
+        {
+          "resource": "EMBEDDING_TOKEN",
+          "units": 0,
+          "unit_price": 1e-06,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        },
+        {
+          "resource": "SOURCE_WRITE_BYTE",
+          "units": 104,
+          "unit_price": 1e-09,
+          "known_amount": "0.000000104",
+          "state": "KNOWN"
+        }
+      ]
+    }
+  },
+  "request_cost": {
+    "rule_id": "de180172-c810-4937-a464-73736f13ae86",
+    "currency": "CNY",
+    "basis": "ACTUAL",
+    "customer": {
+      "state": "COMPLETE",
+      "amount": "0.2",
+      "known_subtotal": "0.2",
+      "lines": [
+        {
+          "resource": "QUERY",
+          "units": 1,
+          "unit_price": 0.2,
+          "known_amount": "0.2",
+          "state": "KNOWN"
+        }
+      ]
+    },
+    "provider": {
+      "state": "COMPLETE",
+      "amount": "0.000356",
+      "known_subtotal": "0.000356",
+      "lines": [
+        {
+          "resource": "EMBEDDING_TOKEN",
+          "units": 14,
+          "unit_price": 1e-06,
+          "known_amount": "0.000014",
+          "state": "KNOWN"
+        },
+        {
+          "resource": "RERANK_TOKEN",
+          "units": 342,
+          "unit_price": 1e-06,
+          "known_amount": "0.000342",
+          "state": "KNOWN"
+        },
+        {
+          "resource": "GENERATION_INPUT_TOKEN",
+          "units": 0,
+          "unit_price": 1e-06,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        },
+        {
+          "resource": "GENERATION_OUTPUT_TOKEN",
+          "units": 0,
+          "unit_price": 2e-06,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        }
+      ]
+    }
+  },
+  "old_price_preserved": true,
+  "stale_estimate_rejected": true,
+  "application_provider_cost_hidden": true,
+  "original_active_rule_restored": true,
+  "index_job_id": "c19b3672-56d2-4bda-b188-8e932bf89167",
+  "index_cost": {
+    "rule_id": "de180172-c810-4937-a464-73736f13ae86",
+    "currency": "CNY",
+    "basis": "ACTUAL",
+    "customer": {
+      "state": "COMPLETE",
+      "amount": "0.4",
+      "known_subtotal": "0.4",
+      "lines": [
+        {
+          "resource": "PROCESSING_TASK",
+          "units": 1,
+          "unit_price": 0.4,
+          "known_amount": "0.4",
+          "state": "KNOWN"
+        }
+      ]
+    },
+    "provider": {
+      "state": "COMPLETE",
+      "amount": "0.000053",
+      "known_subtotal": "0.000053",
+      "lines": [
+        {
+          "resource": "OCR_PAGE",
+          "units": 0,
+          "unit_price": 0.01,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        },
+        {
+          "resource": "EMBEDDING_TOKEN",
+          "units": 53,
+          "unit_price": 1e-06,
+          "known_amount": "0.000053",
+          "state": "KNOWN"
+        },
+        {
+          "resource": "SOURCE_WRITE_BYTE",
+          "units": 0,
+          "unit_price": 1e-09,
+          "known_amount": "0",
+          "state": "NOT_USED"
+        }
+      ]
+    }
+  }
+}

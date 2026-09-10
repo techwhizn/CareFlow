@@ -172,3 +172,7 @@ Python 的 `ApplicationConfiguration`、`ApplicationModels`、`AnswerPolicy` 位
 模型用量：Python `model_usage()` / `application_usage(id)`；Java `modelUsage()` / `applicationUsage(id)`。返回已知Token小计和未知调用数，覆盖范围见[模型用量](../docs/model-usage.md)。
 
 调用日志：Python `request_logs(application_id=app_id, before=cursor)`、`request_log(request_id, application_id=app_id)`；Java `requestLogs(appId, cursor)`、`requestLog(appId, requestId)`。省略应用（Java传null）查询企业管理范围。列表含items与next_cursor，详见[调用日志](../docs/request-logs.md)。
+
+## 费率与费用
+
+Java `billingRules/createBillingRule/activateBillingRule` 与 Python 同名 snake_case 方法管理不可变价格版本。Java 单价使用 BigDecimal，Python 建议 Decimal；SDK 保留十进制精度。`importEstimate`/`import_estimate` 在上传前取得预估；上传的可选 billingRevision/billing_revision 参数用于拒绝过期费率。`requestCost`/`request_cost` 和 `jobCost`/`job_cost` 获取实际核算，未知金额为 null，不能当作零。详见[费率文档](../docs/billing.md)。

@@ -106,3 +106,5 @@ npm audit --prefix web
 增量向量复用、实际模型调用用量与升级顺序见 [增量索引](docs/incremental-indexing.md)。
 
 多轮问答与历史授权规则见[会话文档](docs/conversations.md)。
+
+导入预估、费率版本和实际成本核算见[费用说明](docs/billing.md)。

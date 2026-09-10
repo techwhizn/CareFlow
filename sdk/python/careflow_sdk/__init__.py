@@ -239,6 +239,48 @@ class Client:
         )
         return self._request("GET", f"{base}/{_id(request_id)}")
 
+    def billing_rules(self):
+        return self._request("GET", "billing/rules")
+
+    def create_billing_rule(self, name, currency, customer_rates, provider_rates):
+        return self._request(
+            "POST",
+            "billing/rules",
+            json=dict(
+                name=name,
+                currency=currency,
+                customer_rates={k: str(v) for k, v in customer_rates.items()},
+                provider_rates={k: str(v) for k, v in provider_rates.items()},
+            ),
+        )
+
+    def activate_billing_rule(self, rule_id, revision):
+        return self._request(
+            "PUT",
+            "billing/active-rule",
+            json=dict(rule_id=_id(rule_id) if rule_id else None, revision=revision),
+        )
+
+    def request_cost(self, request_id, *, application_id=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return self._request("GET", f"{base}/{_id(request_id)}/cost")
+
+    def job_cost(self, job_id):
+        return self._request("GET", f"jobs/{_id(job_id)}/cost")
+
+    def import_estimate(self, knowledge_base_id, file):
+        path = Path(file)
+        with path.open("rb") as source:
+            return self._request(
+                "POST",
+                f"knowledge-bases/{_id(knowledge_base_id)}/import-estimate",
+                files={"file": (path.name, source, "application/octet-stream")},
+            )
+
     def model_usage(self):
         return self._request("GET", "usage/models")
 
@@ -351,7 +393,9 @@ class Client:
             headers=_headers(idempotency_key),
         )
 
-    def upload(self, knowledge_base_id, file, *, idempotency_key=None):
+    def upload(
+        self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
+    ):
         path = Path(file)
         with path.open("rb") as source:
             return self._request(
@@ -359,6 +403,9 @@ class Client:
                 f"knowledge-bases/{_id(knowledge_base_id)}/documents",
                 files={"file": (path.name, source, "application/octet-stream")},
                 headers=_headers(idempotency_key),
+                params={"billing_revision": billing_revision}
+                if billing_revision is not None
+                else {},
             )
 
     def knowledge_configurations(self, knowledge_base_id):
@@ -696,6 +743,48 @@ class AsyncClient:
         )
         return await self._request("GET", f"{base}/{_id(request_id)}")
 
+    async def billing_rules(self):
+        return await self._request("GET", "billing/rules")
+
+    async def create_billing_rule(self, name, currency, customer_rates, provider_rates):
+        return await self._request(
+            "POST",
+            "billing/rules",
+            json=dict(
+                name=name,
+                currency=currency,
+                customer_rates={k: str(v) for k, v in customer_rates.items()},
+                provider_rates={k: str(v) for k, v in provider_rates.items()},
+            ),
+        )
+
+    async def activate_billing_rule(self, rule_id, revision):
+        return await self._request(
+            "PUT",
+            "billing/active-rule",
+            json=dict(rule_id=_id(rule_id) if rule_id else None, revision=revision),
+        )
+
+    async def request_cost(self, request_id, *, application_id=None):
+        base = (
+            f"applications/{_id(application_id)}/requests"
+            if application_id
+            else "usage/requests"
+        )
+        return await self._request("GET", f"{base}/{_id(request_id)}/cost")
+
+    async def job_cost(self, job_id):
+        return await self._request("GET", f"jobs/{_id(job_id)}/cost")
+
+    async def import_estimate(self, knowledge_base_id, file):
+        path = Path(file)
+        with path.open("rb") as source:
+            return await self._request(
+                "POST",
+                f"knowledge-bases/{_id(knowledge_base_id)}/import-estimate",
+                files={"file": (path.name, source, "application/octet-stream")},
+            )
+
     async def model_usage(self):
         return await self._request("GET", "usage/models")
 
@@ -810,7 +899,9 @@ class AsyncClient:
             headers=_headers(idempotency_key),
         )
 
-    async def upload(self, knowledge_base_id, file, *, idempotency_key=None):
+    async def upload(
+        self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
+    ):
         path = Path(file)
         with path.open("rb") as source:
             return await self._request(
@@ -818,6 +909,9 @@ class AsyncClient:
                 f"knowledge-bases/{_id(knowledge_base_id)}/documents",
                 files={"file": (path.name, source, "application/octet-stream")},
                 headers=_headers(idempotency_key),
+                params={"billing_revision": billing_revision}
+                if billing_revision is not None
+                else {},
             )
 
     async def knowledge_configurations(self, knowledge_base_id):

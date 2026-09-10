@@ -333,4 +333,27 @@ class CareFlowClientTest {
     assertEquals("/api/v1/applications/" + ID + "/requests/" + ID, paths.get(1));
     assertEquals("/api/v1/usage/requests", paths.get(2));
   }
+
+  @Test
+  void billingRulesAndImportEstimatesPreserveDecimalRates() throws Exception {
+    client.createBillingRule(
+        new CareFlowClient.BillingRule(
+            "Synthetic",
+            "CNY",
+            Map.of("QUERY", new java.math.BigDecimal("0.10")),
+            Map.of("EMBEDDING_TOKEN", new java.math.BigDecimal("0.000001"))));
+    client.activateBillingRule(null, 3);
+    Path file = Files.createTempFile("careflow-estimate-", ".txt");
+    try {
+      Files.writeString(file, "Synthetic estimate");
+      client.importEstimate(ID, file);
+      client.upload(ID, file, null, 3L);
+    } finally {
+      Files.deleteIfExists(file);
+    }
+    assertTrue(bodies.get(0).contains("0.000001"));
+    assertTrue(bodies.get(1).contains("\"rule_id\":null"));
+    assertTrue(paths.get(2).endsWith("/import-estimate"));
+    assertTrue(paths.get(3).endsWith("/documents"));
+  }
 }

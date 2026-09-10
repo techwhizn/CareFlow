@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DocumentUploadService {
+  private final BillingRulesService billing;
   private final Db db;
   private final Identity auth;
   private final BlobStore blobs;
@@ -19,6 +20,7 @@ public class DocumentUploadService {
   private final ContentConflictService conflicts;
 
   public DocumentUploadService(
+      BillingRulesService billing,
       Db db,
       Identity auth,
       BlobStore blobs,
@@ -26,6 +28,7 @@ public class DocumentUploadService {
       TransactionTemplate tx,
       EntitlementService entitlements,
       ContentConflictService conflicts) {
+    this.billing = billing;
     this.db = db;
     this.auth = auth;
     this.blobs = blobs;
@@ -43,7 +46,8 @@ public class DocumentUploadService {
       String key,
       String name,
       String digest,
-      String fingerprint) {
+      String fingerprint,
+      Long billingRevision) {
     @Override
     public String toString() {
       return "Upload[redacted]";
@@ -53,8 +57,20 @@ public class DocumentUploadService {
   public Object replace(
       Actor actor, String authorization, String document, String key, MultipartFile file)
       throws Exception {
+    return replace(actor, authorization, document, key, file, null);
+  }
+
+  public Object replace(
+      Actor actor,
+      String authorization,
+      String document,
+      String key,
+      MultipartFile file,
+      Long billingRevision)
+      throws Exception {
     var metadata = auth.document(actor, document, "edit");
-    return upload(actor, authorization, str(metadata, "kb_id"), document, key, file);
+    return upload(
+        actor, authorization, str(metadata, "kb_id"), document, key, file, billingRevision);
   }
 
   public Object upload(
@@ -64,6 +80,18 @@ public class DocumentUploadService {
       String document,
       String requestKey,
       MultipartFile file)
+      throws Exception {
+    return upload(actor, authorization, kb, document, requestKey, file, null);
+  }
+
+  public Object upload(
+      Actor actor,
+      String authorization,
+      String kb,
+      String document,
+      String requestKey,
+      MultipartFile file,
+      Long billingRevision)
       throws Exception {
     if (requestKey.isBlank() || requestKey.length() > 100) throw new IllegalArgumentException();
     auth.kb(actor, kb, "edit");
@@ -81,7 +109,8 @@ public class DocumentUploadService {
             requestKey,
             data.name(),
             data.digest(),
-            fingerprint);
+            fingerprint,
+            billingRevision);
     String nextDocument = document == null ? id() : document,
         version = id(),
         job = id(),
@@ -93,6 +122,7 @@ public class DocumentUploadService {
               authorize(upload);
               var existing = existing(upload);
               if (existing != null) return existing;
+              billing.checkRevision(actor.tenant(), upload.billingRevision());
               duplicate(upload);
               entitlements.upload(actor.tenant(), data.bytes().length);
               staging.reserve(stage, actor.tenant(), objectKey, data.bytes().length);
@@ -109,6 +139,7 @@ public class DocumentUploadService {
                 authorize(upload);
                 var existing = existing(upload);
                 if (existing != null) return existing;
+                billing.checkRevision(actor.tenant(), upload.billingRevision());
                 duplicate(upload);
                 entitlements.upload(actor.tenant(), 0);
                 staging.attach(stage, actor.tenant());
@@ -137,6 +168,7 @@ public class DocumentUploadService {
                     requestKey,
                     fingerprint,
                     auth.kb(actor, kb, "edit").get("published_configuration"));
+                billing.attachJob(actor.tenant(), job, data.bytes().length);
                 db.exec("INSERT INTO outbox(id,job_id) VALUES(?,?)", id(), job);
                 if (document != null) conflicts.snapshotLatest(actor, nextDocument, version);
                 auth.audit(actor, "DOCUMENT_UPLOAD", nextDocument, version);

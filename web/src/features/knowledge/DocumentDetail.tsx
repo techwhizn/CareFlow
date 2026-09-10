@@ -1,3 +1,4 @@
+import DocumentUpload from "../../components/DocumentUpload";
 import { ArrowClockwise, ArrowLeft, ShieldCheck } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import type { Row } from "../../api";
@@ -153,23 +154,17 @@ export default function DocumentDetail({
               : "历史部署配置"}
           </span>
         )}
-        <label className="file-button">
-          上传新版
-          <input
-            type="file"
-            disabled={busy}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file)
-                void action(async () => {
-                  const data = new FormData();
-                  data.append("file", file);
-                  await knowledgeClient.uploadVersion(doc.id, data);
-                  setActive(null);
-                });
+        <details>
+          <summary>上传新版与成本预估</summary>
+          <DocumentUpload
+            knowledgeBaseId={doc.kb_id}
+            documentId={doc.id}
+            onUploaded={async () => {
+              setActive(null);
+              await refresh();
             }}
           />
-        </label>
+        </details>
       </div>
       {versions.loading ? (
         <Loading />

@@ -1,3 +1,4 @@
+import { ExecutionCost } from "../features/billing/CostView";
 import { ArrowClockwise, Stack } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import type { Row } from "../api";
@@ -6,7 +7,8 @@ import { Badge, Empty, ErrorNote, Loading, useData } from "../ui";
 import CleanupRequests from "../features/tasks/CleanupRequests";
 export default function TasksPage() {
   const jobs = useData<Row[]>("/jobs", []),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [costId, setCostId] = useState("");
   useEffect(() => {
     const timer = setInterval(() => void jobs.reload(), 10000);
     return () => clearInterval(timer);
@@ -128,6 +130,7 @@ export default function TasksPage() {
                   </td>
                   <td>{j.error_code || "—"}</td>
                   <td>
+                    <button onClick={() => setCostId(j.id)}>成本核算</button>
                     {["QUEUED", "RUNNING"].includes(j.state) && (
                       <button
                         onClick={async () => {
@@ -149,6 +152,7 @@ export default function TasksPage() {
           </table>
         </div>
       )}
+      {costId && <ExecutionCost key={costId} path={`/jobs/${costId}/cost`} />}
       <CleanupRequests />
     </>
   );

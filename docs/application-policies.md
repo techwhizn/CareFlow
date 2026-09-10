@@ -52,5 +52,5 @@ Java/Python SDK 提供 ApplicationConfiguration、模型引用、AnswerPolicy �
 搜索和问答共享应用级计数，同一应用的多个凭证也共享。Java在企业事务锁内检查滚动60秒窗口和仍在预占的调用，随后原子预占企业查询额度；拒绝时不新增预占。
 并发超限返回429 `APPLICATION_CONCURRENCY_LIMIT`，窗口超限返回429 `APPLICATION_RATE_LIMIT`。
 已接受的失败调用也计入窗口，正常结算或失败释放并发。重复幂等键优先返回409 `DUPLICATE_REQUEST`。
-当前查询进程崩溃后的预占回收属于V1-38待完善项；未将此限流增量宣称为V1-34完整验收。
+查询进程崩溃后按[查询恢复](query-recovery.md)的期限核对结果并结算或释放。
 V28新增默认值列和查询索引，旧应用自动获得默认限制，不更改其发布配置。

@@ -36,7 +36,7 @@ public class RequestLogService {
   }
 
   private static final String COLUMNS =
-      "id AS request_id,application_id,operation,state,outcome,error_code,created_at,completed_at,application_revision,configuration_id,application_configuration_id";
+      "id AS request_id,application_id,operation,state,outcome,error_code,created_at,completed_at,expires_at,application_revision,configuration_id,application_configuration_id";
 
   public Object list(Actor actor, String app, UUID before) {
     access(actor, app);

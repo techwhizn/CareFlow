@@ -130,7 +130,7 @@ class ConversationTest extends ContentTestSupport {
             "原始合成证据",
             "title",
             "合成标题");
-    String conversation = session(), first = id();
+    String conversation = session(), first = reservedRequest(actor);
     repository.claim(actor, conversation, "", List.of(), first);
     String answer =
         history.save(
@@ -141,7 +141,7 @@ class ConversationTest extends ContentTestSupport {
             new ConversationService.Context(conversation, 0, List.of(), List.of(), 0, ""),
             first);
     assertThat((List<?>) history.answer(actor, answer).get("evidence")).hasSize(1);
-    String second = id();
+    String second = reservedRequest(actor);
     repository.claim(actor, conversation, "", List.of(), second);
     String followup =
         history.save(

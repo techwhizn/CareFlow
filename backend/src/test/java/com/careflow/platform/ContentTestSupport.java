@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
     })
 @AutoConfigureMockMvc
 abstract class ContentTestSupport {
+  @Autowired QueryReservationService reservations;
   @Autowired Db db;
   @Autowired Identity auth;
   @Autowired MockMvc mvc;
@@ -54,6 +55,10 @@ abstract class ContentTestSupport {
         version,
         tenant,
         document);
+  }
+
+  String reservedRequest(Actor who) {
+    return reservations.reserve(who, Db.id(), who.app() ? who.subject() : "");
   }
 
   String chunk(int ordinal, String content, int tokens, boolean enabled, String location) {

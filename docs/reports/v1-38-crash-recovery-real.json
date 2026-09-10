@@ -1,0 +1,75 @@
+{
+  "request_id": "6f167e8f-9b34-4a51-a9d4-1bfdfc08c41d",
+  "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+  "real_process_killed": true,
+  "pre_crash_state": "RESERVED",
+  "result_committed": false,
+  "test_deadline_advanced": true,
+  "request_log": {
+    "request_id": "6f167e8f-9b34-4a51-a9d4-1bfdfc08c41d",
+    "application_id": "7936df5f-b8e0-4b8c-9c25-ee5c4d06fc61",
+    "operation": "ANSWER",
+    "state": "RELEASED",
+    "outcome": "RECOVERED",
+    "error_code": "QUERY_EXPIRED",
+    "created_at": "2026-09-10T16:27:40.000+00:00",
+    "completed_at": "2026-09-10T16:28:13.000+00:00",
+    "expires_at": "2026-09-10T16:27:44.000+00:00",
+    "application_revision": 3,
+    "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "application_configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+    "retrieval_calls": [
+      {
+        "id": "706e4634-fc26-4847-9032-bf8a689dcaaa",
+        "stage": "EMBEDDING",
+        "configuration_id": "3da34780-efa3-4300-9373-1daed00a2efe",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:27:41.000+00:00",
+        "completed_at": "2026-09-10T16:27:41.000+00:00"
+      },
+      {
+        "id": "bbc4a457-7531-4339-91eb-1c6dff46e5d6",
+        "stage": "EMBEDDING",
+        "configuration_id": "63836e71-2507-44ea-8f7e-cba81cc0164a",
+        "input_count": 1,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 13,
+        "created_at": "2026-09-10T16:27:41.000+00:00",
+        "completed_at": "2026-09-10T16:27:41.000+00:00"
+      },
+      {
+        "id": "c7967fc4-d1e1-402c-a086-191d416f5b6f",
+        "stage": "RERANK",
+        "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+        "input_count": 6,
+        "call_state": "SUCCEEDED",
+        "usage_state": "REPORTED",
+        "total_tokens": 372,
+        "created_at": "2026-09-10T16:27:41.000+00:00",
+        "completed_at": "2026-09-10T16:27:42.000+00:00"
+      }
+    ],
+    "generation": [
+      {
+        "configuration_id": "d2ef7516-5242-4937-8c60-d23d98f2a410",
+        "request_state": "RECOVERED",
+        "usage_state": "UNKNOWN",
+        "input_tokens": null,
+        "output_tokens": null,
+        "total_tokens": null,
+        "created_at": "2026-09-10T16:27:40.000+00:00",
+        "completed_at": "2026-09-10T16:28:13.000+00:00"
+      }
+    ]
+  },
+  "repeated_recovery_is_idempotent": true,
+  "tenant_reserved_counter_matches_ledger": true,
+  "known_retrieval_cost_preserved": true,
+  "unreported_generation_remains_unknown": true,
+  "same_key_does_not_reexecute": true,
+  "new_request_after_recovery_succeeds": true
+}

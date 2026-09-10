@@ -4,6 +4,7 @@ import { ErrorNote, useData } from "../../ui";
 
 const outcome: Record<string, string> = {
   RUNNING: "处理中",
+  RECOVERED: "超时回收",
   SUCCEEDED: "成功",
   FAILED: "失败",
   CANCELLED: "取消",

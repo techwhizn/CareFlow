@@ -5,17 +5,14 @@ import static com.careflow.platform.Db.*;
 import com.careflow.platform.Identity.Actor;
 import java.util.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class RetrievalService {
   private final RetrievalAccounting accounting;
-  private final ApplicationAdmissionService admission;
+  private final QueryReservationService reservations;
   private final Db db;
   private final Identity auth;
   private final WorkerClient worker;
-  private final TransactionTemplate tx;
-  private final EntitlementService entitlements;
   private final ApplicationConfigurationService applications;
   private final MetadataFilters metadataFilters;
   private final ConfiguredModelRouting modelRouting;
@@ -25,12 +22,10 @@ public class RetrievalService {
 
   public RetrievalService(
       RetrievalAccounting accounting,
-      ApplicationAdmissionService admission,
+      QueryReservationService reservations,
       Db db,
       Identity auth,
       WorkerClient worker,
-      TransactionTemplate tx,
-      EntitlementService entitlements,
       ApplicationConfigurationService applications,
       MetadataFilters metadataFilters,
       ConfiguredModelRouting modelRouting,
@@ -38,12 +33,10 @@ public class RetrievalService {
       EvidenceAuthorization evidenceAuthorization,
       AnswerHistoryService history) {
     this.accounting = accounting;
-    this.admission = admission;
+    this.reservations = reservations;
     this.db = db;
     this.auth = auth;
     this.worker = worker;
-    this.tx = tx;
-    this.entitlements = entitlements;
     this.applications = applications;
     this.metadataFilters = metadataFilters;
     this.modelRouting = modelRouting;
@@ -213,80 +206,19 @@ public class RetrievalService {
   }
 
   public String reserve(Actor actor, String key, String app) {
-    return reserve(actor, key, app, null, "UNKNOWN");
+    return reservations.reserve(actor, key, app);
   }
 
   public String reserve(Actor actor, String key, Scope scope, String operation) {
-    return reserve(actor, key, scope.application(), scope, operation);
-  }
-
-  private String reserve(Actor actor, String key, String app, Scope scope, String operation) {
-    if (!Set.of("SEARCH", "ANSWER", "UNKNOWN").contains(operation))
-      throw new IllegalArgumentException();
-    return tx.execute(
-        status -> {
-          auth.lock(actor);
-          if (key == null || key.isBlank() || key.length() > 100)
-            throw new IllegalArgumentException();
-          var previous =
-              db.list(
-                  "SELECT id FROM usage_events WHERE tenant_id=? AND subject_id=? AND request_key=? AND resource_type='QUERY'",
-                  actor.tenant(),
-                  actor.subject(),
-                  key);
-          if (!previous.isEmpty())
-            throw new ApiException(409, "DUPLICATE_REQUEST", "此请求已处理或处理中，请查询历史结果，勿重复计费");
-          admission.admit(actor, app);
-          entitlements.query(actor.tenant());
-          if (db.exec(
-                  "UPDATE tenants SET queries_reserved=queries_reserved+1 WHERE id=? AND queries_used+queries_reserved<query_limit",
-                  actor.tenant())
-              != 1) throw new ApiException(429, "QUOTA_EXCEEDED", "查询额度不足");
-          String event = id();
-          db.exec(
-              "INSERT INTO usage_events(id,tenant_id,application_id,subject_id,request_key,resource_type,amount,state) VALUES(?,?,?,?,?,'QUERY',1,'RESERVED')",
-              event,
-              actor.tenant(),
-              app,
-              actor.subject(),
-              key);
-          db.exec(
-              "UPDATE usage_events SET operation=?,outcome='RUNNING',application_revision=?,configuration_id=?,application_configuration_id=? WHERE id=?",
-              operation,
-              scope == null ? null : scope.applicationRevision(),
-              scope == null || scope.configuration() == null
-                  ? null
-                  : scope.configuration().runtime().id(),
-              scope == null || scope.applicationPolicy() == null
-                  ? null
-                  : scope.applicationPolicy().id(),
-              event);
-          return event;
-        });
+    return reservations.reserve(actor, key, scope, operation);
   }
 
   public void settle(Actor actor, String event, boolean success) {
-    settle(actor, event, success, false, null);
+    reservations.settle(actor, event, success);
   }
 
   public void settle(Actor actor, String event, boolean success, boolean cancelled, String error) {
-    String code = error != null && error.matches("[A-Z][A-Z0-9_]{0,99}") ? error : null;
-    tx.executeWithoutResult(
-        status -> {
-          auth.lock(actor);
-          if (db.exec(
-                  "UPDATE usage_events SET state=?,outcome=?,error_code=?,completed_at=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND state='RESERVED'",
-                  success ? "SETTLED" : "RELEASED",
-                  success ? "SUCCEEDED" : cancelled ? "CANCELLED" : "FAILED",
-                  success ? null : code,
-                  event,
-                  actor.tenant())
-              == 1)
-            db.exec(
-                "UPDATE tenants SET queries_reserved=queries_reserved-1,queries_used=queries_used+? WHERE id=?",
-                success ? 1 : 0,
-                actor.tenant());
-        });
+    reservations.settle(actor, event, success, cancelled, error);
   }
 
   // Resolve every model candidate back to authoritative content. Never forward worker-provided text

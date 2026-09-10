@@ -26,7 +26,7 @@ class ImprovementTest extends ContentTestSupport {
   }
 
   String record(Actor who, String status, List<Map<String, Object>> sources) {
-    String request = id();
+    String request = reservedRequest(who);
     var query =
         new RetrievalService.Query("合成改进问题", null, List.of(kb()), "keyword", 6, false, null);
     var result = new LinkedHashMap<String, Object>();

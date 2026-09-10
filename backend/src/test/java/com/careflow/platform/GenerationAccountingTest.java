@@ -50,8 +50,7 @@ class GenerationAccountingTest extends ContentTestSupport {
   @Test
   void tenantAndCallStateFenceUsageWritesAndZeroRequiresActualReport() {
     String tenant = Db.id(), id = reservation(tenant);
-    assertThatThrownBy(() -> accounting.started(Db.id(), id))
-        .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> accounting.started(Db.id(), id)).isInstanceOf(ApiException.class);
     assertThatThrownBy(() -> accounting.reported(tenant, id, Map.of("total_tokens", 1)))
         .isInstanceOf(IllegalStateException.class);
     accounting.started(tenant, id);

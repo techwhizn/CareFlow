@@ -69,7 +69,7 @@ class RetrievalAccountingTest extends ContentTestSupport {
                     () -> {
                       throw new AssertionError("must not reach model");
                     }))
-        .isInstanceOf(IllegalStateException.class);
+        .isInstanceOf(ApiException.class);
   }
 
   @Test

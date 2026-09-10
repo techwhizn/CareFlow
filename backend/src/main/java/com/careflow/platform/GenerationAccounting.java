@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 /** Provider consumption is independent of whether answer delivery succeeded. No text or keys. */
 @Service
 public class GenerationAccounting {
+  private final QueryReservationService reservations;
   private final Db db;
 
-  public GenerationAccounting(Db db) {
+  public GenerationAccounting(Db db, QueryReservationService reservations) {
+    this.reservations = reservations;
     this.db = db;
   }
 
@@ -22,6 +24,7 @@ public class GenerationAccounting {
   }
 
   public void started(String tenant, String request) {
+    reservations.requireActive(tenant, request);
     if (db.exec(
             "UPDATE generation_usage SET usage_state='STARTED' WHERE tenant_id=? AND request_id=? AND request_state='RUNNING' AND usage_state='NOT_CALLED'",
             tenant,
@@ -35,7 +38,7 @@ public class GenerationAccounting {
         total = count(usage.get("total_tokens"));
     String state = input != null || output != null || total != null ? "REPORTED" : "NOT_REPORTED";
     if (db.exec(
-            "UPDATE generation_usage SET usage_state=CASE WHEN usage_state='REPORTED' THEN 'REPORTED' ELSE ? END,input_tokens=COALESCE(?,input_tokens),output_tokens=COALESCE(?,output_tokens),total_tokens=COALESCE(?,total_tokens) WHERE tenant_id=? AND request_id=? AND request_state='RUNNING' AND usage_state<>'NOT_CALLED'",
+            "UPDATE generation_usage SET usage_state=CASE WHEN usage_state='REPORTED' THEN 'REPORTED' ELSE ? END,input_tokens=COALESCE(?,input_tokens),output_tokens=COALESCE(?,output_tokens),total_tokens=COALESCE(?,total_tokens) WHERE tenant_id=? AND request_id=? AND usage_state<>'NOT_CALLED'",
             state,
             input,
             output,

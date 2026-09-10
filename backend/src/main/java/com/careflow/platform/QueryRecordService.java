@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class QueryRecordService {
+  private final QueryReservationService reservations;
   private final Db db;
   private final Identity auth;
   private final EvidenceAuthorization evidence;
@@ -19,11 +20,13 @@ public class QueryRecordService {
   private final ConversationRepository conversations;
 
   public QueryRecordService(
+      QueryReservationService reservations,
       Db db,
       Identity auth,
       EvidenceAuthorization evidence,
       ObjectMapper json,
       ConversationRepository conversations) {
+    this.reservations = reservations;
     this.db = db;
     this.auth = auth;
     this.evidence = evidence;
@@ -35,6 +38,7 @@ public class QueryRecordService {
   @SuppressWarnings("unchecked")
   public void save(Actor actor, Query query, Scope scope, Map<String, Object> result, String id) {
     auth.lock(actor);
+    reservations.result(actor, id, false);
     var sources = (List<Map<String, Object>>) result.get("evidence");
     for (var source : sources) evidence.check(actor, source, scope);
     var options = new LinkedHashMap<String, Object>();

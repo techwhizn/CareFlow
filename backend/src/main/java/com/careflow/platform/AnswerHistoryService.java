@@ -12,6 +12,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AnswerHistoryService {
+  private final QueryReservationService reservations;
   private final Db db;
   private final Identity auth;
   private final EvidenceAuthorization evidence;
@@ -20,12 +21,14 @@ public class AnswerHistoryService {
   private final TransactionTemplate tx;
 
   public AnswerHistoryService(
+      QueryReservationService reservations,
       Db db,
       Identity auth,
       EvidenceAuthorization evidence,
       ConversationRepository conversations,
       ObjectMapper json,
       TransactionTemplate tx) {
+    this.reservations = reservations;
     this.db = db;
     this.auth = auth;
     this.evidence = evidence;
@@ -131,6 +134,7 @@ public class AnswerHistoryService {
     return tx.execute(
         status -> {
           auth.lock(actor);
+          reservations.result(actor, request, true);
           String application =
               actor.app() ? actor.subject() : Objects.toString(query.application_id(), "");
           var scope = new Scope(List.of(), false, application, -1);

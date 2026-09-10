@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 /** Durable supplier usage, independent of client quota settlement. Never stores query text. */
 @Service
 public class RetrievalAccounting {
+  private final QueryReservationService reservations;
   private final Db db;
 
-  public RetrievalAccounting(Db db) {
+  public RetrievalAccounting(Db db, QueryReservationService reservations) {
+    this.reservations = reservations;
     this.db = db;
   }
 
@@ -24,11 +26,12 @@ public class RetrievalAccounting {
       int inputCount,
       Supplier<Map<String, Object>> operation) {
     if (request == null) return operation.get();
+    reservations.requireActive(tenant, request);
     if (!Set.of("EMBEDDING", "RERANK").contains(stage) || inputCount < 0)
       throw new IllegalArgumentException();
     String call = id();
     if (db.exec(
-            "INSERT INTO retrieval_model_calls(id,tenant_id,request_id,stage,configuration_id,input_count,call_state,usage_state) SELECT ?,tenant_id,id,?,?,?,'STARTED',? FROM usage_events WHERE tenant_id=? AND id=? AND state='RESERVED'",
+            "INSERT INTO retrieval_model_calls(id,tenant_id,request_id,stage,configuration_id,input_count,call_state,usage_state) SELECT ?,tenant_id,id,?,?,?,'STARTED',? FROM usage_events WHERE tenant_id=? AND id=? AND state='RESERVED' AND COALESCE(expires_at,TIMESTAMPADD(SECOND,300,created_at))>CURRENT_TIMESTAMP",
             call,
             stage,
             configuration,

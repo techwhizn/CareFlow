@@ -810,4 +810,106 @@ class PlatformBoundaryTest {
                             "name", "admin", "role", "OWNER", "state", "ACTIVE", "revision", 0))))
         .andExpect(status().isConflict());
   }
+
+  @Test
+  void multiSubjectAuthorizationSnapshotAndRevisionConflict() throws Exception {
+    String reader = Db.id(), editor = Db.id();
+    for (String id : List.of(reader, editor))
+      db.exec(
+          "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'KNOWLEDGE_MANAGER')",
+          id,
+          tenant,
+          "test");
+    String body =
+        json.writeValueAsString(
+            Map.of(
+                "revision",
+                0,
+                "grants",
+                Map.of(reader, List.of("read"), editor, List.of("read", "edit"))));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/permissions")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isOk());
+    mvc.perform(
+            get("/api/v1/knowledge-bases/" + kb + "/authorization").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.revision").value(1))
+        .andExpect(jsonPath("$.grants.length()").value(3));
+    mvc.perform(
+            put("/api/v1/knowledge-bases/" + kb + "/permissions")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(body))
+        .andExpect(status().isConflict());
+    assertThat(db.list("SELECT * FROM permissions WHERE tenant_id=? AND resource_id=?", tenant, kb))
+        .hasSize(3);
+  }
+
+  @Test
+  void documentAuthorizationCannotExpandKnowledgeBasePermissions() throws Exception {
+    String reader = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'USER')",
+        reader,
+        tenant,
+        "reader");
+    db.exec(
+        "INSERT INTO permissions(tenant_id,resource_id,subject_id,action) VALUES(?,?,?,'read')",
+        tenant,
+        kb,
+        reader);
+    mvc.perform(
+            put("/api/v1/documents/" + document + "/permissions")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "revision", 0, "grants", Map.of(reader, List.of("read", "download"))))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("DOCUMENT_PERMISSION_EXCEEDS_KB"));
+    assertThat(Db.bool(db.one("SELECT * FROM documents WHERE id=?", document), "restricted"))
+        .isFalse();
+    mvc.perform(
+            put("/api/v1/documents/" + document + "/permissions")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(
+                    json.writeValueAsString(
+                        Map.of(
+                            "revision",
+                            0,
+                            "grants",
+                            Map.of(reader, List.of("read"), member, List.of("manage"))))))
+        .andExpect(status().isOk());
+    mvc.perform(
+            get("/api/v1/documents/" + document + "/authorization").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.restricted").value(true));
+  }
+
+  @Test
+  void invalidOrRemovedAclSubjectRollsBackWholeReplacement() throws Exception {
+    String removed = Db.id();
+    db.exec(
+        "INSERT INTO members(id,tenant_id,name,role,active,removed) VALUES(?,?,?,'USER',FALSE,TRUE)",
+        removed,
+        tenant,
+        "removed");
+    for (String subject : List.of(removed, Db.id()))
+      mvc.perform(
+              put("/api/v1/knowledge-bases/" + kb + "/permissions")
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(
+                      json.writeValueAsString(
+                          Map.of("revision", 0, "grants", Map.of(subject, List.of("read"))))))
+          .andExpect(status().isNotFound());
+    assertThat(Db.num(db.one("SELECT * FROM knowledge_bases WHERE id=?", kb), "revision")).isZero();
+    assertThat(db.list("SELECT * FROM permissions WHERE tenant_id=? AND resource_id=?", tenant, kb))
+        .isEmpty();
+  }
 }

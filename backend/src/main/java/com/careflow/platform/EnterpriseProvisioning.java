@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 /** Deployment operator provisioning; never grants existing tenant data access. */
 @Service
 public class EnterpriseProvisioning {
-  public record Input(
+  public record ProvisionEnterprise(
       @NotBlank @Size(max = 200) String name, @NotBlank @Size(max = 200) String owner_name) {}
 
   private final Db db;
@@ -28,7 +28,7 @@ public class EnterpriseProvisioning {
   }
 
   @Transactional
-  public Map<String, String> create(String supplied, String key, Input input) {
+  public Map<String, String> create(String supplied, String key, ProvisionEnterprise input) {
     if (bootstrap.length() < 32
         || supplied == null
         || !MessageDigest.isEqual(

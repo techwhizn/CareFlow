@@ -29,8 +29,6 @@ public class ManagementController {
   public record Named(
       @NotBlank @Size(max = 200) String name, @Size(max = 2000) String description) {}
 
-  public record Acl(@NotNull Map<String, List<String>> grants, long revision) {}
-
   public record State(@Pattern(regexp = "ACTIVE|ARCHIVED|DELETED") String status, long revision) {}
 
   public record Bind(
@@ -132,72 +130,6 @@ public class ManagementController {
         != 1) throw ApiException.conflict();
     auth.audit(actor, "KB_" + body.status(), id, "");
     return Map.of("status", body.status());
-  }
-
-  @GetMapping("/knowledge-bases/{id}/permissions")
-  public Object kbPermissions(@RequestAttribute Actor actor, @PathVariable String id) {
-    auth.kb(actor, id, "manage");
-    return db.list(
-        "SELECT subject_id,action FROM permissions WHERE tenant_id=? AND resource_id=?",
-        actor.tenant(),
-        id);
-  }
-
-  @PutMapping("/knowledge-bases/{id}/permissions")
-  @Transactional
-  public void kbAcl(
-      @RequestAttribute Actor actor, @PathVariable String id, @RequestBody @Valid Acl body) {
-    auth.lock(actor);
-    auth.kb(actor, id, "manage");
-    if (db.exec(
-            "UPDATE knowledge_bases SET revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
-            actor.tenant(),
-            id,
-            body.revision())
-        != 1) throw ApiException.conflict();
-    replaceAcl(actor, id, body);
-  }
-
-  @PutMapping("/documents/{id}/permissions")
-  @Transactional
-  public void docAcl(
-      @RequestAttribute Actor actor, @PathVariable String id, @RequestBody @Valid Acl body) {
-    auth.lock(actor);
-    auth.document(actor, id, "manage");
-    if (db.exec(
-            "UPDATE documents SET restricted=TRUE,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=?",
-            actor.tenant(),
-            id,
-            body.revision())
-        != 1) throw ApiException.conflict();
-    replaceAcl(actor, id, body);
-  }
-
-  private void replaceAcl(Actor actor, String resource, Acl body) {
-    if (body.grants().size() > 500) throw new IllegalArgumentException();
-    db.exec(
-        "DELETE FROM permissions WHERE tenant_id=? AND resource_id=?", actor.tenant(), resource);
-    for (var grant : body.grants().entrySet()) {
-      if (db.list(
-              "SELECT id FROM members WHERE tenant_id=? AND id=? UNION ALL SELECT id FROM applications WHERE tenant_id=? AND id=?",
-              actor.tenant(),
-              grant.getKey(),
-              actor.tenant(),
-              grant.getKey())
-          .isEmpty()) throw ApiException.hidden();
-      for (String action : new HashSet<>(grant.getValue())) {
-        if (!Set.of("read", "download", "edit", "publish", "manage").contains(action))
-          throw new IllegalArgumentException();
-        db.exec(
-            "INSERT INTO permissions(tenant_id,resource_id,subject_id,action) VALUES(?,?,?,?)",
-            actor.tenant(),
-            resource,
-            grant.getKey(),
-            action);
-      }
-    }
-    db.exec("UPDATE tenants SET revision=revision+1 WHERE id=?", actor.tenant());
-    auth.audit(actor, "ACL_REPLACE", resource, "当前授权已重新定义");
   }
 
   @GetMapping("/applications")

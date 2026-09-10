@@ -55,3 +55,11 @@
 部署管理员可调用 `POST /api/v1/enterprises`，提供 `X-Bootstrap-Token`、`Idempotency-Key`及 `{name, owner_name}`，开通新企业并取得一次性展示的所有者凭证。该接口不接受普通成员权限替代开通密钥，不提供跨企业资料查询。重复请求键返回409，不回显已签发凭证。原 `/bootstrap` 首次初始化行为保留。
 
 `PUT /api/v1/members/{id}` 接受 name、role、state（ACTIVE/DISABLED/REMOVED）、revision。禁用/移除即时撤销个人凭证；重新启用不会恢复旧凭证，可由管理员调用 `POST /api/v1/members/{id}/credentials` 签发新凭证。管理员不能取得他人的OWNER凭证。移除后不能恢复此成员；先移交其负责的知识库，权限条目移除但历史审计保留。所有者不能通过此接口转移角色或被禁用/移除。旧DELETE成员接口继续表示禁用。
+
+## 多主体授权编辑（V1-05）
+
+`GET /api/v1/knowledge-bases/{id}/authorization` 与 `GET /api/v1/documents/{id}/authorization` 返回同一事务内的 revision、当前 grants、可选成员/应用 subjects，以及文档 restricted 状态。仅当前资源管理者可查看；主体列表按企业隔离。已有GET permissions数组接口保留，文档也提供GET permissions。
+
+PUT permissions仍为全量替换，最多500个主体，每个主体最多5个动作；显式校验空值、未知动作、已移除/跨企业主体。文档动作必须是该主体知识库动作的子集，不符返回400 DOCUMENT_PERMISSION_EXCEEDS_KB；任何校验失败都回滚整次替换，旧授权与revision不变。
+
+UI加载现有多主体授权，修改后需核对确认。发生409保留本地内容，要求重新加载最新授权后再编辑；不会自动覆盖别人的修改。文档收窄可能撤销操作者自身管理权，保存前有明确提示。

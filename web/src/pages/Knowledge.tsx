@@ -1,3 +1,4 @@
+import AclDialog from "../components/AclDialog";
 import DocumentUpload from "../components/DocumentUpload";
 import {
   ArrowClockwise,
@@ -256,7 +257,7 @@ function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
       </div>
       {acl && (
         <AclDialog
-          resource={kb}
+          resource={{id:kb.id}}
           type="knowledge-bases"
           close={() => setAcl(false)}
           onSaved={back}
@@ -266,79 +267,6 @@ function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
   );
 }
 
-function AclDialog({
-  resource,
-  type,
-  close,
-  onSaved,
-}: {
-  resource: Row;
-  type: string;
-  close: () => void;
-  onSaved: () => void;
-}) {
-  const [subject, setSubject] = useState(""),
-    [actions, setActions] = useState(["read"]),
-    [error, setError] = useState("");
-  return (
-    <Dialog title="替换资源授权" close={close}>
-      <ErrorNote error={error} />
-      <div className="notice">
-        此操作会替换现有全部显式授权；文档授权会收窄知识库权限。请填写需要保留的主体。当前表单一次配置一个主体。
-      </div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          try {
-            await put(`/${type}/${resource.id}/permissions`, {
-              revision: resource.revision,
-              grants: { [subject]: actions },
-            });
-            close();
-            onSaved();
-          } catch (e) {
-            setError((e as Error).message);
-          }
-        }}
-      >
-        <label>
-          成员或应用 ID
-          <input
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-          />
-        </label>
-        <fieldset>
-          <legend>授予操作</legend>
-          {[
-            ["read", "读取"],
-            ["download", "下载"],
-            ["edit", "编辑"],
-            ["publish", "发布"],
-            ["manage", "管理"],
-          ].map(([key, label]) => (
-            <label className="check" key={key}>
-              <input
-                type="checkbox"
-                checked={actions.includes(key)}
-                onChange={(e) =>
-                  setActions(
-                    e.target.checked
-                      ? [...actions, key]
-                      : actions.filter((a) => a !== key),
-                  )
-                }
-              />
-              {label}
-            </label>
-          ))}
-        </fieldset>
-        <button className="primary">确认替换授权</button>
-      </form>
-    </Dialog>
-  );
-}
 
 function DocumentDetail({ doc, back }: { doc: Row; back: () => void }) {
   const versions = useData<Row[]>(`/documents/${doc.id}/versions`, []),
@@ -477,7 +405,7 @@ function DocumentDetail({ doc, back }: { doc: Row; back: () => void }) {
       {acl && (
         <AclDialog
           type="documents"
-          resource={doc}
+          resource={{id:doc.id}}
           close={() => setAcl(false)}
           onSaved={back}
         />

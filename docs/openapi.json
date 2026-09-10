@@ -181,16 +181,17 @@
     "/api/v1/knowledge-bases/{id}/permissions": {
       "get": {
         "tags": [
-          "management-controller"
+          "authorization-controller"
         ],
-        "operationId": "kbPermissions",
+        "operationId": "kbGrants",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -209,16 +210,17 @@
       },
       "put": {
         "tags": [
-          "management-controller"
+          "authorization-controller"
         ],
-        "operationId": "kbAcl",
+        "operationId": "kbReplace",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -226,7 +228,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Acl"
+                "$ref": "#/components/schemas/PermissionChange"
               }
             }
           },
@@ -240,18 +242,48 @@
       }
     },
     "/api/v1/documents/{id}/permissions": {
-      "put": {
+      "get": {
         "tags": [
-          "management-controller"
+          "authorization-controller"
         ],
-        "operationId": "docAcl",
+        "operationId": "docGrants",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "docReplace",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -259,7 +291,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Acl"
+                "$ref": "#/components/schemas/PermissionChange"
               }
             }
           },
@@ -862,7 +894,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Input"
+                "$ref": "#/components/schemas/ProvisionEnterprise"
               }
             }
           },
@@ -1567,6 +1599,37 @@
         }
       }
     },
+    "/api/v1/knowledge-bases/{id}/authorization": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "kbSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs": {
       "get": {
         "tags": [
@@ -1600,6 +1663,37 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/authorization": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "docSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -1966,7 +2060,7 @@
           }
         }
       },
-      "Acl": {
+      "PermissionChange": {
         "type": "object",
         "properties": {
           "grants": {
@@ -1980,7 +2074,8 @@
           },
           "revision": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 0
           }
         },
         "required": [
@@ -2099,6 +2194,25 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "ProvisionEnterprise": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "owner_name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "name",
+          "owner_name"
         ]
       },
       "Publish": {

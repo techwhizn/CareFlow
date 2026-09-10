@@ -77,7 +77,8 @@
       "V1-04"
     ],
     "acceptance": "可查看并编辑多个主体的read/download/edit/publish/manage权限；明确全量替换和影响；冲突不覆盖；文档只能收窄知识库权限。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-05-authorization.md"
   },
   {
     "id": "V1-06",

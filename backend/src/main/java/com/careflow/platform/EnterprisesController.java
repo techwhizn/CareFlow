@@ -16,7 +16,7 @@ public class EnterprisesController {
   public Map<String, String> create(
       @RequestHeader("X-Bootstrap-Token") String token,
       @RequestHeader("Idempotency-Key") String key,
-      @RequestBody @Valid EnterpriseProvisioning.Input input) {
+      @RequestBody @Valid EnterpriseProvisioning.ProvisionEnterprise input) {
     return service.create(token, key, input);
   }
 }

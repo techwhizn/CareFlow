@@ -182,3 +182,15 @@ Python 的 `ApplicationConfiguration`、`ApplicationModels`、`AnswerPolicy` 位
 ## 费率与费用
 
 Java `billingRules/createBillingRule/activateBillingRule` 与 Python 同名 snake_case 方法管理不可变价格版本。Java 单价使用 BigDecimal，Python 建议 Decimal；SDK 保留十进制精度。`importEstimate`/`import_estimate` 在上传前取得预估；上传的可选 billingRevision/billing_revision 参数用于拒绝过期费率。`requestCost`/`request_cost` 和 `jobCost`/`job_cost` 获取实际核算，未知金额为 null，不能当作零。详见[费率文档](../docs/billing.md)。
+
+## 公共契约同步
+
+后端 `PublicApiContractTest` 将运行时 `/v3/api-docs` 的公共路径及其引用类型，与 `backend/src/test/resources/contracts/public-api.json` 比较。路径、参数、请求字段和已声明响应类型变化会使 CI 失败；未声明结构的 Object 响应仍需 SDK 行为测试与真实联调，快照不代替这些检查。
+
+有意修改接口后，在仓库根目录运行以下显式更新命令，审查快照 diff，并同步 SDK 与迁移文档；正常 CI 不设置更新参数：
+
+```bash
+mvn -f backend/pom.xml test -Dtest=PublicApiContractTest \
+  -Dcareflow.contract.snapshot="$PWD/backend/src/test/resources/contracts/public-api.json"
+mvn -f backend/pom.xml test -Dtest=PublicApiContractTest
+```

@@ -2,26 +2,26 @@
   {
     "id": "AUTH-01",
     "title": "支持企业、成员、成员禁用和移除",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-04-membership.md"
   },
   {
     "id": "AUTH-02",
     "title": "首期提供企业所有者、企业管理员、知识管理员、应用开发者、使用者角色",
-    "status": "已实现，组件验证",
-    "note": "见 Java/Python 测试；不等同于生产或全链路验收。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-04-membership.md"
   },
   {
     "id": "AUTH-03",
     "title": "权限动作至少区分读取、下载、编辑、发布、管理",
-    "status": "已实现，组件验证",
-    "note": "见 Java/Python 测试；不等同于生产或全链路验收。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-05-authorization.md"
   },
   {
     "id": "AUTH-04",
     "title": "知识库具有 ACL，文档默认继承，可进一步收窄权限",
-    "status": "已实现，组件验证",
-    "note": "见 Java/Python 测试；不等同于生产或全链路验收。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-05-authorization.md"
   },
   {
     "id": "AUTH-05",
@@ -32,8 +32,8 @@
   {
     "id": "AUTH-06",
     "title": "API Key 具有应用身份、作用范围、失效时间、撤销与轮换能力",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-06-credentials.md"
   },
   {
     "id": "AUTH-07",
@@ -50,8 +50,8 @@
   {
     "id": "KB-01",
     "title": "创建知识库",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-08-knowledge-base.md"
   },
   {
     "id": "KB-02",
@@ -68,92 +68,92 @@
   {
     "id": "KB-04",
     "title": "授权管理",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-05-authorization.md"
   },
   {
     "id": "KB-05",
     "title": "状态概览",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-08-knowledge-base.md"
   },
   {
     "id": "KB-06",
     "title": "归档与恢复",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-09-lifecycle.md"
   },
   {
     "id": "KB-07",
     "title": "删除",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-09-lifecycle.md"
   },
   {
     "id": "KB-08",
     "title": "应用引用关系",
-    "status": "未完成",
-    "note": "尚需实现，不能仅以外部模型缺失解释这些缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-08-knowledge-base.md"
   },
   {
     "id": "DOC-01",
     "title": "批量上传",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-10-upload.md"
   },
   {
     "id": "DOC-02",
     "title": "格式验证",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-10-upload.md"
   },
   {
     "id": "DOC-03",
     "title": "重复检测",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-10-upload.md"
   },
   {
     "id": "DOC-04",
     "title": "文档元数据",
-    "status": "未完成",
-    "note": "尚需实现，不能仅以外部模型缺失解释这些缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-11-document-metadata.md"
   },
   {
     "id": "DOC-05",
     "title": "结构解析",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-12-structured-parsing.md"
   },
   {
     "id": "DOC-06",
     "title": "OCR",
-    "status": "代码已接入，待真实联调",
-    "note": "OCR 容器构建被外部镜像网络阻断；Embedding/Rerank 模型地址与凭证未配置。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-13-ocr.md"
   },
   {
     "id": "DOC-07",
     "title": "清洗",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-12-structured-parsing.md"
   },
   {
     "id": "DOC-08",
     "title": "来源定位",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-12-structured-parsing.md"
   },
   {
     "id": "DOC-09",
     "title": "版本更新",
-    "status": "已实现，组件验证",
-    "note": "见 Java/Python 测试；不等同于生产或全链路验收。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-15-publication-isolation.md"
   },
   {
     "id": "DOC-10",
     "title": "错误恢复",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-14-recovery.md"
   },
   {
     "id": "CH-01",
@@ -494,14 +494,14 @@
   {
     "id": "BILL-01",
     "title": "套餐支持成员数、知识库数、文件空间、处理额度、查询额度、并发限制",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-36-entitlements.md"
   },
   {
     "id": "BILL-02",
     "title": "首期由管理员开通套餐，支持开始时间、到期时间、停用",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-36-entitlements.md"
   },
   {
     "id": "BILL-03",
@@ -518,8 +518,8 @@
   {
     "id": "BILL-05",
     "title": "达到额度阈值时预警，超限行为按套餐明确执行",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-36-entitlements.md"
   },
   {
     "id": "BILL-06",
@@ -572,8 +572,8 @@
   {
     "id": "NFR-04",
     "title": "上传安全",
-    "status": "部分实现",
-    "note": "已具备对应基础能力；尚未满足全部 P0 细则，见下方缺口。"
+    "status": "已实现，专项验收",
+    "note": "证据：docs/reports/v1-10-upload.md, docs/reports/v1-13-ocr.md, docs/reports/v1-44-fair-dispatch.md"
   },
   {
     "id": "NFR-05",
@@ -620,8 +620,8 @@
   {
     "id": "AC-02",
     "title": "上传扫描 PDF",
-    "status": "未通过完整验收",
-    "note": "缺少完整真实链路、评估或恢复证据；不得记为通过。"
+    "status": "本地真实验收通过",
+    "note": "合成数据：docs/reports/v1-13-ocr.md"
   },
   {
     "id": "AC-03",
@@ -728,7 +728,7 @@
   {
     "id": "AC-20",
     "title": "真正运行依赖",
-    "status": "未通过完整验收",
-    "note": "缺少完整真实链路、评估或恢复证据；不得记为通过。"
+    "status": "本地真实验收通过",
+    "note": "合成数据：docs/reports/v1-02-models.md"
   }
 ]

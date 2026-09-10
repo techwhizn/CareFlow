@@ -1,0 +1,12 @@
+{
+  "synthetic_data": true,
+  "real_dependencies": true,
+  "global_model_revision_changed": true,
+  "unbound_old_index_request_status": 503,
+  "original_snapshot_dense_count": 5,
+  "original_snapshot_bm25_count": 4,
+  "degraded": false,
+  "complete": true,
+  "scope": "Internal snapshot routing; public knowledge configuration publication remains pending",
+  "public_java_identity_contract_verified": true
+}

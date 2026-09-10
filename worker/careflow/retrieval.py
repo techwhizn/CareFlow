@@ -9,6 +9,7 @@ from functools import lru_cache
 from pymilvus import DataType, Function, FunctionType, MilvusClient
 
 from careflow import models
+from careflow.model_configuration import value
 
 
 def collection(tenant):
@@ -40,7 +41,7 @@ def ensure_collection(tenant):
     schema.add_field(
         "dense",
         DataType.FLOAT_VECTOR,
-        dim=int(os.environ.get("EMBEDDING_DIMENSIONS", "1024")),
+        dim=int(value("EMBEDDING_DIMENSIONS", "1024")),
     )
     schema.add_field("sparse", DataType.SPARSE_FLOAT_VECTOR)
     schema.add_function(

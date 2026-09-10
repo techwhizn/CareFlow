@@ -231,6 +231,16 @@
       },
       "Generate": {
         "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "query": {
             "type": "string",
             "maxLength": 4000,
@@ -295,8 +305,77 @@
         ],
         "title": "Hit"
       },
+      "ModelConfiguration": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EMBEDDING",
+              "RERANK",
+              "GENERATION"
+            ],
+            "title": "Kind"
+          },
+          "base_url": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Base Url"
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Model"
+          },
+          "revision": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Revision",
+            "default": ""
+          },
+          "dimensions": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 65536.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensions"
+          },
+          "api_key": {
+            "type": "string",
+            "maxLength": 8192,
+            "format": "password",
+            "title": "Api Key",
+            "writeOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "base_url",
+          "model"
+        ],
+        "title": "ModelConfiguration"
+      },
       "Recall": {
         "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "tenant_id": {
             "type": "string",
             "minLength": 1,
@@ -309,6 +388,19 @@
             "type": "array",
             "maxItems": 10000,
             "title": "Version Ids"
+          },
+          "expected_model_identity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Model Identity"
           },
           "query": {
             "type": "string",
@@ -395,6 +487,16 @@
       },
       "Rerank": {
         "properties": {
+          "model_configuration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "query": {
             "type": "string",
             "maxLength": 4000,

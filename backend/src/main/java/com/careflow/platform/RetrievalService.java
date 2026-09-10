@@ -61,7 +61,16 @@ public class RetrievalService {
   }
 
   public record Scope(
-      List<String> versions, boolean degraded, String application, long applicationRevision) {}
+      List<String> versions,
+      boolean degraded,
+      String application,
+      long applicationRevision,
+      Set<String> modelIdentities) {
+    public Scope(
+        List<String> versions, boolean degraded, String application, long applicationRevision) {
+      this(versions, degraded, application, applicationRevision, Set.of());
+    }
+  }
 
   public Scope scope(Actor actor, Query q) {
     if (q.query() == null
@@ -99,9 +108,10 @@ public class RetrievalService {
     }
     var now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
     List<String> versions = new ArrayList<>();
+    Set<String> modelIdentities = new HashSet<>();
     for (var d :
         db.list(
-            "SELECT d.*,v.id AS version_id FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND (d.valid_from IS NULL OR d.valid_from<=?) AND (d.valid_until IS NULL OR d.valid_until>?) AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
+            "SELECT d.*,v.id AS version_id,v.model_identity AS index_model_identity FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND (d.valid_from IS NULL OR d.valid_from<=?) AND (d.valid_until IS NULL OR d.valid_until>?) AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
             actor.tenant(),
             now,
             now)) {
@@ -112,12 +122,16 @@ public class RetrievalService {
           && !q.knowledge_base_ids().contains(kb)) continue;
       try {
         auth.document(actor, str(d, "id"), "read");
-        if (metadata.test(d)) versions.add(str(d, "version_id"));
+        if (metadata.test(d)) {
+          versions.add(str(d, "version_id"));
+          modelIdentities.add(str(d, "index_model_identity"));
+        }
       } catch (ApiException e) {
         if (e.status != 404) throw e;
       }
     }
-    return new Scope(versions, degrade, app == null ? "" : app, appRevision);
+    return new Scope(
+        versions, degrade, app == null ? "" : app, appRevision, Set.copyOf(modelIdentities));
   }
 
   public String reserve(Actor actor, String key, String app) {
@@ -172,6 +186,13 @@ public class RetrievalService {
   // blindly.
   @SuppressWarnings("unchecked")
   public Map<String, Object> search(Actor actor, Query q, Scope scope, String authorization) {
+    String expectedIdentity = "";
+    if (!scope.versions().isEmpty()) {
+      Set<String> identities = scope.modelIdentities();
+      if (identities.size() != 1 || identities.contains(""))
+        throw new ApiException(503, "INDEX_CONFIGURATION_UNRESOLVED", "索引模型身份缺失或不一致，请按原配置核对索引");
+      expectedIdentity = identities.iterator().next();
+    }
     Map<String, Object> recall =
         scope.versions().isEmpty()
             ? Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false)
@@ -187,7 +208,9 @@ public class RetrievalService {
                     "mode",
                     q.mode(),
                     "allow_degraded",
-                    scope.degraded()));
+                    scope.degraded(),
+                    "expected_model_identity",
+                    expectedIdentity));
     List<Map<String, Object>> evidence = new ArrayList<>();
     var fused = (List<Map<String, Object>>) recall.getOrDefault("fused", List.of());
     reauthenticate(actor, authorization);

@@ -1,11 +1,11 @@
 """Real HTTP model adapters. Configuration errors fail explicitly."""
 
-import hashlib
 import json
 import math
-import os
 
 import httpx
+
+from careflow.model_configuration import embedding_identity, value
 
 
 class ModelUnavailable(RuntimeError):
@@ -14,7 +14,7 @@ class ModelUnavailable(RuntimeError):
 
 def identity():
     config = {
-        key: os.environ.get(key, "")
+        key: value(key, "")
         for key in (
             "EMBEDDING_BASE_URL",
             "EMBEDDING_MODEL",
@@ -22,28 +22,32 @@ def identity():
             "EMBEDDING_DIMENSIONS",
         )
     }
-    config["metric"] = "COSINE"
     if not config["EMBEDDING_MODEL"] or not config["EMBEDDING_REVISION"]:
         raise ModelUnavailable(
             "Embedding model and immutable revision must be configured"
         )
-    return hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
+    return embedding_identity(
+        config["EMBEDDING_BASE_URL"],
+        config["EMBEDDING_MODEL"],
+        config["EMBEDDING_REVISION"],
+        config["EMBEDDING_DIMENSIONS"],
+    )
 
 
 def endpoint(prefix, suffix):
-    base = os.environ.get(prefix + "_BASE_URL", "")
-    model = os.environ.get(prefix + "_MODEL", "")
+    base = value(prefix + "_BASE_URL", "")
+    model = value(prefix + "_MODEL", "")
     if not base.startswith(("http://", "https://")) or not model:
         raise ModelUnavailable(prefix + " is not configured")
     headers = {}
-    if token := os.environ.get(prefix + "_API_KEY"):
+    if token := value(prefix + "_API_KEY"):
         headers["Authorization"] = "Bearer " + token
     return base.rstrip("/") + suffix, model, headers
 
 
 def embed(texts):
     url, model, headers = endpoint("EMBEDDING", "/embeddings")
-    dim = int(os.environ.get("EMBEDDING_DIMENSIONS", "1024"))
+    dim = int(value("EMBEDDING_DIMENSIONS", "1024"))
     vectors = []
     usage = 0
     with httpx.Client(timeout=60) as client:
@@ -132,11 +136,11 @@ def generate_stream(query, evidence):
             for line in response.iter_lines():
                 if not line.startswith("data:"):
                     continue
-                value = line[5:].strip()
-                if value == "[DONE]":
+                payload = line[5:].strip()
+                if payload == "[DONE]":
                     finished = True
                     break
-                item = json.loads(value)
+                item = json.loads(payload)
                 if item.get("error"):
                     raise ModelUnavailable("Upstream generation error")
                 for choice in item.get("choices", []):

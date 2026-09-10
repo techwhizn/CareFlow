@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
 
+from careflow.model_configuration import ModelConfiguration
+
 
 class Contract(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -19,9 +21,16 @@ class Hit(Contract):
     score: FiniteFloat | None = None
 
 
-class Recall(Contract):
+class ConfiguredOperation(Contract):
+    model_configuration: ModelConfiguration | None = None
+
+
+class Recall(ConfiguredOperation):
     tenant_id: str = Field(min_length=1)
     version_ids: list[str] = Field(max_length=10000)
+    expected_model_identity: str | None = Field(
+        default=None, min_length=1, max_length=500
+    )
     query: str = Field(min_length=1, max_length=4000)
     mode: Literal["hybrid", "semantic", "keyword"] = "hybrid"
     allow_degraded: bool = False
@@ -35,7 +44,7 @@ class RecallResponse(Contract):
     warning: str | None = None
 
 
-class Rerank(Contract):
+class Rerank(ConfiguredOperation):
     query: str = Field(min_length=1, max_length=4000)
     candidates: list[Candidate] = Field(max_length=40)
     allow_degraded: bool = False
@@ -47,7 +56,7 @@ class RerankResponse(Contract):
     warning: str | None = None
 
 
-class Generate(Contract):
+class Generate(ConfiguredOperation):
     query: str = Field(min_length=1, max_length=4000)
     evidence: list[Candidate] = Field(min_length=1, max_length=6)
 

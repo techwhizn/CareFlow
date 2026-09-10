@@ -80,6 +80,9 @@ class PlatformBoundaryTest {
         "manual.txt",
         "digest");
     db.exec(
+        "UPDATE document_versions SET model_identity='synthetic-index-identity' WHERE id=?",
+        version);
+    db.exec(
         "INSERT INTO chunks(id,tenant_id,version_id,ordinal_no,source_text,content,location,token_count) VALUES(?,?,?,0,'原文','测试知识','{}',4)",
         chunk,
         tenant,
@@ -87,6 +90,32 @@ class PlatformBoundaryTest {
   }
 
   @Autowired EntitlementService entitlements;
+
+  @Test
+  void recallBindsAuthoritativeIndexIdentityAndUnknownIdentityCannotReturnEmptySuccess()
+      throws Exception {
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/recall"),
+                org.mockito.ArgumentMatchers.any()))
+        .thenReturn(
+            Map.of("dense", List.of(), "bm25", List.of(), "fused", List.of(), "degraded", false));
+    Query query = new Query("synthetic", null, List.of(kb), "hybrid", 6, false, null);
+    var result = retrieval.search(actor, query, retrieval.scope(actor, query), token);
+    assertThat(result.get("evidence")).isEqualTo(List.of());
+    org.mockito.ArgumentCaptor<Object> request = org.mockito.ArgumentCaptor.forClass(Object.class);
+    org.mockito.Mockito.verify(worker)
+        .call(org.mockito.ArgumentMatchers.eq("/internal/v1/recall"), request.capture());
+    assertThat(((Map<?, ?>) request.getValue()).get("expected_model_identity"))
+        .isEqualTo("synthetic-index-identity");
+    org.mockito.Mockito.clearInvocations(worker);
+    db.exec("UPDATE document_versions SET model_identity=NULL WHERE id=?", version);
+    assertThatThrownBy(() -> retrieval.search(actor, query, retrieval.scope(actor, query), token))
+        .isInstanceOfSatisfying(
+            ApiException.class,
+            error -> assertThat(error.code).isEqualTo("INDEX_CONFIGURATION_UNRESOLVED"));
+    org.mockito.Mockito.verifyNoInteractions(worker);
+  }
 
   @Test
   void metadataFiltersNarrowRecallAndNeverWidenDocumentAuthorization() {

@@ -18,12 +18,31 @@ public final class WorkerProtocolV1 {
     }
   }
 
+  public record ModelConfiguration(
+      @NotNull @Pattern(regexp = "EMBEDDING|RERANK|GENERATION") String kind,
+      @NotBlank @Size(max = 500) String base_url,
+      @NotBlank @Size(max = 200) String model,
+      @NotNull @Size(max = 200) String revision,
+      @Min(1) @Max(65536) Integer dimensions,
+      @Size(max = 8192) String api_key) {
+    public ModelConfiguration {
+      api_key = api_key == null ? "" : api_key;
+    }
+
+    @Override
+    public String toString() {
+      return "ModelConfiguration[redacted]";
+    }
+  }
+
   public record RecallRequest(
       @NotBlank String tenant_id,
       @NotNull @Size(max = 10000) List<@NotBlank String> version_ids,
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Pattern(regexp = "hybrid|semantic|keyword") String mode,
-      boolean allow_degraded) {}
+      boolean allow_degraded,
+      @Valid ModelConfiguration model_configuration,
+      @Size(min = 1, max = 500) String expected_model_identity) {}
 
   public record RecallResponse(
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> dense,
@@ -35,7 +54,8 @@ public final class WorkerProtocolV1 {
   public record RerankRequest(
       @NotBlank @Size(max = 4000) String query,
       @NotNull @Size(max = 40) List<@NotNull @Valid Candidate> candidates,
-      boolean allow_degraded) {}
+      boolean allow_degraded,
+      @Valid ModelConfiguration model_configuration) {}
 
   public record RerankResponse(
       @NotNull @Size(max = 40) List<@NotNull @Valid Hit> results,
@@ -44,7 +64,8 @@ public final class WorkerProtocolV1 {
 
   public record GenerateRequest(
       @NotBlank @Size(max = 4000) String query,
-      @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence) {}
+      @NotNull @Size(min = 1, max = 6) List<@NotNull @Valid Candidate> evidence,
+      @Valid ModelConfiguration model_configuration) {}
 
   public record TokenizeRequest(@NotBlank @Size(max = 10000) String text) {}
 

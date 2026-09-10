@@ -1,0 +1,35 @@
+{
+  "date": "2026-09-11",
+  "image": "careflow-local-models:local-candidate",
+  "artifact_id": "sha256:7befe6c125a0716210bf4dab6719711a7f57c3fe4d791bad25681b1e1e6a3865",
+  "raw_sha256": "514fe972999abaff3e24286bf97a9f0c6b03fa3ebad7c95490f79387f8442d4e",
+  "counts": {
+    "LOW": 58,
+    "HIGH": 51,
+    "MEDIUM": 62,
+    "UNKNOWN": 6,
+    "CRITICAL": 3
+  },
+  "high_critical_packages": [
+    "bsdutils",
+    "gzip",
+    "libacl1",
+    "libblkid1",
+    "liblastlog2-2",
+    "libmount1",
+    "libncursesw6",
+    "libsmartcols1",
+    "libsqlite3-0",
+    "libsystemd0",
+    "libtinfo6",
+    "libudev1",
+    "libuuid1",
+    "login",
+    "mount",
+    "ncurses-base",
+    "ncurses-bin",
+    "perl-base",
+    "util-linux"
+  ],
+  "status": "INCOMPLETE_OS_FINDINGS"
+}

@@ -1,0 +1,104 @@
+{
+  "created_at": "2026-09-10T20:49:49.393924+00:00",
+  "source_commit": "ea80232098f395eeafefe38551720848bd71219a",
+  "version": "0.1.0",
+  "release_ready": false,
+  "published": false,
+  "images": {
+    "careflow-backend:local-candidate": {
+      "id": "sha256:c1e6a961e3d82594cf5eb7976fa74ef3d252f7a2a0fb8cd59c2ee3fc26e59c8a",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "careflow-worker:local-candidate": {
+      "id": "sha256:f692c28081f645d3b35617eeb8c3c16cc6d8839c10895189eeb1b13720699c71",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "careflow-web:local-candidate": {
+      "id": "sha256:c22c2a9e3579feb3400a0c0d7c45857a4e55fccd01f254e3407eb211b14d9657",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    "careflow-local-models:local-candidate": {
+      "id": "sha256:d996228fe8b3af0f38d06d30ecd6088376d42f4236252091ee0911f8fa80a05d",
+      "os": "linux",
+      "architecture": "amd64"
+    }
+  },
+  "files": {
+    "CHANGELOG.md": {
+      "sha256": "2bf89322be0876c1b44b9fb92b114ff510a098e4d89c8d948b62e4231a3e4558",
+      "bytes": 1111
+    },
+    "INSTALL.md": {
+      "sha256": "b7cfc596d78dd71cd74990b03e60721ca54baefc6cabaf58e23492946adad9d0",
+      "bytes": 876
+    },
+    "LICENSE": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    "NOTICE": {
+      "sha256": "f67cf7642e55257bd40520d84f7ad32bea7cc782ad800a583aa52b154b268c59",
+      "bytes": 288
+    },
+    "THIRD_PARTY.md": {
+      "sha256": "7562f67c6635400bade321ac0da70f90f7bfa90b0d07f5ca96891a260129aaef",
+      "bytes": 2843
+    },
+    "application-images.compose.json": {
+      "sha256": "189466c8b5e76be63a6e852e6d7c2efb12b644d0a789b1f8bfc6cdc13318411e",
+      "bytes": 320
+    },
+    "careflow-images.tar": {
+      "sha256": "63bacdf4420891b17e4f29da4579c911d9ce48e620c8f85c014de94738514777",
+      "bytes": 650874880
+    },
+    "careflow-sdk-0.1.0.jar": {
+      "sha256": "8f8ca12a5f8a20525517f35eea47ae7cd9b070019a8370f42dc37748dfacbc6e",
+      "bytes": 65043
+    },
+    "careflow-sdk-0.1.0.pom": {
+      "sha256": "dd4107dfe9ea0bca89ec06512591991ce5c5f9978f40d81a255166ed1b1bda72",
+      "bytes": 1656
+    },
+    "careflow-source.tar.gz": {
+      "sha256": "fa5ab4f32456126f21984700e4d4c49b8c1af89624dd8310c39d8487bb54925b",
+      "bytes": 896466
+    },
+    "careflow-web.tar.gz": {
+      "sha256": "93cea513b585dd86e2d6a07e55578003c46cad9f00af6c41bd245227d7dc6a5d",
+      "bytes": 129023
+    },
+    "careflow_sdk-0.1.0-py3-none-any.whl": {
+      "sha256": "2595eeb90d651356c5efa9b72cc503cec43ca86ddc9deb5cddba875df4bc20f1",
+      "bytes": 15985
+    },
+    "careflow_sdk-0.1.0.tar.gz": {
+      "sha256": "14a829748b5d8504b907dc5b8ef3a64d6444764b14a3ad29e36e9b9d8167e920",
+      "bytes": 20330
+    },
+    "knowledge-platform-0.1.0.jar": {
+      "sha256": "038e4bc65edc21dca60f62b1d78f160efc370a357b8b7db45a1dbeec314e10d8",
+      "bytes": 56060939
+    }
+  },
+  "limitations": [
+    "Pending human quality evaluation",
+    "Performance targets unmet on CPU model service",
+    "Unresolved infrastructure and OS security findings",
+    "Remote CI and branch protection unverified",
+    "Linux amd64 images only",
+    "Infrastructure images and BGE weights not included"
+  ],
+  "local_directory": ".local/artifacts/careflow-0.1.0-ea80232-2",
+  "verification": {
+    "sha256_all_passed": true,
+    "docker_load_all_four_passed": true,
+    "python_wheel_isolated_install_and_public_search": true,
+    "java_jar_and_pom_install_and_public_api": true,
+    "source_archive_excludes_environment_and_private_files": true,
+    "source_archive_root_check_correction": "Initial packaging guard omitted tar root directory entry; corrected guard, preserved failed partial directory, produced a new output directory."
+  }
+}

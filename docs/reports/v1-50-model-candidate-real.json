@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "candidate_read_only": true,
+  "dimension": 512,
+  "embedding_max_absolute_delta": 0.0,
+  "rerank_max_absolute_delta": 0.0,
+  "actual_token_usage_equal": true,
+  "rank_order_equal": true,
+  "scope": "One synthetic embedding and two rerank candidates; fixed model revisions; no full capacity or long input equivalence claim"
+}

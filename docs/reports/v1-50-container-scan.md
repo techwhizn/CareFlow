@@ -13,3 +13,5 @@ Worker剩余严重项被扫描器归于perl-base，包含32位正则问题和Arc
 镜像构建成功不代表全产品验收完成。基础设施及可选模型镜像的扫描、剩余OS发现处理仍在V1-50中跟踪；没有发布镜像。
 
 后续加固：Compose对Worker API和消费者默认启用只读根目录、cap_drop ALL和no-new-privileges，临时目录与词表缓存使用限额tmpfs。实际新上传PNG经消费者OCR、解析、BGE索引和发布后，由Worker API完成公共搜索，全部通过；[容器实际配置及任务记录](v1-50-worker-sandbox-real.json)。这不是剩余OS漏洞的豁免依据。
+
+可选模型镜像也已按最新锁定依赖重新构建，并在非root、只读根目录、禁止提权的隔离容器启动。固定BGE模型的一条Embedding和两个重排候选与旧运行器结果完全一致，Token计数与排序一致，见[数值检查](v1-50-model-candidate-real.json)；只证明这个合成样本，不代表所有输入或容量。新镜像仍有3严重、51高危OS发现，见[扫描摘要](v1-50-model-container-scan.json)，没有据此宣称安全通过。

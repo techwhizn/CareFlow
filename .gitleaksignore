@@ -1,0 +1,14 @@
+# Reviewed synthetic identifiers and ASGI fixture literals only.
+# Exact historical fingerprints; new findings require review.
+2e782af3edb0fb26d4b399384572e0ba007babe2:worker/tests/test_model_configuration.py:generic-api-key:128
+2e782af3edb0fb26d4b399384572e0ba007babe2:worker/tests/test_model_configuration.py:generic-api-key:132
+2e782af3edb0fb26d4b399384572e0ba007babe2:worker/tests/test_model_configuration.py:generic-api-key:90
+2e782af3edb0fb26d4b399384572e0ba007babe2:worker/tests/test_model_configuration.py:generic-api-key:99
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:109
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:134
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:159
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:184
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:209
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:234
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:59
+779846bb13ee3b2ebace4861a08c31a81de4b276:examples/evaluation/pilot/candidate.json:generic-api-key:9

@@ -30,6 +30,8 @@ npm audit --prefix web --omit=dev --audit-level=high
 
 依赖升级后运行 `mvn -f backend/pom.xml clean verify`，并完成一次干净容器构建；增量编译可能保留旧依赖编译出的类，不能替代干净编译。
 
+提交前使用Gitleaks 8.30.1执行 `gitleaks git --redact=100 --log-opts=--all .` 检查可达历史。误报必须逐项核对并记录原因；只允许精确历史指纹，禁止以整目录排除掩盖新凭证。
+
 SDK 变更还需执行 [客户端验证命令](sdk/README.md#验证)，同步维护两种语言的协议行为。
 
 ## 评审与发布

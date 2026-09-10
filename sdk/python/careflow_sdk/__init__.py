@@ -177,6 +177,12 @@ class Client:
     def __exit__(self, *args):
         self.close()
 
+    @property
+    def management(self):
+        from .management import ManagementClient
+
+        return ManagementClient(self)
+
     def close(self):
         self._http.close()
 
@@ -434,11 +440,21 @@ class Client:
     def upload(
         self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
     ) -> UploadResult:
+        return self._upload_to(
+            f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+            file,
+            idempotency_key=idempotency_key,
+            billing_revision=billing_revision,
+        )
+
+    def _upload_to(
+        self, endpoint, file, *, idempotency_key=None, billing_revision=None
+    ) -> UploadResult:
         path = Path(file)
         with path.open("rb") as source:
             return self._request(
                 "POST",
-                f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+                endpoint,
                 files={"file": (path.name, source, "application/octet-stream")},
                 headers=_headers(idempotency_key),
                 params={"billing_revision": billing_revision}
@@ -710,6 +726,12 @@ class AsyncClient:
     async def __aexit__(self, *args):
         await self.aclose()
 
+    @property
+    def management(self):
+        from .management import AsyncManagementClient
+
+        return AsyncManagementClient(self)
+
     async def aclose(self):
         await self._http.aclose()
 
@@ -971,11 +993,21 @@ class AsyncClient:
     async def upload(
         self, knowledge_base_id, file, *, idempotency_key=None, billing_revision=None
     ) -> UploadResult:
+        return await self._upload_to(
+            f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+            file,
+            idempotency_key=idempotency_key,
+            billing_revision=billing_revision,
+        )
+
+    async def _upload_to(
+        self, endpoint, file, *, idempotency_key=None, billing_revision=None
+    ) -> UploadResult:
         path = Path(file)
         with path.open("rb") as source:
             return await self._request(
                 "POST",
-                f"knowledge-bases/{_id(knowledge_base_id)}/documents",
+                endpoint,
                 files={"file": (path.name, source, "application/octet-stream")},
                 headers=_headers(idempotency_key),
                 params={"billing_revision": billing_revision}

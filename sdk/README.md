@@ -194,3 +194,13 @@ mvn -f backend/pom.xml test -Dtest=PublicApiContractTest \
   -Dcareflow.contract.snapshot="$PWD/backend/src/test/resources/contracts/public-api.json"
 mvn -f backend/pom.xml test -Dtest=PublicApiContractTest
 ```
+
+## 管理与原文传输
+
+`client.management`（Python同步/异步）和 `client.management()`（Java）集中提供知识库设置/概览/影响检查、知识库属性与状态、成员、知识库/文档授权、文档元数据与历史、发布历史、复制草稿、替换文件及显式删除。业务权限仍由公共Java API校验。
+
+输入类型位于 Python `careflow_sdk.management`，Java `ManagementClient` 内：`KnowledgeAttributes`、`DocumentMetadata`、`PermissionChange`、`MemberChange`。时间字段采用含时区的ISO8601字符串；未知有效期为null。更新和删除传调用方实际核对时的revision，409后重新读取核对，SDK不自动覆盖。
+
+例如 Python `client.management.update_document_metadata(document_id, metadata)`，Java `client.management().updateDocumentMetadata(documentId, metadata)`。管理方法遵循同一snake_case/驼峰命名：`draft_version/draftVersion`、`replace_document/replaceDocument`、`download_source/downloadSource`、`delete_document/deleteDocument`。
+
+原文下载写入调用方提供的二进制输出流，不采用服务器返回的文件名创建本地文件，也不关闭调用方输出流。Python返回实际写入字节数，Java返回long。权限失败不写入错误正文；传输中断可能留下部分文件，调用方应写临时文件并在成功后原子替换。异步SDK的网络读取异步，输出流写入仍是同步操作。替换上传的幂等键与可选费率revision语义和初次上传一致。

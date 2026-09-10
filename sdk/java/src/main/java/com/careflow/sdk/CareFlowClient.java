@@ -129,7 +129,7 @@ public final class CareFlowClient {
     this.timeoutMillis = timeoutMillis;
   }
 
-  private static String id(String value) {
+  static String id(String value) {
     return UUID.fromString(value).toString();
   }
 
@@ -182,7 +182,7 @@ public final class CareFlowClient {
     }
   }
 
-  private JsonNode request(String method, String path, Object body, String key) throws IOException {
+  JsonNode request(String method, String path, Object body, String key) throws IOException {
     var connection = connection(method, path, key);
     try {
       send(connection, body);
@@ -253,6 +253,22 @@ public final class CareFlowClient {
       String currency,
       Map<String, java.math.BigDecimal> customer_rates,
       Map<String, java.math.BigDecimal> provider_rates) {}
+
+  long downloadTo(String path, java.io.OutputStream sink) throws IOException {
+    var connection = connection("GET", path, null);
+    try {
+      check(connection);
+      try (var input = connection.getInputStream()) {
+        return input.transferTo(sink);
+      }
+    } finally {
+      connection.disconnect();
+    }
+  }
+
+  public ManagementClient management() {
+    return new ManagementClient(this);
+  }
 
   public TypedCareFlowClient typed() {
     return new TypedCareFlowClient(this);
@@ -623,7 +639,7 @@ public final class CareFlowClient {
         key);
   }
 
-  private JsonNode uploadTo(String path, Path file, String key) throws IOException {
+  JsonNode uploadTo(String path, Path file, String key) throws IOException {
     String name = file.getFileName().toString();
     if (name.contains("\r") || name.contains("\n") || name.contains("\"") || name.contains("\\"))
       throw new IllegalArgumentException("Invalid multipart filename");

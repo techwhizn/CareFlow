@@ -59,6 +59,37 @@ class CareFlowClientTest {
   }
 
   @Test
+  void sourceTransferKeepsCallerSinkAndRejectsUnauthorizedContent() throws Exception {
+    response = "synthetic source";
+    contentType = "application/octet-stream";
+    var sink = new java.io.ByteArrayOutputStream();
+    assertEquals(16, client.management().downloadSource(ID, sink));
+    assertEquals(response, sink.toString(StandardCharsets.UTF_8));
+    status = 403;
+    response = "{\"code\":\"FORBIDDEN\"}";
+    var denied = new java.io.ByteArrayOutputStream();
+    assertThrows(
+        CareFlowClient.ApiException.class, () -> client.management().downloadSource(ID, denied));
+    assertEquals(0, denied.size());
+  }
+
+  @Test
+  void managementKeepsObservedRevisionsAndExplicitDraftOperations() throws Exception {
+    var management = client.management();
+    management.updateDocumentMetadata(
+        ID,
+        new ManagementClient.DocumentMetadata(
+            "Synthetic", "fixture", "zh", List.of(), List.of("CF-100"), 7, null, null));
+    management.updateDocumentPermissions(
+        ID, new ManagementClient.PermissionChange(Map.of(ID, List.of("read")), 9));
+    management.draftVersion(ID);
+    assertTrue(bodies.get(0).contains("\"revision\":7"));
+    assertTrue(bodies.get(0).contains("\"valid_from\":null"));
+    assertTrue(bodies.get(1).contains("\"revision\":9"));
+    assertEquals("/api/v1/document-versions/" + ID + "/draft", paths.getLast());
+  }
+
+  @Test
   void typedViewsKeepUnknownCountsAndTolerateAddedFields() throws Exception {
     response = "{\"id\":\"" + ID + "\",\"state\":\"RUNNING\",\"future_field\":true}";
     var job = client.typed().job(ID);

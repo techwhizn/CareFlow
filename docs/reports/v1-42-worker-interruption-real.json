@@ -1,0 +1,45 @@
+{
+  "started_at": "2026-09-10T20:30:57.221867+00:00",
+  "observations": [
+    {
+      "state": "RUNNING",
+      "attempts": 1
+    },
+    {
+      "state": "RUNNING",
+      "attempts": 2
+    },
+    {
+      "state": "DONE",
+      "attempts": 2
+    }
+  ],
+  "processing_before": 9,
+  "upload": {
+    "version_id": "997b5dbe-6f62-4f20-81b8-e60f6ce039b1",
+    "document_id": "2b41a7b5-7fd4-4a21-894d-c504274f8335",
+    "job_id": "73af7543-6f72-4eb1-befb-d5b16442ee0b"
+  },
+  "index_job_id": "f18917a7-2f28-4ea3-bcd5-6939bdc8e27a",
+  "attempt_at_kill": 1,
+  "killed_at": "2026-09-10T20:31:09.907665+00:00",
+  "index_check": {
+    "consistent": true,
+    "expected_count": 500,
+    "actual_count": 500,
+    "missing_count": 0,
+    "extra_count": 0,
+    "mismatched_count": 0,
+    "manifest": "3a0debb9f1fbaa20f7cf8856ceea8d37e8acb6880acbb5a060ffc55b57fac1c8",
+    "samples": {
+      "missing": [],
+      "extra": [],
+      "mismatched": []
+    }
+  },
+  "final_attempts": 2,
+  "processing_after": 11,
+  "finished_at": "2026-09-10T20:32:53.796657+00:00",
+  "complete": true,
+  "billing_scope": "Exactly two customer processing units: one parse and one index job; retry did not add a third. Provider calls may consume resources before a crash, not asserted free."
+}

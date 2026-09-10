@@ -1,0 +1,95 @@
+{
+  "complete": true,
+  "finished_at": "2026-09-10T20:40:42.397777+00:00",
+  "scope": "Two synthetic cases verify frozen dataset comparison and configuration attribution, not the 120-case human quality baseline. Retrieval quality misses are intentional policy exclusions; no invented HTTP failure.",
+  "dataset_id": "636335c0-c1bb-44b1-8447-2dc1b0e2a340",
+  "dataset_version": "64abc004-9abd-4f65-ab78-36a7f65f9d38",
+  "configuration_ids": [
+    "a601784d-c8f7-4e06-a58e-8b8f48f4fe7b",
+    "8fc4f8a2-8c10-4a45-ae18-4dec5847c585"
+  ],
+  "summaries": [
+    {
+      "cases": 2,
+      "failure_rate": 0.0,
+      "retrieval_top10_eligible": 2,
+      "recall_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "mrr_at_10": 1.0,
+      "final_evidence_eligible": 2,
+      "recall_at_6": 1.0,
+      "hit_at_6": 1.0,
+      "mrr_at_6": 1.0,
+      "p50_ms": 345,
+      "p95_ms": 364,
+      "answer_failure_rate": null,
+      "search_p50_ms": 345,
+      "search_p95_ms": 364,
+      "answer_p50_ms": null,
+      "answer_p95_ms": null,
+      "human_review": {
+        "reviewed": 0,
+        "answer_correctness": null,
+        "evidence_support": null,
+        "citation_accuracy": null,
+        "unanswerable_refusal_rate": null,
+        "answerable_false_refusal_rate": null
+      },
+      "known_customer_costs_by_currency": {},
+      "unknown_cost_cases": 2
+    },
+    {
+      "cases": 2,
+      "failure_rate": 0.0,
+      "retrieval_top10_eligible": 2,
+      "recall_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "mrr_at_10": 1.0,
+      "final_evidence_eligible": 2,
+      "recall_at_6": 0.0,
+      "hit_at_6": 0.0,
+      "mrr_at_6": 0.0,
+      "p50_ms": 342,
+      "p95_ms": 396,
+      "answer_failure_rate": null,
+      "search_p50_ms": 342,
+      "search_p95_ms": 396,
+      "answer_p50_ms": null,
+      "answer_p95_ms": null,
+      "human_review": {
+        "reviewed": 0,
+        "answer_correctness": null,
+        "evidence_support": null,
+        "citation_accuracy": null,
+        "unanswerable_refusal_rate": null,
+        "answerable_false_refusal_rate": null
+      },
+      "known_customer_costs_by_currency": {},
+      "unknown_cost_cases": 2
+    }
+  ],
+  "comparison": {
+    "dataset_digest": "14567088a05add0e0c9255dc55cae88bd693de3a3cfcad4215d908508ea2eb1d",
+    "first": "no-threshold",
+    "second": "unreachable-threshold",
+    "deltas_second_minus_first": {
+      "recall_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "recall_at_6": -1.0,
+      "hit_at_6": -1.0,
+      "mrr_at_6": -1.0,
+      "failure_rate": 0.0,
+      "p50_ms": -3,
+      "p95_ms": 32
+    },
+    "changed_cases": [
+      "reset-direct",
+      "reset-paraphrase"
+    ],
+    "human_quality_comparison": "PENDING_HUMAN_REVIEW",
+    "evidence_mapping_changed": false
+  },
+  "original_configuration_restored": true,
+  "human_reviews_created": 0
+}

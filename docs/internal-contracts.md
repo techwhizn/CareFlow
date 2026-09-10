@@ -17,12 +17,12 @@ Java WorkerProtocolV1与Python protocol_v1定义召回、重排、生成、Token
 
 前端知识库列表、KnowledgeDetail、DocumentDetail和ChunkWorkspace分别维护自己的视图；主要路径和操作集中在features/knowledge/client.ts，仍复用api.ts的身份/错误处理与ui.tsx的数据状态组件。
 
-## 模型配置隔离（V1-03 开发部分）
+## 模型配置隔离
 
 召回、重排、生成内部请求可携带 `model_configuration`：kind、base_url、model、revision、dimensions、api_key。Embedding 必须有不可变revision和dimensions；其他类型不带dimensions。Java负责授权、配置来源及目标地址许可，公共检索请求不能指定此内部对象。密钥只在已认证内部请求传递，禁止记录请求正文；Python对象repr及默认JSON序列化遮蔽密钥。
 
-Python使用ContextVar按请求读取模型参数，不修改共享环境变量。生成器每次推进时单独进入/退出上下文，避免跨线程池yield留下上下文或令牌。未携带快照时仍读取部署配置；这兼容开发期旧调用，不代表已完成配置发布。
+Python使用ContextVar按请求读取模型参数，不修改共享环境变量。生成器每次推进时单独进入/退出上下文，避免跨线程池yield留下上下文或令牌。当前任务和检索按Java冻结快照传递；未携带快照的内部旧调用保留部署配置兼容路径。
 
-Java只在已授权、有效、已发布版本间收集实际model_identity，并将其作为expected_model_identity传给Worker。缺失/混合身份返回INDEX_CONFIGURATION_UNRESOLVED；Worker当前身份不一致返回503，禁止把切错集合解释为空知识。现阶段Java还未按知识库快照分组路由多模型；用户应保持原部署模型，不能把更改全局配置当迁移旧索引。密钥轮换不改变模型身份，模型地址/名称/修订/维度改变会改变身份。
+Java只在已授权、有效、已发布版本间收集实际model_identity，并按原配置、模型身份和索引代际分组路由，expected_model_identity由Worker复核。缺失身份返回INDEX_CONFIGURATION_UNRESOLVED；Worker身份不一致返回503，禁止把切错集合解释为空知识。跨模型组按排名融合，不能直接比较不同模型分数。密钥轮换不改变模型身份，模型地址/名称/修订/维度改变会改变身份；更改进程默认配置不是旧索引迁移。
 
-下一步是知识库配置草稿/发布/回滚、任务持久化快照和按原模型分组查询，V1-03尚未完成。真实内部快照查询证据见 [记录](reports/v1-03-model-context.md)。
+知识库配置草稿/发布/回滚、任务持久化快照与旧配置分组查询已完成[V1-03专项验收](reports/v1-03-configurations.md)。[早期内部快照记录](reports/v1-03-model-context.md)保留当时范围，不代表当前仍未实现配置发布。

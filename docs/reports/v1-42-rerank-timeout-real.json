@@ -1,0 +1,38 @@
+{
+  "started_at": "2026-09-10T20:38:02.493553+00:00",
+  "scope": "Real Java/MySQL/Worker/BGE/Milvus; isolated rerank endpoint deliberately withholds response for 45 seconds. No simulated ranking result.",
+  "cases": [
+    {
+      "allow_degraded": false,
+      "minimum_score": null,
+      "configuration_id": "e7b4ac3c-90fc-4e0d-821f-9d0aad9d5f2f",
+      "http_status": 503,
+      "elapsed_seconds": 30.179834482987644,
+      "error_code": "MODEL_OR_RETRIEVAL_UNAVAILABLE"
+    },
+    {
+      "allow_degraded": true,
+      "minimum_score": null,
+      "configuration_id": "c7a87b67-9aff-48b7-8076-aa943b8bb39a",
+      "http_status": 200,
+      "elapsed_seconds": 30.210991857005865,
+      "degraded": true,
+      "evidence_status": "DEGRADED",
+      "evidence_count": 1
+    },
+    {
+      "allow_degraded": true,
+      "minimum_score": 0.1,
+      "configuration_id": "27e0637b-d578-4c59-8b4f-6c36f8795765",
+      "http_status": 200,
+      "elapsed_seconds": 30.211974082994857,
+      "degraded": true,
+      "evidence_status": "SCORE_UNAVAILABLE",
+      "evidence_count": 0
+    }
+  ],
+  "probe_correction": "Initial assertion incorrectly expected SCORE_UNAVAILABLE without a minimum score; documented no-threshold degradation permits unscored evidence. Corrected probe separately checks no-threshold and threshold-gated modes.",
+  "original_configuration_restored": true,
+  "complete": true,
+  "finished_at": "2026-09-10T20:39:33.456034+00:00"
+}

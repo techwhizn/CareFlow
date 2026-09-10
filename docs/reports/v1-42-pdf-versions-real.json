@@ -1,0 +1,67 @@
+{
+  "started_at": "2026-09-10T20:25:43.730569+00:00",
+  "steps": [
+    {
+      "published_1": {
+        "version_id": "56663bd2-d42d-4f5c-96b7-f792c85e2b67",
+        "seconds": 7,
+        "evidence_count": 1
+      }
+    },
+    {
+      "source_sha256": "53e9961d7a3ddcfcc33cbfa88b55c1e3d27a959f20d7d4a15c2c782c3925bee4",
+      "version": 1
+    },
+    {
+      "before_new_index": {
+        "version_id": "56663bd2-d42d-4f5c-96b7-f792c85e2b67",
+        "seconds": 7,
+        "evidence_count": 1
+      }
+    },
+    {
+      "before_new_publication": {
+        "version_id": "56663bd2-d42d-4f5c-96b7-f792c85e2b67",
+        "seconds": 7,
+        "evidence_count": 1
+      }
+    },
+    {
+      "published_2": {
+        "version_id": "0607020f-ff13-401f-99cc-128f011bd048",
+        "seconds": 17,
+        "evidence_count": 1
+      }
+    },
+    {
+      "source_sha256": "60caf6012aae0d8b46ddd0b3a1fe9d88fb649d888cc47b4fa914f845289f61e2",
+      "version": 2
+    },
+    {
+      "rollback": {
+        "version_id": "56663bd2-d42d-4f5c-96b7-f792c85e2b67",
+        "seconds": 7,
+        "evidence_count": 1
+      }
+    },
+    {
+      "after_rollback": "Both versions 404 for revoked reader; prior answer history empty; owner retained explicit manage permission throughout repeated phase"
+    }
+  ],
+  "kb_id": "0d27b136-42f8-45de-a5b8-b32bb820fad6",
+  "configuration_id": "14fab3b4-e006-4c39-92a1-97423cd4f136",
+  "upload_1": {
+    "version_id": "56663bd2-d42d-4f5c-96b7-f792c85e2b67",
+    "document_id": "00ebd81a-cb43-40c9-8cb2-3886282e797c",
+    "job_id": "cd288c28-8d98-4070-ac1e-e25fba12d883"
+  },
+  "document_id": "00ebd81a-cb43-40c9-8cb2-3886282e797c",
+  "upload_2": {
+    "version_id": "0607020f-ff13-401f-99cc-128f011bd048",
+    "document_id": "00ebd81a-cb43-40c9-8cb2-3886282e797c",
+    "job_id": "7c3f1ab0-e442-4f5d-85d7-50ea08e378f8"
+  },
+  "fixture_correction": "Initial probe sent empty document ACL, which correctly also restricted its creator. Operator restored manage only on this exact synthetic fixture; repeat the public ACL/rollback phase retaining an authorized manager.",
+  "complete": true,
+  "finished_at": "2026-09-10T20:29:03.778690+00:00"
+}

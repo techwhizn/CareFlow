@@ -1,0 +1,137 @@
+{
+  "tenant_id": "24eb96a1-daeb-418b-a30a-0b931ee0e02b",
+  "knowledge_base_id": "1345717a-a4ef-4f62-8429-be2d4b7337f4",
+  "concurrency": 20,
+  "query_limit": 3,
+  "rows": [
+    {
+      "index": 0,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 1,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 2,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 3,
+      "status": 200,
+      "code": null,
+      "evidence_count": 0
+    },
+    {
+      "index": 4,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 5,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 6,
+      "status": 200,
+      "code": null,
+      "evidence_count": 0
+    },
+    {
+      "index": 7,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 8,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 9,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 10,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 11,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 12,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 13,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 14,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 15,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 16,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 17,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 18,
+      "status": 429,
+      "code": "QUOTA_EXCEEDED",
+      "evidence_count": 0
+    },
+    {
+      "index": 19,
+      "status": 200,
+      "code": null,
+      "evidence_count": 0
+    }
+  ],
+  "duplicate_status": 409,
+  "final_quota": {
+    "query_limit": 3,
+    "queries_used": 3,
+    "queries_reserved": 0
+  },
+  "usage_events": 3,
+  "model_calls": "None; empty authorized knowledge base",
+  "complete": true
+}

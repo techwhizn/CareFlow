@@ -1,0 +1,18 @@
+{
+  "scope": "Unknown question in a real authorized empty knowledge base; tests no-evidence delivery, not semantic refusal rate on a populated corpus",
+  "question": "What is the lunar launch code for CF-UNKNOWN?",
+  "event_names": [
+    "start",
+    "status",
+    "delta",
+    "citations",
+    "done"
+  ],
+  "citations": [
+    {
+      "evidence": []
+    }
+  ],
+  "refusal": "当前可访问的资料中没有找到足够依据，无法确认答案。",
+  "complete": true
+}

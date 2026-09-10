@@ -8,11 +8,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JobReadService {
+  private final OcrAccountingService ocr;
   private final Db db;
   private final Identity auth;
   private final IndexAccountingService accounting;
 
-  public JobReadService(Db db, Identity auth, IndexAccountingService accounting) {
+  public JobReadService(
+      Db db, Identity auth, IndexAccountingService accounting, OcrAccountingService ocr) {
+    this.ocr = ocr;
     this.db = db;
     this.auth = auth;
     this.accounting = accounting;
@@ -45,6 +48,8 @@ public class JobReadService {
     result.remove("upload_fingerprint");
     if (str(job, "kind").equals("INDEX"))
       result.put("index_usage", accounting.summary(str(job, "tenant_id"), str(job, "id")));
+    if (str(job, "kind").equals("PARSE"))
+      result.put("ocr_usage", ocr.summary(str(job, "tenant_id"), str(job, "id")));
     return result;
   }
 

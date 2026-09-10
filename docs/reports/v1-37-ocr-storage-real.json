@@ -1,0 +1,22 @@
+{
+  "job_id": "ab7d5a98-8503-4f84-8ab8-4396a59efb4b",
+  "ocr_pages_completed": 1,
+  "receipt_id": "f3634d46-8553-491f-b3e4-875b454d8d1c",
+  "chunks": 1,
+  "same_host_model_via_docker_bridge": true,
+  "ocr": {
+    "attempted_pages": 1,
+    "completed_pages": 1,
+    "failed_pages": 0,
+    "uncertain_pages": 0
+  },
+  "storage": {
+    "known_source_bytes": 6035581,
+    "source_objects": 34,
+    "unknown_size_objects": 0
+  },
+  "real_mysql": true,
+  "real_linux_tesseract": true,
+  "browser_summary_verified": true,
+  "task_detail_matches_summary": true
+}

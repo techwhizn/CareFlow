@@ -11,6 +11,55 @@
     }
   ],
   "paths": {
+    "/internal/v1/jobs/{id}/ocr-pages/{callId}": {
+      "put": {
+        "tags": [
+          "ocr-accounting-controller"
+        ],
+        "operationId": "record",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "callId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Lease-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Report"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/internal/v1/jobs/{id}/model-calls/{callId}": {
       "put": {
         "tags": [
@@ -3847,6 +3896,15 @@
   },
   "components": {
     "schemas": {
+      "Report": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "pattern": "STARTED|SUCCEEDED|FAILED"
+          }
+        }
+      },
       "Call": {
         "type": "object",
         "properties": {
@@ -5395,83 +5453,6 @@
           },
           "content": {
             "type": "string"
-          }
-        }
-      },
-      "Issue": {
-        "type": "object",
-        "properties": {
-          "chunk_id": {
-            "type": "string"
-          },
-          "ordinal": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "codes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "location": {
-            "type": "string"
-          }
-        }
-      },
-      "Report": {
-        "type": "object",
-        "properties": {
-          "revision": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "chunks": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "enabled_chunks": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "tokens": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "distribution": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          "warnings": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          "issue_count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Issue"
-            }
-          },
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "has_more": {
-            "type": "boolean"
           }
         }
       }

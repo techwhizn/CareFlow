@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 /** Aggregates known provider counts separately from missing reports; no query or answer bodies. */
 @Service
 public class ModelUsageReadService {
+  private final OcrAccountingService ocr;
   private final Db db;
   private final Identity auth;
 
-  public ModelUsageReadService(Db db, Identity auth) {
+  public ModelUsageReadService(Db db, Identity auth, OcrAccountingService ocr) {
+    this.ocr = ocr;
     this.db = db;
     this.auth = auth;
   }
@@ -59,9 +61,25 @@ public class ModelUsageReadService {
           db.one(
               "SELECT COUNT(*) AS calls,COALESCE(SUM(tokens),0) AS known_tokens,COALESCE(SUM(CASE WHEN tokens IS NULL THEN 1 ELSE 0 END),0) AS unknown_usage_calls FROM processing_model_calls WHERE tenant_id=?",
               tenant));
+    if (app == null) {
+      response.put("ocr", ocr.summary(tenant, null));
+      response.put(
+          "storage",
+          db.one(
+              "SELECT COALESCE(SUM(bytes),0) AS known_source_bytes,COUNT(*) AS source_objects,COALESCE(SUM(CASE WHEN bytes IS NULL THEN 1 ELSE 0 END),0) AS unknown_size_objects FROM (SELECT object_key,MAX(size_bytes) AS bytes FROM document_versions WHERE tenant_id=? AND object_key<>'' GROUP BY object_key) objects",
+              tenant));
+    }
     response.put(
         "coverage",
-        Map.of("retrieval", "SINCE_V29", "generation", "SINCE_V24", "indexing", "SINCE_V21"));
+        Map.of(
+            "retrieval",
+            "SINCE_V29",
+            "generation",
+            "SINCE_V24",
+            "indexing",
+            "SINCE_V21",
+            "ocr",
+            "SINCE_V30"));
     return response;
   }
 }

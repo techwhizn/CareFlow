@@ -104,3 +104,21 @@ def test_task_chunk_configuration_is_applied_inside_isolated_process():
     )
     assert len(result["chunks"]) > 5
     assert all(0 < row["token_count"] <= 60 for row in result["chunks"])
+
+
+def test_ocr_observer_records_terminal_state_and_never_runs_before_receipt():
+    from careflow.ocr_usage import observe, run
+
+    events = []
+    with observe(lambda call, state: events.append((call, state))):
+        assert run(lambda: "synthetic OCR") == "synthetic OCR"
+        with pytest.raises(ValueError):
+            run(lambda: int("invalid"))
+    assert [e[1] for e in events] == ["STARTED", "SUCCEEDED", "STARTED", "FAILED"]
+    assert events[0][0] == events[1][0] != events[2][0] == events[3][0]
+
+    def reject(call, state):
+        raise RuntimeError("receipt unavailable")
+
+    with observe(reject), pytest.raises(RuntimeError):
+        run(lambda: pytest.fail("must not execute without receipt"))

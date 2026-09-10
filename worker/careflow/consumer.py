@@ -68,6 +68,13 @@ def run_job(job_id):
                 json={"state": state, "input_count": input_count, "tokens": tokens},
             ).raise_for_status()
 
+        def record_ocr(call_id, state):
+            client.put(
+                base + "/ocr-pages/" + call_id,
+                headers=headers,
+                json={"state": state},
+            ).raise_for_status()
+
         try:
             if job["kind"] == "PARSE":
                 source = client.get(base + "/source", headers=headers)
@@ -77,6 +84,7 @@ def run_job(job_id):
                     source.content,
                     job["filename"],
                     cancelled=lease_lost.is_set,
+                    record_ocr=record_ocr,
                     pdf_page_limit=min(
                         job["pdf_page_limit"], configuration.parsing.pdf_page_limit
                     )

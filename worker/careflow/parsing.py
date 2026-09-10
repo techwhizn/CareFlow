@@ -8,6 +8,7 @@ from pathlib import PurePath
 
 from careflow.chunking import chunk as chunk
 from careflow.markdown_tables import expand as expand_markdown_tables
+from careflow.ocr_usage import run as counted_ocr
 from careflow.office_parsing import docx_blocks, xlsx_blocks
 from careflow.parsing_limits import Limits
 from careflow.parsing_types import Block, InvalidFile
@@ -36,8 +37,10 @@ def _ocr(image):
     limits = Limits.environment()
     if image.width * image.height > limits.image_pixels:
         raise InvalidFile("Image dimensions exceed OCR limit")
-    return pytesseract.image_to_string(
-        image, lang="chi_sim+eng", timeout=limits.ocr_seconds
+    return counted_ocr(
+        lambda: pytesseract.image_to_string(
+            image, lang="chi_sim+eng", timeout=limits.ocr_seconds
+        )
     )
 
 

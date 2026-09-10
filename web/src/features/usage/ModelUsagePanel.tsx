@@ -8,6 +8,17 @@ type Stage = {
   not_called: number;
 };
 type Summary = {
+  ocr?: {
+    attempted_pages: number;
+    completed_pages: number;
+    failed_pages: number;
+    uncertain_pages: number;
+  };
+  storage?: {
+    known_source_bytes: number;
+    source_objects: number;
+    unknown_size_objects: number;
+  };
   retrieval: Stage[];
   generation: {
     requests: number;
@@ -34,8 +45,8 @@ export default function ModelUsagePanel({
     <section>
       <h3>模型实际用量</h3>
       <p>
-        累计已知 Token 与未回报调用分开统计。检索、生成、索引分别从
-        V29、V24、V21 开始记录；更早的调用未补算。
+        累计已知 Token
+        与未回报调用分开统计。仅包含各项开始计量后的记录，更早的调用未补算。
       </p>
       <ErrorNote error={result.error} />
       {result.data && (
@@ -60,6 +71,22 @@ export default function ModelUsagePanel({
             </p>
           )}
         </>
+      )}
+      {result.data?.ocr && (
+        <p>
+          OCR：{result.data.ocr.completed_pages} 页完成 ·{" "}
+          {result.data.ocr.failed_pages} 页失败 ·{" "}
+          {result.data.ocr.uncertain_pages}{" "}
+          页处理中或结果未知（每次重试单独记录，自启用逐页计量起）
+        </p>
+      )}
+      {result.data?.storage && (
+        <p>
+          知识源文件：{result.data.storage.known_source_bytes} 已知字节 ·{" "}
+          {result.data.storage.source_objects} 个对象 ·{" "}
+          {result.data.storage.unknown_size_objects}{" "}
+          个对象大小未知。不含临时上传、索引和备份占用。
+        </p>
       )}
       {applicationId && (
         <p>共享知识库的索引和存储资源归属企业，不重复分摊到每个应用。</p>

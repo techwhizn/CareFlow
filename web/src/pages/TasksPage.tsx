@@ -81,6 +81,13 @@ export default function TasksPage() {
                   </td>
                   <td>{j.attempts} / 3</td>
                   <td>
+                    {j.ocr_usage && (
+                      <div>
+                        OCR 完成 {j.ocr_usage.completed_pages} 页 · 失败{" "}
+                        {j.ocr_usage.failed_pages} 页 · 处理中或结果未知{" "}
+                        {j.ocr_usage.uncertain_pages} 页（新计量启用后记录）
+                      </div>
+                    )}
                     {j.indexed_chunks != null && (
                       <div>
                         共 {j.indexed_chunks} 片 · 新算 {j.embedded_texts} ·

@@ -35,9 +35,15 @@ def _child(connection, data, filename, pdf_page_limit, chunking, embedding):
         _limit_process()
         from careflow.context_chunking import process_blocks
         from careflow.model_configuration import use_configuration
+        from careflow.ocr_usage import observe
         from careflow.parsing import parse
 
-        with use_configuration(embedding):
+        def report(call_id, state):
+            connection.send(("OCR", (call_id, state)))
+            if connection.recv() != "ACK":
+                raise ParseFailure("OCR_USAGE_UNAVAILABLE")
+
+        with use_configuration(embedding), observe(report):
             connection.send(("OK", process_blocks(parse(data, filename), chunking)))
     except MemoryError:
         connection.send(("PARSE_RESOURCE_LIMIT", None))
@@ -59,10 +65,11 @@ def parse_document(
     pdf_page_limit=None,
     chunking=None,
     embedding=None,
+    record_ocr=None,
 ) -> dict:
     seconds = Limits.environment().parse_seconds
     context = multiprocessing.get_context("spawn")
-    receiver, sender = context.Pipe(duplex=False)
+    receiver, sender = context.Pipe(duplex=True)
     process = context.Process(
         target=_child,
         args=(sender, data, filename, pdf_page_limit, chunking, embedding),
@@ -72,18 +79,25 @@ def parse_document(
         process.start()
         sender.close()
         deadline = time.monotonic() + seconds
-        while not receiver.poll(min(1, max(0, deadline - time.monotonic()))):
+        while True:
             if cancelled is not None and cancelled():
                 raise ParseFailure("LEASE_LOST")
             if time.monotonic() >= deadline:
                 raise ParseFailure("PARSE_TIMEOUT")
-        try:
-            status, result = receiver.recv()
-        except EOFError as exc:
-            raise ParseFailure("PARSE_RESOURCE_LIMIT") from exc
-        if status != "OK":
-            raise ParseFailure(status)
-        return result
+            if not receiver.poll(min(1, max(0, deadline - time.monotonic()))):
+                continue
+            try:
+                status, result = receiver.recv()
+            except EOFError as exc:
+                raise ParseFailure("PARSE_RESOURCE_LIMIT") from exc
+            if status == "OCR":
+                if record_ocr is not None:
+                    record_ocr(*result)
+                receiver.send("ACK")
+                continue
+            if status != "OK":
+                raise ParseFailure(status)
+            return result
     finally:
         sender.close()
         receiver.close()

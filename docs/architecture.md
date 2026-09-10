@@ -23,3 +23,11 @@ REST `/api/v1`。Bearer credential；租户及主体从密钥摘要查出。创�
 ## 意图接口（仅契约）
 
 `IntentRequestV1 {tenant_id, application_id, configuration_version, text, bounded_context, trace_id}` → `{candidates:[{name, confidence, entities, missing_parameters}], clarification_required, configuration_version, trace_id}`。支持多个候选；超时和供应商错误显式返回；输出是建议，不授权业务操作。P0 无实现、无页面。
+
+## Java业务服务索引
+
+- 初始化/身份：BootstrapService、EnterpriseProvisioning、MembershipService、IdentityAdministrationService、ApplicationCredentialService、AuthorizationService。
+- 知识库：KnowledgeBaseService/Repository、KnowledgeLifecycleService。
+- 文档：DocumentUploadService与UploadStaging、DocumentReadService、DocumentMetadataService/Repository、DocumentDraftService、DocumentPublicationService。
+- 应用：ApplicationService。任务：Tasks、JobReadService。用量管理：UsageAdministrationService；检索计量仍由RetrievalService拥有。
+- 公共控制器映射HTTP，Java服务拥有授权、事务及规则。新需求沿所属服务扩展，不重建通用管理控制器。

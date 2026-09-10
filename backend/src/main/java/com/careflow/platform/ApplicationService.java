@@ -3,25 +3,19 @@ package com.careflow.platform;
 import static com.careflow.platform.Db.*;
 
 import com.careflow.platform.Identity.Actor;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.util.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1")
-public class ManagementController {
+@Service
+public class ApplicationService {
   private final Db db;
   private final Identity auth;
-  private final String bootstrap;
 
-  public ManagementController(
-      Db db, Identity auth, @Value("${careflow.bootstrap-token}") String bootstrap) {
+  public ApplicationService(Db db, Identity auth) {
     this.db = db;
     this.auth = auth;
-    this.bootstrap = bootstrap;
   }
 
   public record Named(
@@ -30,56 +24,15 @@ public class ManagementController {
   public record Bind(
       @NotNull List<String> knowledge_base_ids, long revision, boolean allow_degraded) {}
 
-  public record Quota(@Min(0) long limit, @NotBlank String reason) {}
+  public record ConfigurationPublish(@NotBlank String configuration_id, long revision) {}
 
-  @PostMapping("/bootstrap")
-  @Transactional
-  public Map<String, Object> bootstrap(
-      @RequestHeader("X-Bootstrap-Token") String token, @RequestBody @Valid Named input) {
-    if (bootstrap.length() < 32
-        || !java.security.MessageDigest.isEqual(
-            bootstrap.getBytes(java.nio.charset.StandardCharsets.UTF_8),
-            token.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
-      throw new ApiException(401, "UNAUTHENTICATED", "初始化密钥无效");
-    // Fixed primary key makes concurrent attempts at first initialization mutually exclusive.
-    String tenant = "00000000-0000-0000-0000-000000000001", member = id();
-    db.exec("INSERT INTO tenants(id,name) VALUES(?,?)", tenant, input.name());
-    db.exec(
-        "INSERT INTO members(id,tenant_id,name,role) VALUES(?,?,?,'OWNER')",
-        member,
-        tenant,
-        "企业所有者");
-    return Map.of(
-        "tenant_id",
-        tenant,
-        "member_id",
-        member,
-        "token",
-        auth.credential(tenant, member, "MEMBER", null));
-  }
-
-  @GetMapping("/me")
-  public Object me(@RequestAttribute Actor actor) {
-    return Map.of(
-        "tenant_id",
-        actor.tenant(),
-        "subject_id",
-        actor.subject(),
-        "role",
-        actor.role(),
-        "tenant",
-        db.one("SELECT name FROM tenants WHERE id=?", actor.tenant()));
-  }
-
-  @GetMapping("/applications")
-  public Object apps(@RequestAttribute Actor actor) {
+  public Object apps(Actor actor) {
     auth.developer(actor);
     return db.list("SELECT * FROM applications WHERE tenant_id=?", actor.tenant());
   }
 
-  @PostMapping("/applications")
   @Transactional
-  public Object app(@RequestAttribute Actor actor, @RequestBody @Valid Named body) {
+  public Object app(Actor actor, Named body) {
     auth.developer(actor);
     String app = id();
     db.exec(
@@ -92,8 +45,7 @@ public class ManagementController {
     return Map.of("id", app);
   }
 
-  @GetMapping("/applications/{id}/bindings")
-  public Object bindings(@RequestAttribute Actor actor, @PathVariable String id) {
+  public Object bindings(Actor actor, String id) {
     auth.developer(actor);
     appOwned(actor, id);
     return db.list(
@@ -106,10 +58,8 @@ public class ManagementController {
     db.one("SELECT id FROM applications WHERE tenant_id=? AND id=?", actor.tenant(), id);
   }
 
-  @PutMapping("/applications/{id}/publication")
   @Transactional
-  public void bind(
-      @RequestAttribute Actor actor, @PathVariable String id, @RequestBody @Valid Bind body) {
+  public void bind(Actor actor, String id, Bind body) {
     auth.developer(actor);
     auth.lock(actor);
     appOwned(actor, id);
@@ -151,71 +101,8 @@ public class ManagementController {
     auth.audit(actor, "APP_PUBLISH", id, "");
   }
 
-  @GetMapping("/credentials")
-  public Object keys(@RequestAttribute Actor actor) {
-    auth.admin(actor);
-    return db.list(
-        "SELECT id,subject_id,kind,active,expires_at,scopes FROM credentials WHERE tenant_id=?",
-        actor.tenant());
-  }
-
-  @DeleteMapping("/credentials/{id}")
   @Transactional
-  public void revoke(@RequestAttribute Actor actor, @PathVariable String id) {
-    auth.admin(actor);
-    auth.lock(actor);
-    if (db.exec(
-            "UPDATE credentials SET active=FALSE WHERE tenant_id=? AND id=?", actor.tenant(), id)
-        != 1) throw ApiException.hidden();
-    auth.audit(actor, "CREDENTIAL_REVOKE", id, "");
-  }
-
-  @GetMapping("/usage")
-  public Object usage(@RequestAttribute Actor actor) {
-    auth.admin(actor);
-    return Map.of(
-        "quota",
-        db.one(
-            "SELECT query_limit,queries_used,queries_reserved FROM tenants WHERE id=?",
-            actor.tenant()),
-        "events",
-        db.list(
-            "SELECT * FROM usage_events WHERE tenant_id=? ORDER BY created_at DESC LIMIT 200",
-            actor.tenant()));
-  }
-
-  @PutMapping("/quota")
-  @Transactional
-  public void quota(@RequestAttribute Actor actor, @RequestBody @Valid Quota body) {
-    auth.admin(actor);
-    auth.lock(actor);
-    var old = db.one("SELECT query_limit FROM tenants WHERE id=?", actor.tenant());
-    db.exec("UPDATE tenants SET query_limit=? WHERE id=?", body.limit(), actor.tenant());
-    auth.audit(
-        actor,
-        "QUOTA_ADJUST",
-        actor.tenant(),
-        "before="
-            + old.get("query_limit")
-            + ", after="
-            + body.limit()
-            + ", reason="
-            + body.reason());
-  }
-
-  @GetMapping("/audit")
-  public Object audit(@RequestAttribute Actor actor) {
-    auth.admin(actor);
-    return db.list(
-        "SELECT * FROM audit_events WHERE tenant_id=? ORDER BY created_at DESC LIMIT 200",
-        actor.tenant());
-  }
-
-  @PostMapping("/applications/{id}/configurations")
-  @Transactional
-  public Object saveConfiguration(
-      @RequestAttribute Actor actor, @PathVariable String id, @RequestBody @Valid Bind body)
-      throws Exception {
+  public Object saveConfiguration(Actor actor, String id, Bind body) throws Exception {
     auth.developer(actor);
     appOwned(actor, id);
     if (body.knowledge_base_ids().isEmpty() || body.knowledge_base_ids().size() > 20)
@@ -233,8 +120,7 @@ public class ManagementController {
     return Map.of("id", configuration);
   }
 
-  @GetMapping("/applications/{id}/configurations")
-  public Object configurations(@RequestAttribute Actor actor, @PathVariable String id) {
+  public Object configurations(Actor actor, String id) {
     auth.developer(actor);
     appOwned(actor, id);
     return db.list(
@@ -243,14 +129,8 @@ public class ManagementController {
         id);
   }
 
-  public record ConfigurationPublish(@NotBlank String configuration_id, long revision) {}
-
-  @PostMapping("/applications/{id}/configuration-publications")
   @Transactional
-  public void publishConfiguration(
-      @RequestAttribute Actor actor,
-      @PathVariable String id,
-      @RequestBody @Valid ConfigurationPublish body)
+  public void publishConfiguration(Actor actor, String id, ConfigurationPublish body)
       throws Exception {
     auth.developer(actor);
     auth.lock(actor);

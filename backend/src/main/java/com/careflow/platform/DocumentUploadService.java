@@ -40,6 +40,13 @@ public class DocumentUploadService {
     }
   }
 
+  public Object replace(
+      Actor actor, String authorization, String document, String key, MultipartFile file)
+      throws Exception {
+    var metadata = auth.document(actor, document, "edit");
+    return upload(actor, authorization, str(metadata, "kb_id"), document, key, file);
+  }
+
   public Object upload(
       Actor actor,
       String authorization,

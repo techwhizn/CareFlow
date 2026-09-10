@@ -803,7 +803,8 @@
     "requirements": [],
     "dependencies": [],
     "acceptance": "按业务切片拆分ManagementController、DocumentsController；规则进入服务，SQL归属明确；逐步替换跨边界Map；保留事务/授权回归测试，禁止大规模无验证重写。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-47-java-services.md"
   },
   {
     "id": "V1-48",

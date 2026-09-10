@@ -1,0 +1,90 @@
+{
+  "synthetic": true,
+  "started_at": "2026-09-10T19:33:33.521143+00:00",
+  "finished_at": "2026-09-10T20:12:26.015585+00:00",
+  "tenant_count": 10,
+  "effective_published_chunks": 100000,
+  "rows": [
+    {
+      "tenant_id": "2b4d50d8-03d2-43de-8b75-b2b5794bc03e",
+      "kb_id": "35a62e1f-48cc-40e1-8724-3a069630a554",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "1cd4a27ec89ffb363485f5a39b2092b17fb6f398df91429c15763dfb6f7d5627"
+    },
+    {
+      "tenant_id": "f2bfbf8f-8064-4278-9ee8-11780bbe2c2a",
+      "kb_id": "524c731a-33ba-4226-afdc-e044f3ea477d",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "ac6d1353e945e8a22866def553f6f0c2d932dd476a75f24ee88ecb0c921ce461"
+    },
+    {
+      "tenant_id": "2507b243-4d38-4034-a1f6-ea7c0e1c2dcc",
+      "kb_id": "684c82ed-e753-4f53-9e6b-082755cc3691",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "a2a3db8867bf3d9045838e3a928e569e2750f5aeebe4fa9d04cfb9b4d71b21e3"
+    },
+    {
+      "tenant_id": "2bfc5ca2-a83c-4fc8-a936-dfa6e797978f",
+      "kb_id": "4fa1fc59-d06b-49a5-9d2f-fe1ec0f7e923",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "c6490f20d2b18a327be3962e060d75dc5493f143b0886d437b47a9359d956050"
+    },
+    {
+      "tenant_id": "32a6336d-d01f-4fef-ae03-8b3e68b43528",
+      "kb_id": "0f5dc6bc-a27a-478a-910e-c4fdbcb12271",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "61d2bda06a5fa21d71201dba9c430a91f81a2b47df00d1f2b65a24110242f42b"
+    },
+    {
+      "tenant_id": "626ac695-a7bf-4120-80e2-4e6100c13827",
+      "kb_id": "bd330da2-ce13-4b43-b083-ada0a38971fc",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "492b9274272d8cdec3e6923b7b2ffa0817a9df30b7a266ab7cba27422b6a907d"
+    },
+    {
+      "tenant_id": "05447646-1f3a-4578-932a-aa923063611e",
+      "kb_id": "dd4d1792-fd84-452f-a243-f543501efaed",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "f3da1d409acd34ea0205136c6e3fcc2843975f571b74f27e9f5dd5b34ace53ac"
+    },
+    {
+      "tenant_id": "15f34ce0-3bc6-4957-bb25-c98459053a5a",
+      "kb_id": "ba6faf1d-a432-4dab-9663-a03f6b61c064",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "71111bcedfb22646254a8d540455db9320146f081da801864ecb06ac9aa4f49f"
+    },
+    {
+      "tenant_id": "19c14eb1-6054-4b97-a050-2e58d21bb0f2",
+      "kb_id": "43608a24-721a-46cf-96a2-ee9e261ca971",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "6cdc48149517b37da01f2c948d5703a7864c367b6d595a9ec2dfcfb641f2d8d6"
+    },
+    {
+      "tenant_id": "dc9cbdd5-6648-49dc-a061-5a60dc691c2b",
+      "kb_id": "1536eec6-62be-41e5-b320-a70e42b3e9d2",
+      "enabled_published_chunks": "10000",
+      "verified_index_chunks": "10000",
+      "generation_state": "ACTIVE",
+      "manifest": "e531d189a59bbf95e83d89d7cdf119081ff45f0564a3dff8c87f27480c04c7bd"
+    }
+  ],
+  "data_distribution": "Ten CSV documents; 10000 short structured device/procedure/seconds rows per independent tenant; not representative of long PDFs or images"
+}

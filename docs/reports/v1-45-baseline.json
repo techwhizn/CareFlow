@@ -1,0 +1,2699 @@
+{
+  "started_at": "2026-09-10T20:13:48.044342+00:00",
+  "tenant_count": 10,
+  "answer_probe": "cancel_after_first_delta",
+  "cache_scope": "First-query pass, then warm load; no OS cache eviction or model reload",
+  "stages": [
+    {
+      "operation": "api",
+      "phase": "first_query_serial",
+      "summary": {
+        "offered": 10,
+        "successful": 10,
+        "outcomes": {
+          "OK": 10
+        },
+        "failure_fraction": 0.0,
+        "elapsed_seconds": 0.5801552119955886,
+        "successful_qps": 17.236766632850724,
+        "elapsed_ms": {
+          "samples": 10,
+          "p50": 15.779160006786697,
+          "p95": 310.04461299744435,
+          "maximum": 310.04461299744435
+        },
+        "first_token_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "pure_retrieval_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "embedding_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "rerank_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 310.04461299744435
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 77.92841800255701
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 80.70203100214712
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.633550996426493
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.730750994407572
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.779160006786697
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.217029005521908
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.30395100801252
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 18.347757999436
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.407266007969156
+        }
+      ]
+    },
+    {
+      "operation": "api",
+      "offered_qps": 5.0,
+      "concurrency_limit": 10,
+      "summary": {
+        "offered": 100,
+        "successful": 100,
+        "outcomes": {
+          "OK": 100
+        },
+        "failure_fraction": 0.0,
+        "elapsed_seconds": 19.81316103300196,
+        "successful_qps": 5.047150216638029,
+        "elapsed_ms": {
+          "samples": 100,
+          "p50": 14.69833699229639,
+          "p95": 83.59150000615045,
+          "maximum": 148.3539899927564
+        },
+        "first_token_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "pure_retrieval_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "embedding_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "rerank_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.35620201320853
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 20.708689000457525
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.2938789940672
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 83.59150000615045
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 19.72408099391032
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.630222994019277
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.606866002897732
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.26840899430681
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.781977999722585
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.698657999862917
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 10,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.691842996398918
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 11,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 18.53127400681842
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 12,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.69833699229639
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 13,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.18248999491334
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 14,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.904455012176186
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 15,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 13.827769987983629
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 16,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.596272994414903
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 17,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.358863990404643
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 18,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 18.357855995418504
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 19,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.216359994956292
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 20,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.628370998660102
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 21,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.911289002047852
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 22,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.706434994470328
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 23,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.737592001329176
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 24,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.357000006479211
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 25,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.98897100018803
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 26,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.570054005365819
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 27,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 39.84398000466172
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 28,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 76.01243800309021
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 29,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 19.21345498703886
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 30,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.995987995760515
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 31,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.418553000316024
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 32,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.263500007567927
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 33,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.161005004192702
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 34,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.298714995267801
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 35,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.738058994524181
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 36,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.965663998737
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 37,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 27.03991800080985
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 38,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.506729992106557
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 39,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.7621419968782
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 40,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 22.514641997986473
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 41,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.562462994945236
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 42,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.031714996439405
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 43,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.181856006965972
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 44,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 106.46909999195486
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 45,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 37.071062994073145
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 46,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 24.349774001166224
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 47,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 22.425084011047147
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 48,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 51.376592004089616
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 49,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 148.3539899927564
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 50,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 31.8039459962165
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 51,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.281104002497159
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 52,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 19.053641997743398
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 53,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.935485989553854
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 54,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.19663399469573
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 55,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 15.375050003058277
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 56,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.351666999980807
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 57,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 20.02511300088372
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 58,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 58.78649800433777
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 59,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.451142002944835
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 60,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 124.6006400033366
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 61,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.927793999551795
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 62,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.107459999038838
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 63,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 35.09413900610525
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 64,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 17.960469995159656
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 65,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 18.898862006608397
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 66,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 23.798625989002176
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 67,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.2522939927876
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 68,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 57.36158799845725
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 69,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 94.76678801001981
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 70,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 20.210381000651978
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 71,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 83.94144999329001
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 72,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 22.88972499081865
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 73,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 18.702298009884544
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 74,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.93609200406354
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 75,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.313833998632617
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 76,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.035516999778338
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 77,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.954344005673192
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 78,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.744417996145785
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 79,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.692826002719812
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 80,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.168441997142509
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 81,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.830664992681704
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 82,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 8.425531996181235
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 83,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.59399700211361
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 84,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.50995000009425
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 85,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.714185002143495
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 86,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.56158499745652
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 87,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 9.803456996451132
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 88,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 13.453038001898676
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 89,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 16.774231000454165
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 90,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 17.991500993957743
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 91,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 17.28446700144559
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 92,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 11.6583460039692
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 93,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.963692992343567
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 94,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 10.207721992628649
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 95,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 14.110966003499925
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 96,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 21.046980007668026
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 97,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 13.133746993844397
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 98,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.102285996661521
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 99,
+          "http_status": 200,
+          "outcome": "OK",
+          "elapsed_ms": 12.24113600619603
+        }
+      ],
+      "phase": "warm_load"
+    },
+    {
+      "operation": "search",
+      "phase": "first_query_serial",
+      "summary": {
+        "offered": 10,
+        "successful": 10,
+        "outcomes": {
+          "OK": 10
+        },
+        "failure_fraction": 0.0,
+        "elapsed_seconds": 50.186747497005854,
+        "successful_qps": 0.1992557896005634,
+        "elapsed_ms": {
+          "samples": 10,
+          "p50": 3869.0250709914835,
+          "p95": 10234.398884000257,
+          "maximum": 10234.398884000257
+        },
+        "first_token_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "pure_retrieval_ms": {
+          "samples": 10,
+          "p50": 24.9740759973065,
+          "p95": 511.1281970021082,
+          "maximum": 511.1281970021082
+        },
+        "embedding_ms": {
+          "samples": 10,
+          "p50": 38.07156699622283,
+          "p95": 712.9635759993107,
+          "maximum": 712.9635759993107
+        },
+        "rerank_ms": {
+          "samples": 10,
+          "p50": 2875.96704,
+          "p95": 6144.318222,
+          "maximum": 6144.318222
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 511.1281970021082,
+          "embedding_ms": 712.9635759993107,
+          "rerank_ms": 3022.131795,
+          "elapsed_ms": 10234.398884000257
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 23.319842999626417,
+          "embedding_ms": 34.85771399573423,
+          "rerank_ms": 2622.657261,
+          "elapsed_ms": 3665.2277249959297
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 26.349209998443257,
+          "embedding_ms": 43.77991900400957,
+          "rerank_ms": 3606.434112,
+          "elapsed_ms": 6230.846714999643
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 61.917225990328006,
+          "embedding_ms": 538.1077890051529,
+          "rerank_ms": 6144.318222,
+          "elapsed_ms": 7936.149193003075
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 19.63552700181026,
+          "embedding_ms": 42.77962099877186,
+          "rerank_ms": 2997.565644,
+          "elapsed_ms": 3963.6774090031395
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 25.62556399789173,
+          "embedding_ms": 38.07156699622283,
+          "rerank_ms": 2548.312876,
+          "elapsed_ms": 3358.1039609998697
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 19.668699998874217,
+          "embedding_ms": 29.86849100125255,
+          "rerank_ms": 2875.96704,
+          "elapsed_ms": 3604.591852010344
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 36.56728000350995,
+          "embedding_ms": 69.53522399999201,
+          "rerank_ms": 2740.260584,
+          "elapsed_ms": 3869.0250709914835
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 24.841970996931195,
+          "embedding_ms": 34.349157998804,
+          "rerank_ms": 2626.339221,
+          "elapsed_ms": 3402.8749610006344
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 24.9740759973065,
+          "embedding_ms": 29.07382199919084,
+          "rerank_ms": 3202.965835,
+          "elapsed_ms": 3921.3213580078445
+        }
+      ]
+    },
+    {
+      "operation": "search",
+      "offered_qps": 5.0,
+      "concurrency_limit": 10,
+      "summary": {
+        "offered": 100,
+        "successful": 6,
+        "outcomes": {
+          "HTTP_503": 94,
+          "OK": 6
+        },
+        "failure_fraction": 0.94,
+        "elapsed_seconds": 22.37970215799578,
+        "successful_qps": 0.2681000827285957,
+        "elapsed_ms": {
+          "samples": 6,
+          "p50": 3993.2610129908426,
+          "p95": 4578.522377007175,
+          "maximum": 4578.522377007175
+        },
+        "first_token_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "pure_retrieval_ms": {
+          "samples": 6,
+          "p50": 16.425296002125833,
+          "p95": 36.476187997322995,
+          "maximum": 36.476187997322995
+        },
+        "embedding_ms": {
+          "samples": 6,
+          "p50": 32.13431999756722,
+          "p95": 82.39868000237038,
+          "maximum": 82.39868000237038
+        },
+        "rerank_ms": {
+          "samples": 6,
+          "p50": 3093.798917,
+          "p95": 3593.445222,
+          "maximum": 3593.445222
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 15.07382100680843,
+          "embedding_ms": 30.221114997402765,
+          "rerank_ms": 2891.016393,
+          "elapsed_ms": 3743.1220059952466
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 434.1567240044242
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 143.76845500373747
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 93.27935299370438
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 79.18576299562119
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 81.5230669977609
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 95.5498380062636
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 84.20098300848622
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 84.3861570028821
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 79.2737690062495
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 10,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 83.83902000787202
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 11,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 91.78625300410204
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 12,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 90.33052899758331
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 13,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 88.45253400795627
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 14,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 88.45746901351959
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 15,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.75678600289393
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 16,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 14.55053199606482,
+          "embedding_ms": 31.059863002155907,
+          "rerank_ms": 3079.905168,
+          "elapsed_ms": 3993.2610129908426
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 17,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 572.0475340058329
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 18,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 113.78993299149442
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 19,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 81.81869199324865
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 20,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 76.93829901108984
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 21,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.07391198771074
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 22,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 81.68960899638478
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 23,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.99521200347226
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 24,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 86.90450500580482
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 25,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 95.60560499085113
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 26,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 83.03636799973901
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 27,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 91.94439800921828
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 28,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 104.04188100073952
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 29,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.8804929984035
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 30,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.15204200637527
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 31,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 84.97064300172497
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 32,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 91.03072600555606
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 33,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 20.877236005617306,
+          "embedding_ms": 35.816556999634486,
+          "rerank_ms": 3558.084534,
+          "elapsed_ms": 4364.610748001724
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 34,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 501.8581809999887
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 35,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 106.15048800536897
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 36,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 104.36538599606138
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 37,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 85.14536899747327
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 38,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 87.77033699152526
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 39,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 92.13258599629626
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 40,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 92.37360300903674
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 41,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 78.12891800131183
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 42,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 76.8503330036765
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 43,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 98.92823800328188
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 44,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 123.81396599812433
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 45,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 133.78310699772555
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 46,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 190.90981100453064
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 47,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 189.31711299228482
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 48,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 95.28007899643853
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 49,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 91.34805599751417
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 50,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 98.87663800327573
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 51,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.23130100627895
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 52,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 77.18458899762481
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 53,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 16.84400000522146,
+          "embedding_ms": 32.83112200006144,
+          "rerank_ms": 3093.798917,
+          "elapsed_ms": 3869.566697991104
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 54,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 556.0624400095548
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 55,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 109.66773200198077
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 56,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 156.47665101278108
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 57,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 106.56416400161106
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 58,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 79.21006900141947
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 59,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 76.67432200105395
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 60,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 76.91744700423442
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 61,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.14350800658576
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 62,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 83.59122500405647
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 63,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.31068800482899
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 64,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 82.15345900680404
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 65,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 82.04450699849986
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 66,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 76.24566400772892
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 67,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 73.33682799071539
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 68,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 79.61113599594682
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 69,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 75.78551300684921
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 70,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 16.425296002125833,
+          "embedding_ms": 32.13431999756722,
+          "rerank_ms": 3560.767158,
+          "elapsed_ms": 4527.070506999735
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 71,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 438.1962989864405
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 72,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 94.94605199142825
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 73,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 93.20923399354797
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 74,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 101.12487099831924
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 75,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 90.61809100967366
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 76,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 78.43644599779509
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 77,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.7743500045035
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 78,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 79.4481400080258
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 79,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 78.14670201332774
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 80,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 80.76708400039934
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 81,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 129.27769200177863
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 82,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 138.48012799280696
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 83,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 82.88725299644284
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 84,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 349.0146460098913
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 85,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 227.1312119992217
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 86,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 93.49672000098508
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 87,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 84.29359400179237
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 88,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 118.06942899420392
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 89,
+          "http_status": 200,
+          "outcome": "OK",
+          "evidence_count": 3,
+          "degraded": false,
+          "pure_retrieval_ms": 36.476187997322995,
+          "embedding_ms": 82.39868000237038,
+          "rerank_ms": 3593.445222,
+          "elapsed_ms": 4578.522377007175
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 90,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 546.0415200068383
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 91,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 538.0357849935535
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 92,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 93.45804699114524
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 93,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 81.3665210007457
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 94,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 156.87619399977848
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 95,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 164.10032799467444
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 96,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 211.07916301116347
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 97,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 267.5277500093216
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 98,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 126.3992349995533
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 99,
+          "http_status": 503,
+          "outcome": "HTTP_503",
+          "elapsed_ms": 83.62248800403904
+        }
+      ],
+      "phase": "warm_load"
+    },
+    {
+      "operation": "answer",
+      "phase": "first_query_serial",
+      "summary": {
+        "offered": 10,
+        "successful": 10,
+        "outcomes": {
+          "OK": 10
+        },
+        "failure_fraction": 0.0,
+        "elapsed_seconds": 50.84776665199024,
+        "successful_qps": 0.19666547143439952,
+        "elapsed_ms": {
+          "samples": 10,
+          "p50": 4788.08334399946,
+          "p95": 8512.806118000299,
+          "maximum": 8512.806118000299
+        },
+        "first_token_ms": {
+          "samples": 10,
+          "p50": 4787.51607099548,
+          "p95": 8509.685999990324,
+          "maximum": 8509.685999990324
+        },
+        "pure_retrieval_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "embedding_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "rerank_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 5296.571198996389,
+          "elapsed_ms": 5297.485211005551
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 8509.685999990324,
+          "elapsed_ms": 8512.806118000299
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4705.0268319871975,
+          "elapsed_ms": 4705.625314993085
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4882.756328996038,
+          "elapsed_ms": 4883.565220996388
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4087.6909869984956,
+          "elapsed_ms": 4088.365645002341
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4790.372672985541,
+          "elapsed_ms": 4791.046074999031
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4787.51607099548,
+          "elapsed_ms": 4788.08334399946
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4850.256129997433,
+          "elapsed_ms": 4850.911649002228
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4326.726668004994,
+          "elapsed_ms": 4327.357454007142
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4601.8477589968825,
+          "elapsed_ms": 4602.382924989797
+        }
+      ]
+    },
+    {
+      "operation": "answer",
+      "offered_qps": 5.0,
+      "concurrency_limit": 10,
+      "summary": {
+        "offered": 100,
+        "successful": 5,
+        "outcomes": {
+          "SSE_ERROR": 95,
+          "OK": 5
+        },
+        "failure_fraction": 0.95,
+        "elapsed_seconds": 22.621177390989033,
+        "successful_qps": 0.22103181959006743,
+        "elapsed_ms": {
+          "samples": 5,
+          "p50": 5627.514660998713,
+          "p95": 8220.029803007492,
+          "maximum": 8220.029803007492
+        },
+        "first_token_ms": {
+          "samples": 5,
+          "p50": 5626.827942003729,
+          "p95": 8219.368728008703,
+          "maximum": 8219.368728008703
+        },
+        "pure_retrieval_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "embedding_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        },
+        "rerank_ms": {
+          "samples": 0,
+          "p50": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "rows": [
+        {
+          "tenant_index": 0,
+          "sequence": 0,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 4882.969423008035,
+          "elapsed_ms": 4884.443610004382
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 1,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 488.297883013729
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 2,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 98.22534599516075
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 3,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 100.95633199671283
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 4,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 86.81218400306534
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 5,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 84.72767999046482
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 6,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 85.30226499715354
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 7,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 94.98089799308218
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 8,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 77.94395901146345
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 9,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 83.12373999797273
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 10,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 81.77338099631015
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 11,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 95.89209800469689
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 12,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 80.84311100537889
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 13,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 83.85751000605524
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 14,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 87.02698400884401
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 15,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 90.86362799280323
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 16,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 5626.827942003729,
+          "elapsed_ms": 5627.514660998713
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 17,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 470.3695429925574
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 18,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 102.14024200104177
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 19,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 100.95273199840449
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 20,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 97.78930500033312
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 21,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 99.73965500830673
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 22,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 104.2662349937018
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 23,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 104.15852499136236
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 24,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 111.15327800507657
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 25,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 100.55926900531631
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 26,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 103.18113800894935
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 27,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 80.72304401139263
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 28,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 135.35906400647946
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 29,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 132.99629000539426
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 30,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 134.25302400719374
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 31,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 86.43388299969956
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 32,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 75.82134199037682
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 33,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 76.25441599520855
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 34,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 82.98127300804481
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 35,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 5122.337790002348,
+          "elapsed_ms": 5122.961134009529
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 36,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 528.8690640009008
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 37,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 87.24132399947848
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 38,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 96.21790099481586
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 39,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.81058101239614
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 40,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 103.70482600410469
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 41,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.46033300203271
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 42,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.42083099868614
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 43,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 88.48172900616191
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 44,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 108.64360199775547
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 45,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 88.55811900866684
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 46,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.20231500128284
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 47,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 89.609112998005
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 48,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 89.41168899764307
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 49,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 84.1758780006785
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 50,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 86.85891299683135
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 51,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 101.52939999534283
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 52,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 6165.346438006964,
+          "elapsed_ms": 6166.793637996307
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 53,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 475.2795899985358
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 54,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.773200998432
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 55,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 106.48920999665279
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 56,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 78.52478700806387
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 57,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 78.43998201133218
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 58,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 85.14165600354318
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 59,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 83.26646698697004
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 60,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 96.09592700144276
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 61,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 94.80092300509568
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 62,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 111.33612900448497
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 63,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 103.11789899424184
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 64,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 110.11267799767666
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 65,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 218.6162440048065
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 66,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 271.5328759950353
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 67,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 168.56098399148323
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 68,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 99.12842200719751
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 69,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 136.13881600031164
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 70,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 130.9849929966731
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 71,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 91.9526399957249
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 72,
+          "http_status": 200,
+          "outcome": "OK",
+          "first_token_ms": 8219.368728008703,
+          "elapsed_ms": 8220.029803007492
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 73,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 948.0071889993269
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 74,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 1738.4859119920293
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 75,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 196.866157988552
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 76,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 207.62781701341737
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 77,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 219.27070000674576
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 78,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 443.27786400390323
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 79,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 429.42951500299387
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 80,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 500.5602140008705
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 81,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 392.3700060113333
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 82,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 339.65122399968095
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 83,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 250.53717999253422
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 84,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 138.1899580010213
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 85,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 108.20803100068588
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 86,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 121.98918199283071
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 87,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 151.82378600002266
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 88,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 139.44545900449157
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 89,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 104.40594700048678
+        },
+        {
+          "tenant_index": 0,
+          "sequence": 90,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 107.89827299595345
+        },
+        {
+          "tenant_index": 1,
+          "sequence": 91,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 115.15803998918273
+        },
+        {
+          "tenant_index": 2,
+          "sequence": 92,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 302.3532470106147
+        },
+        {
+          "tenant_index": 3,
+          "sequence": 93,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 287.67663399048615
+        },
+        {
+          "tenant_index": 4,
+          "sequence": 94,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 198.87882898910902
+        },
+        {
+          "tenant_index": 5,
+          "sequence": 95,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 175.47843500506133
+        },
+        {
+          "tenant_index": 6,
+          "sequence": 96,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 193.93625100201461
+        },
+        {
+          "tenant_index": 7,
+          "sequence": 97,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 209.71028199710418
+        },
+        {
+          "tenant_index": 8,
+          "sequence": 98,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 195.894930002396
+        },
+        {
+          "tenant_index": 9,
+          "sequence": 99,
+          "http_status": 200,
+          "outcome": "SSE_ERROR",
+          "elapsed_ms": 106.61695199087262
+        }
+      ],
+      "phase": "warm_load"
+    }
+  ],
+  "complete": true,
+  "finished_at": "2026-09-10T20:16:34.945119+00:00"
+}

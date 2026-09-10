@@ -5,10 +5,26 @@ import pytest
 from fastapi.testclient import TestClient
 
 from model_registry import MODELS
-from model_server import create_app
+from model_server import create_app, rerank_batch_size
 
 TOKEN = "synthetic-local-model-token-32-characters"
 HEADERS = {"Authorization": "Bearer " + TOKEN}
+
+
+@pytest.mark.parametrize("value", ["0", "41", "not-an-integer", "1.5"])
+def test_invalid_batch_size_fails_instead_of_silent_fallback(monkeypatch, value):
+    monkeypatch.setenv("LOCAL_RERANK_BATCH_SIZE", value)
+    with pytest.raises(ValueError):
+        rerank_batch_size()
+
+
+def test_batch_size_is_bounded_and_default_preserves_existing_memory_budget(
+    monkeypatch,
+):
+    monkeypatch.delenv("LOCAL_RERANK_BATCH_SIZE", raising=False)
+    assert rerank_batch_size() == 4
+    monkeypatch.setenv("LOCAL_RERANK_BATCH_SIZE", "40")
+    assert rerank_batch_size() == 40
 
 
 class FixtureEngine:

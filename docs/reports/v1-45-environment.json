@@ -1,0 +1,79 @@
+{
+  "prepared_at": "2026-09-10T20:13:46.784485+00:00",
+  "cache_scope": "Java/Worker API, Milvus and local model processes restarted before run; no OS page-cache eviction; model weights already on disk",
+  "containers": [
+    {
+      "name": "/careflow-v1-finalrestore-worker-consumer-1",
+      "image": "sha256:5eb638d39969fdc4f5c23dceb39c9a73398cc578ec816a00be111b9ed2b08fb9",
+      "started_at": "2026-09-10T20:12:59.178295342Z",
+      "memory_limit": 2147483648,
+      "nano_cpus": 2000000000
+    },
+    {
+      "name": "/careflow-v1-finalrestore-backend-1",
+      "image": "sha256:3c12da8d477e6d51c2e8f309e6e6a9095c2234af471955dcc4a670a0a1c3ce0f",
+      "started_at": "2026-09-10T20:12:58.788699281Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-worker-api-1",
+      "image": "sha256:5eb638d39969fdc4f5c23dceb39c9a73398cc578ec816a00be111b9ed2b08fb9",
+      "started_at": "2026-09-10T20:12:58.787102113Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-web-1",
+      "image": "sha256:7f0fa240f8d00d59053e47c7ce0a9d668f670193c9c614f218c2628b6f850a32",
+      "started_at": "2026-09-10T19:41:18.952613159Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-milvus-1",
+      "image": "sha256:4251cb095b89ddadaf6cde87ad96f773b8010613ae47d70e545db94dab8dd3ff",
+      "started_at": "2026-09-10T20:13:17.292930641Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-rabbitmq-1",
+      "image": "sha256:294b01e1796a8acede4619f32a1c394fae1f8021e57986ea01aad38dc2a4f502",
+      "started_at": "2026-09-10T19:22:01.30539049Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-mysql-1",
+      "image": "sha256:869218921e61d6c3c89820955d63cca42971f0e3e6c1e2792247bbd944ebc6e9",
+      "started_at": "2026-09-10T19:22:01.298575425Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-etcd-1",
+      "image": "sha256:d0a641d5fbcc89678c931a61b7de7b8a1cf097149f135c9c73bc81d076a1494b",
+      "started_at": "2026-09-10T19:22:01.319349884Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-v1-finalrestore-minio-1",
+      "image": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "started_at": "2026-09-10T19:22:01.316180835Z",
+      "memory_limit": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/careflow-local-models",
+      "image": "sha256:48c17c37413b1b31e6e0725a675a80440c3007f3da0135d48674ce09ca64637c",
+      "started_at": "2026-09-10T20:13:12.914737644Z",
+      "memory_limit": 4294967296,
+      "nano_cpus": 2000000000
+    }
+  ],
+  "hardware": "Intel Core i7-9750H 2.60GHz, 6 cores/12 threads, macOS Intel 16GiB; Docker 12 vCPU 7.75GiB",
+  "network": "Client on host -> loopback Java container -> Docker Worker/Milvus; BGE on same Docker host via host.docker.internal:8092; DeepSeek HTTPS over external network",
+  "other_work": "Original development stack and candidate containers stopped; no concurrent builds/tests/scans during load"
+}

@@ -56,6 +56,8 @@ docker run -d --name careflow-local-models --cpus=2 --memory=4g --pids-limit=128
 
 接口：`POST /v1/embeddings`、`POST /v1/rerank`、`GET /health`，都要求Bearer令牌。输入最大32个Embedding文本、40个重排候选；按模型tokenizer限制512 Token（重排包含问题与候选），超限400，禁止静默截断。忙时429、执行失败503，不返回伪造向量或分数。现有600 Token切片可能超过模型自身窗口，超限需缩短/重新切片，不能将600与512视为同一tokenizer口径。
 
+`LOCAL_RERANK_BATCH_SIZE`允许在1～40之间调整重排批次，默认4，非法值启动失败。增大批次可能提高短文本吞吐，也增加内存；应在实际长度、并发和容器限制下测量，不改变512 Token上限或静默截断。固定模型的40条短文本CPU微测中，批次4/16/40的分数与实际Token数一致，批次40平均约快11%，但不能推断长文本内存或5QPS容量。[十万分块实测](../../docs/reports/v1-45-performance.md)已表明当前2核单请求模型服务无法满足5QPS混合检索与问答；本服务用于开发验证，生产需另行配置和验证模型容量。
+
 用量返回真实attention mask Token数，包含特殊token；这是本地推理输入量，不是云供应商账单。CPU延迟与资源上限需实际验证，不能视为生产性能承诺。
 
 现提供认证后的 `POST /v1/tokenize`：请求与Embedding一致，返回固定模型修订、每条完整输入的原生Token数及512窗口，包含特殊Token且不截断。知识库切片配置选择 `model_tokenizer=provider`，可在索引前自动细分长文，详见[切片契约](../../docs/chunking.md)。重排窗口包含问题与候选，仍独立校验。

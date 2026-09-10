@@ -45,8 +45,16 @@ class RerankRequest(BaseModel):
         return value
 
 
+def rerank_batch_size():
+    value = int(os.environ.get("LOCAL_RERANK_BATCH_SIZE", "4"))
+    if not 1 <= value <= 40:
+        raise ValueError("LOCAL_RERANK_BATCH_SIZE must be between 1 and 40")
+    return value
+
+
 class Models:
     def __init__(self):
+        self.rerank_batch_size = rerank_batch_size()
         import torch
         from transformers import (
             AutoModel,
@@ -97,8 +105,8 @@ class Models:
 
     def rerank(self, query, documents):
         scores, tokens = [], 0
-        for start in range(0, len(documents), 4):
-            group = documents[start : start + 4]
+        for start in range(0, len(documents), self.rerank_batch_size):
+            group = documents[start : start + self.rerank_batch_size]
             batch = self.encode("rerank", [query] * len(group), group)
             with self.torch.inference_mode():
                 logits = self.models["rerank"](**batch).logits.view(-1).float()

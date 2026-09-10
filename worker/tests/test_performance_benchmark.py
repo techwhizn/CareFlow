@@ -52,11 +52,19 @@ def test_answer_probe_requires_nonempty_answer_delta_not_status_or_empty_text():
 
 
 def test_saturated_generator_records_dropped_arrivals(monkeypatch):
+    release = asyncio.Event()
+    gather = asyncio.gather
+
     async def delayed(*args):
-        await asyncio.sleep(0.06)
+        await release.wait()
         return {"sequence": args[3], "outcome": "OK", "elapsed_ms": 60}
 
+    async def finish_after_all_arrivals(*tasks, **kwargs):
+        release.set()
+        return await gather(*tasks, **kwargs)
+
     monkeypatch.setattr(benchmark, "request", delayed)
+    monkeypatch.setattr(benchmark.asyncio, "gather", finish_after_all_arrivals)
     result = asyncio.run(
         benchmark.run_stage(None, [{"token": "synthetic"}], "api", 4, 100, 1)
     )

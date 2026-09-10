@@ -1,0 +1,41 @@
+{
+  "scope": "Real fixed-model CPU microbenchmark, 40 short synthetic candidates; not public API load",
+  "rows": [
+    {
+      "batch_size": 4,
+      "milliseconds": [
+        2100.7929050028906,
+        2095.950338996772,
+        2310.5089659948135
+      ],
+      "max_score_delta": 0,
+      "tokens": 1671,
+      "peak_rss_kib": 1111180
+    },
+    {
+      "batch_size": 16,
+      "milliseconds": [
+        2240.5092529952526,
+        2122.304078002344,
+        1869.4844609999564
+      ],
+      "max_score_delta": 0,
+      "tokens": 1671,
+      "peak_rss_kib": 1139616
+    },
+    {
+      "batch_size": 40,
+      "milliseconds": [
+        1851.9599130013376,
+        2025.376346995472,
+        1888.2805359971826
+      ],
+      "max_score_delta": 0,
+      "tokens": 1671,
+      "peak_rss_kib": 1193004
+    }
+  ],
+  "cpu_limit": 2,
+  "memory_limit_gib": 4,
+  "default_retained": 4
+}

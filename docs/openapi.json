@@ -372,6 +372,74 @@
         }
       }
     },
+    "/api/v1/documents/{id}/metadata": {
+      "get": {
+        "tags": [
+          "document-metadata-controller"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "document-metadata-controller"
+        ],
+        "operationId": "update_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Metadata"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chunks/{id}": {
       "put": {
         "tags": [
@@ -1817,6 +1885,46 @@
         }
       }
     },
+    "/api/v1/documents/{id}/metadata-history": {
+      "get": {
+        "tags": [
+          "document-metadata-controller"
+        ],
+        "operationId": "history_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/documents/{id}/authorization": {
       "get": {
         "tags": [
@@ -2296,6 +2404,67 @@
         },
         "required": [
           "grants"
+        ]
+      },
+      "Metadata": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 250,
+            "minLength": 0
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0,
+            "pattern": "[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50,
+              "minLength": 0
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          "product_models": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            },
+            "maxItems": 50,
+            "minItems": 0
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "language",
+          "product_models",
+          "source",
+          "tags",
+          "title"
         ]
       },
       "Edit": {

@@ -1,3 +1,4 @@
+import DocumentMetadata from "../components/DocumentMetadata";
 import KnowledgeOverview from "../components/KnowledgeOverview";
 import AclDialog from "../components/AclDialog";
 import DocumentUpload from "../components/DocumentUpload";
@@ -314,6 +315,7 @@ function DocumentDetail({ doc, back }: { doc: Row; back: () => void }) {
         </div>
       </div>
       <ErrorNote error={error || versions.error} />
+      <DocumentMetadata id={doc.id} onSaved={back} />
       <div className="version-bar">
         <label>
           当前版本

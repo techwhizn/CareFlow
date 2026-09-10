@@ -177,7 +177,8 @@
       "V1-08"
     ],
     "acceptance": "可编辑标题、来源、标签、产品型号、语言、生效/失效时间；输入类型与时区明确；变更可追溯，过期资料不进入默认检索。",
-    "status": "待完成"
+    "status": "完成",
+    "evidence": "docs/reports/v1-11-document-metadata.md"
   },
   {
     "id": "V1-12",

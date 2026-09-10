@@ -66,11 +66,14 @@ public class RetrievalService {
               actor.tenant(),
               app)) allowed.add(str(b, "kb_id"));
     }
+    var now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
     List<String> versions = new ArrayList<>();
     for (var d :
         db.list(
-            "SELECT d.*,v.id AS version_id FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
-            actor.tenant())) {
+            "SELECT d.*,v.id AS version_id FROM documents d JOIN document_versions v ON v.id=d.published_version JOIN knowledge_bases k ON k.id=d.kb_id WHERE d.tenant_id=? AND d.status='ACTIVE' AND (d.valid_from IS NULL OR d.valid_from<=?) AND (d.valid_until IS NULL OR d.valid_until>?) AND k.status='ACTIVE' AND v.state='READY' AND (v.valid_from IS NULL OR v.valid_from<=CURRENT_TIMESTAMP) AND (v.valid_until IS NULL OR v.valid_until>CURRENT_TIMESTAMP)",
+            actor.tenant(),
+            now,
+            now)) {
       String kb = str(d, "kb_id");
       if (allowed != null && !allowed.contains(kb)) continue;
       if (q.knowledge_base_ids() != null
@@ -243,11 +246,17 @@ public class RetrievalService {
     var k = auth.kb(actor, str(d, "kb_id"), "read");
     if (!str(k, "status").equals("ACTIVE") || !str(d, "status").equals("ACTIVE"))
       throw ApiException.hidden();
-    var v =
-        db.one(
-            "SELECT id FROM document_versions WHERE tenant_id=? AND id=? AND ever_published=TRUE AND (valid_from IS NULL OR valid_from<=CURRENT_TIMESTAMP) AND (valid_until IS NULL OR valid_until>CURRENT_TIMESTAMP)",
-            actor.tenant(),
-            str(c, "version_id"));
+    var now = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
+    db.one(
+        "SELECT id FROM documents WHERE tenant_id=? AND id=? AND (valid_from IS NULL OR valid_from<=?) AND (valid_until IS NULL OR valid_until>?)",
+        actor.tenant(),
+        str(d, "id"),
+        now,
+        now);
+    db.one(
+        "SELECT id FROM document_versions WHERE tenant_id=? AND id=? AND ever_published=TRUE AND (valid_from IS NULL OR valid_from<=CURRENT_TIMESTAMP) AND (valid_until IS NULL OR valid_until>CURRENT_TIMESTAMP)",
+        actor.tenant(),
+        str(c, "version_id"));
     if (!scope.application().isBlank()) {
       db.one(
           "SELECT b.kb_id FROM application_bindings b JOIN applications a ON a.id=b.application_id WHERE b.tenant_id=? AND b.application_id=? AND b.kb_id=? AND a.published=TRUE",

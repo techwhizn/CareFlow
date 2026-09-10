@@ -81,3 +81,11 @@ scope先于业务操作校验，未授权操作统一404，不消耗查询额度
 `GET /knowledge-bases/{id}/overview` 逐项授权后统计 document_count、effective_chunk_count（当前发布版本的启用切片）、failed_job_count（仅库管理者可见且只计有编辑权的文档）、known_source_bytes、unknown_source_objects。原文件空间按可读版本的 object_key 去重，含历史版本，不含向量索引、备份和已删除资料。V8前文件大小未知时显式计入 unknown_source_objects，不能当作零字节；新上传记录大小，复制草稿沿用相同对象与大小。
 
 applications 返回当前绑定应用的 id/name/published；还需具备应用管理角色，其他主体返回空数组并标明 applications_visible=false。无知识库读取权限或跨企业访问统一404。概览与属性设置读取在同一企业锁下完成，避免与撤权/移交交错。
+
+## 文档元数据与有效期（V1-11）
+
+`GET/PUT /documents/{id}/metadata` 返回/更新 title、source、language、tags（最多20个，每个50字）、product_models（最多50个，每个100字）、valid_from、valid_until、revision。读取需read，修改需edit，均受文档收窄ACL限制。source只作为文本保存，服务不会抓取该地址。
+
+时间必须使用含Z或UTC偏移的ISO 8601，例如 `2026-09-10T09:00:00+08:00`。统一按UTC存入DATETIME，返回UTC时间，界面展示本地时区；支持UTC年份1000～9999。空值代表不限制；区间为包含开始、不包含结束，开始必须早于结束。修改立即影响默认召回范围、证据外发复核、流式继续交付和历史答案可见性；已有版本自身有效期仍作为额外限制。原文件/切片不因此改写或自动发布。
+
+更新使用文档共享revision；冲突409不写入元数据或历史。`GET /documents/{id}/metadata-history?page=0` 需edit，50条一页，返回操作者、时间、修订以及before/after快照（metadata_json）。旧数据没有凭空生成修改记录。历史快照按文档授权保护，普通审计日志仅保存修订号。

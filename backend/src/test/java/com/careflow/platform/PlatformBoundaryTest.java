@@ -86,6 +86,103 @@ class PlatformBoundaryTest {
   }
 
   @Test
+  void metadataDatesNormalizeAndChangesHideExpiredEvidenceAndHistory() throws Exception {
+    var q = new Query("test", null, List.of(kb), "keyword", 6, false, null);
+    var evidence =
+        Map.<String, Object>of("id", chunk, "document_id", document, "version_id", version);
+    String answer = retrieval.saveAnswer(actor, q, "Synthetic", List.of(evidence));
+    assertThat(retrieval.scope(actor, q).versions()).contains(version);
+    Map<String, Object> metadata = new LinkedHashMap<>();
+    metadata.put("title", "Updated document");
+    metadata.put("source", "Synthetic manual");
+    metadata.put("language", "en-US");
+    metadata.put("tags", List.of("tag"));
+    metadata.put("product_models", List.of("CF-100"));
+    metadata.put("valid_from", "2020-01-01T08:00:00+08:00");
+    metadata.put("valid_until", "2021-01-01T08:00:00+08:00");
+    metadata.put("revision", 0);
+    mvc.perform(
+            put("/api/v1/documents/" + document + "/metadata")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(metadata)))
+        .andExpect(status().isOk());
+    mvc.perform(get("/api/v1/documents/" + document + "/metadata").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.valid_from").value("2020-01-01T00:00:00Z"))
+        .andExpect(jsonPath("$.product_models[0]").value("CF-100"));
+    assertThat(retrieval.scope(actor, q).versions()).doesNotContain(version);
+    assertThatThrownBy(
+            () ->
+                retrieval.checkEvidence(
+                    actor, evidence, new RetrievalService.Scope(List.of(version), false, "", -1)))
+        .isInstanceOf(ApiException.class);
+    mvc.perform(get("/api/v1/answers").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == '" + answer + "')]").isEmpty());
+    mvc.perform(
+            get("/api/v1/documents/" + document + "/metadata-history")
+                .header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].revision").value(1));
+    mvc.perform(
+            put("/api/v1/documents/" + document + "/metadata")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(metadata)))
+        .andExpect(status().isConflict());
+    metadata.put("revision", 1);
+    metadata.put("valid_until", "2999-01-01T00:00:00Z");
+    mvc.perform(
+            put("/api/v1/documents/" + document + "/metadata")
+                .header("Authorization", token)
+                .contentType("application/json")
+                .content(json.writeValueAsString(metadata)))
+        .andExpect(status().isOk());
+    assertThat(retrieval.scope(actor, q).versions()).contains(version);
+    assertThat(
+            db.list(
+                "SELECT id FROM document_metadata_history WHERE tenant_id=? AND document_id=?",
+                tenant,
+                document))
+        .hasSize(2);
+  }
+
+  @Test
+  void metadataRejectsMalformedDatesAndReversedValidityWithoutMutation() throws Exception {
+    for (String until : List.of("2019-01-01T00:00:00Z", "2020-01-01T00:00:00", "not-a-date")) {
+      String body =
+          json.writeValueAsString(
+              Map.of(
+                  "title",
+                  "Invalid",
+                  "source",
+                  "",
+                  "language",
+                  "zh",
+                  "tags",
+                  List.of(),
+                  "product_models",
+                  List.of(),
+                  "valid_from",
+                  "2020-01-01T00:00:00Z",
+                  "valid_until",
+                  until,
+                  "revision",
+                  0));
+      mvc.perform(
+              put("/api/v1/documents/" + document + "/metadata")
+                  .header("Authorization", token)
+                  .contentType("application/json")
+                  .content(body))
+          .andExpect(status().isBadRequest());
+    }
+    assertThat(Db.num(auth.document(actor, document, "read"), "revision")).isZero();
+    assertThat(db.list("SELECT id FROM document_metadata_history WHERE document_id=?", document))
+        .isEmpty();
+  }
+
+  @Test
   void knowledgeAttributesTransferAndConflict() throws Exception {
     String next = Db.id();
     db.exec(
@@ -273,6 +370,8 @@ class PlatformBoundaryTest {
         List.of(
             "/knowledge-bases/" + kb,
             "/documents/" + document + "/versions",
+            "/documents/" + document + "/metadata",
+            "/documents/" + document + "/metadata-history",
             "/document-versions/" + version + "/chunks",
             "/document-versions/" + version + "/source"))
       mvc.perform(get("/api/v1" + path).header("Authorization", otherToken))

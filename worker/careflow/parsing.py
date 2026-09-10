@@ -8,6 +8,7 @@ from io import BytesIO, StringIO
 from pathlib import PurePath
 
 from careflow.office_parsing import docx_blocks, xlsx_blocks
+from careflow.parsing_limits import Limits
 from careflow.parsing_types import Block, InvalidFile
 from careflow.text_parsing import clean_segment, markdown_blocks, repeated_page_margins
 
@@ -15,11 +16,14 @@ from careflow.text_parsing import clean_segment, markdown_blocks, repeated_page_
 def _zip_guard(data: bytes, expected: str):
     if not data.startswith(b"PK"):
         raise InvalidFile("Invalid Office file signature")
+    limits = Limits.environment()
     with zipfile.ZipFile(BytesIO(data)) as archive:
+        if len(archive.infolist()) > limits.archive_entries:
+            raise InvalidFile("Archive entry count exceeds configured limit")
         if expected not in archive.namelist():
             raise InvalidFile("File format does not match extension")
-        if sum(x.file_size for x in archive.infolist()) > 200 * 1024 * 1024:
-            raise InvalidFile("Expanded archive exceeds 200 MiB")
+        if sum(x.file_size for x in archive.infolist()) > limits.archive_bytes:
+            raise InvalidFile("Expanded archive exceeds configured limit")
         if any(x.flag_bits & 1 for x in archive.infolist()):
             raise InvalidFile("Encrypted archive is not supported")
 
@@ -27,14 +31,18 @@ def _zip_guard(data: bytes, expected: str):
 def _ocr(image):
     import pytesseract
 
-    if image.width * image.height > 40_000_000:
+    limits = Limits.environment()
+    if image.width * image.height > limits.image_pixels:
         raise InvalidFile("Image dimensions exceed OCR limit")
-    return pytesseract.image_to_string(image, lang="chi_sim+eng", timeout=60)
+    return pytesseract.image_to_string(
+        image, lang="chi_sim+eng", timeout=limits.ocr_seconds
+    )
 
 
 def parse(data: bytes, filename: str) -> list[Block]:
     if not data or len(data) > 50 * 1024 * 1024:
         raise InvalidFile("File is empty or exceeds 50 MiB")
+    limits = Limits.environment()
     ext = PurePath(filename).suffix.lower()
     blocks = []
     if ext in {".txt", ".md", ".csv"}:
@@ -89,8 +97,8 @@ def parse(data: bytes, filename: str) -> list[Block]:
         from pypdf import PdfReader
 
         pdf = PdfReader(BytesIO(data))
-        if pdf.is_encrypted or len(pdf.pages) > 500:
-            raise InvalidFile("Encrypted PDF or PDF exceeds 500 pages")
+        if pdf.is_encrypted or len(pdf.pages) > limits.pdf_pages:
+            raise InvalidFile("Encrypted PDF or PDF exceeds configured page limit")
         rendered = None
         try:
             for i, page in enumerate(pdf.pages):
@@ -102,6 +110,10 @@ def parse(data: bytes, filename: str) -> list[Block]:
                     if rendered is None:
                         rendered = pypdfium2.PdfDocument(data)
                     rendered_page = rendered[i]
+                    width, height = rendered_page.get_size()
+                    if width * height * 1.5 * 1.5 > limits.image_pixels:
+                        rendered_page.close()
+                        raise InvalidFile("Rendered PDF page exceeds pixel limit")
                     bitmap = rendered_page.render(scale=1.5)
                     image = bitmap.to_pil()
                     try:

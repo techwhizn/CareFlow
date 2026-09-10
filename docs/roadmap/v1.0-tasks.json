@@ -211,7 +211,8 @@
       "V1-12"
     ],
     "acceptance": "容器可构建并实际识别扫描PDF、PNG/JPEG；展示质量警告；默认PDF500页限制可收紧；验证超时、内存/像素及压缩展开限制，不执行嵌入脚本。",
-    "status": "待完成"
+    "status": "待联调",
+    "evidence": "docs/reports/v1-13-parser-limits-progress.md"
   },
   {
     "id": "V1-14",

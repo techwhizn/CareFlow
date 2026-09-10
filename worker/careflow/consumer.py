@@ -1,8 +1,6 @@
 """At-least-once task delivery with backend-owned fenced leases."""
 
-import concurrent.futures
 import logging
-import multiprocessing
 import os
 import threading
 import time
@@ -11,12 +9,9 @@ import httpx
 import pika
 
 from careflow import models, parsing, retrieval
+from careflow.isolated_parser import ParseFailure, parse_document
 
 log = logging.getLogger(__name__)
-
-
-def _parse(data, filename):
-    return parsing.chunk(parsing.parse(data, filename))
 
 
 def run_job(job_id):
@@ -51,20 +46,7 @@ def run_job(job_id):
             if job["kind"] == "PARSE":
                 source = client.get(base + "/source", headers=headers)
                 source.raise_for_status()
-                # One subprocess per document; hard timeout bounds native parser/OCR execution.
-                ctx = multiprocessing.get_context("spawn")
-                pool = concurrent.futures.ProcessPoolExecutor(
-                    max_workers=1, mp_context=ctx
-                )
-                future = pool.submit(_parse, source.content, job["filename"])
-                try:
-                    result = {"chunks": future.result(timeout=600)}
-                except concurrent.futures.TimeoutError:
-                    for process in pool._processes.values():
-                        process.terminate()
-                    raise parsing.InvalidFile("PARSE_TIMEOUT")
-                finally:
-                    pool.shutdown(wait=False, cancel_futures=True)
+                result = {"chunks": parse_document(source.content, job["filename"])}
             else:
                 chunks = client.get(base + "/chunks", headers=headers)
                 chunks.raise_for_status()
@@ -78,7 +60,9 @@ def run_job(job_id):
         except Exception as exc:
             if not lease_lost.is_set():
                 # Never put file content, vendor responses or secrets into public job errors.
-                if isinstance(exc, models.ModelUnavailable):
+                if isinstance(exc, ParseFailure):
+                    code = exc.code
+                elif isinstance(exc, models.ModelUnavailable):
                     code = "MODEL_CONFIGURATION_REQUIRED"
                 elif isinstance(exc, (parsing.InvalidFile, ValueError)):
                     code = "INVALID_FILE"

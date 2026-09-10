@@ -51,3 +51,11 @@
 ## 应用密钥轮换
 
 在应用中心按最小需要选择READ、SEARCH、ANSWER及期限签发新密钥。将新密钥安全交付对应调用方并验证后，在该应用的密钥列表撤销旧密钥。列表不显示密钥明文或摘要。服务端每次认证校验active、expires_at及应用发布状态，执行中的问答也重新认证。不要把原密钥写入日志或工单。
+
+## 解析资源限制（V1-13开发部分）
+
+部署可通过PARSE_MAX_PDF_PAGES（500）、PARSE_MAX_IMAGE_PIXELS（40000000）、PARSE_MAX_ARCHIVE_BYTES（209715200）、PARSE_MAX_ARCHIVE_ENTRIES（10000）、OCR_TIMEOUT_SECONDS（60）、PARSE_TIMEOUT_SECONDS（600）收紧限制，不能超过括号内默认硬上限。配置非法明确拒绝解析。
+
+每份文档单独spawn进程，超时终止并回收；Linux子进程用PARSE_MEMORY_MIB（最大2048）限制地址空间及CPU秒数。Compose消费者限制2GiB内存、2核、128进程。macOS主机开发不执行Linux内存上限；不可把macOS测试当容器内存验收。PDF页像素在渲染前检查，Office先检查解压总量和条目数。OCR仍要求安装英文及简体中文Tesseract语言包。
+
+当前本机Docker Hub认证服务连接超时，Worker容器构建及真实OCR尚未通过；V1-13保持未完成。PARSE_TIMEOUT、PARSE_RESOURCE_LIMIT、INVALID_FILE、PARSING_FAILED是安全阶段错误码，不记录正文。解析失败不自动伪造结果。

@@ -144,3 +144,5 @@ Python 使用明确的 MockTransport，Java 使用本机 HTTP 测试服务器；
 
 
 清理状态：Python同步/异步客户端使用 `cleanup_requests()`，Java使用 `cleanupRequests()`；失败恢复后分别调用 `retry_cleanup(request_id, reason, idempotency_key=...)` / `retryCleanup(requestId, reason, key)`。接口只返回当前身份有权查看的清理元数据；重试不跳过服务端范围校验，应用凭证不能调用管理清理接口。
+
+搜索响应新增证据Token总数、上限、Tokenizer及同版本扩展来源字段，两种SDK保留这些字段；具体语义见 [证据整理](../docs/evidence-context.md)。

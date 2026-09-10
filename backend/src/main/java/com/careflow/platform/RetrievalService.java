@@ -16,6 +16,7 @@ public class RetrievalService {
   private final EntitlementService entitlements;
   private final MetadataFilters metadataFilters;
   private final ConfiguredModelRouting modelRouting;
+  private final EvidenceContextService contexts;
 
   public RetrievalService(
       Db db,
@@ -24,7 +25,8 @@ public class RetrievalService {
       TransactionTemplate tx,
       EntitlementService entitlements,
       MetadataFilters metadataFilters,
-      ConfiguredModelRouting modelRouting) {
+      ConfiguredModelRouting modelRouting,
+      EvidenceContextService contexts) {
     this.db = db;
     this.auth = auth;
     this.worker = worker;
@@ -32,6 +34,7 @@ public class RetrievalService {
     this.entitlements = entitlements;
     this.metadataFilters = metadataFilters;
     this.modelRouting = modelRouting;
+    this.contexts = contexts;
   }
 
   public record Query(
@@ -257,8 +260,14 @@ public class RetrievalService {
         evidence.isEmpty()
             ? Map.of("results", List.of(), "degraded", false)
             : worker.call("/internal/v1/rerank", rerankRequest);
-    var byId = new HashMap<String, Map<String, Object>>();
-    for (var e : evidence) byId.put(str(e, "id"), e);
+    var byId =
+        contexts.prepare(
+            actor,
+            evidence,
+            () -> {
+              reauthenticate(actor, authorization);
+              for (var c : evidence) checkEvidence(actor, c, scope);
+            });
     boolean debug = q.debug() && !actor.app() && !actor.role().equals("USER");
     var selection =
         EvidenceSelection.select(
@@ -269,9 +278,14 @@ public class RetrievalService {
             Boolean.TRUE.equals(ranked.get("degraded")),
             debug);
     reauthenticate(actor, authorization);
-    for (var c : evidence) checkEvidence(actor, c, scope);
+    for (var c : byId.values()) checkEvidence(actor, c, scope);
     var response = new LinkedHashMap<String, Object>();
     response.put("evidence", selection.evidence());
+    response.put(
+        "evidence_tokens",
+        selection.evidence().stream().mapToLong(c -> num(c, "token_count")).sum());
+    response.put("evidence_token_limit", 6000);
+    response.put("evidence_tokenizer", "cl100k_base");
     response.put("minimum_rerank_score", minimumScore);
     response.put(
         "configuration_id", queryConfiguration == null ? "" : queryConfiguration.runtime().id());
@@ -346,6 +360,14 @@ public class RetrievalService {
         "SELECT id FROM document_versions WHERE tenant_id=? AND id=? AND ever_published=TRUE AND (valid_from IS NULL OR valid_from<=CURRENT_TIMESTAMP) AND (valid_until IS NULL OR valid_until>CURRENT_TIMESTAMP)",
         actor.tenant(),
         str(c, "version_id"));
+    if (c.get("covered_chunk_ids") instanceof List<?> covered) {
+      for (Object chunk : covered)
+        db.one(
+            "SELECT id FROM chunks WHERE tenant_id=? AND version_id=? AND id=? AND enabled=TRUE",
+            actor.tenant(),
+            str(c, "version_id"),
+            chunk);
+    }
     if (!scope.application().isBlank()) {
       db.one(
           "SELECT b.kb_id FROM application_bindings b JOIN applications a ON a.id=b.application_id WHERE b.tenant_id=? AND b.application_id=? AND b.kb_id=? AND a.published=TRUE",

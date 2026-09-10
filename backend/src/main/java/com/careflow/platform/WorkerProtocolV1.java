@@ -84,6 +84,16 @@ public final class WorkerProtocolV1 {
       @NotNull @Min(0) @Max(100000) Integer model_token_count,
       @NotNull @Min(1) @Max(131072) Integer model_limit) {}
 
+  public record ContextTokensRequest(
+      @NotNull @Size(max = 40) List<@NotNull @Valid Candidate> candidates) {}
+
+  public record TokenCount(
+      @NotBlank @Size(max = 100) String id, @NotNull @Min(1) @Max(100000) Integer token_count) {}
+
+  public record ContextTokensResponse(
+      @NotNull @Size(max = 40) List<@NotNull @Valid TokenCount> counts,
+      @NotNull @Pattern(regexp = "cl100k_base") String tokenizer) {}
+
   public record TaskClaim(
       String generation_id,
       String id,

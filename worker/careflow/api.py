@@ -12,6 +12,8 @@ from careflow.protocol_v1 import (
     CachePurge,
     CompactionRequest,
     CompactionResponse,
+    ContextTokens,
+    ContextTokensResponse,
     Generate,
     GenerationEvent,
     IndexPurge,
@@ -37,6 +39,21 @@ def internal(x_internal_token: str = Header(default="")):
 
 
 app = FastAPI(title="CareFlow Internal Worker", dependencies=[Depends(internal)])
+
+
+@app.post("/internal/v1/context/tokens", response_model=ContextTokensResponse)
+def context_tokens(body: ContextTokens):
+    from careflow.chunking import tokens
+
+    return ContextTokensResponse.model_validate(
+        {
+            "counts": [
+                {"id": item.id, "token_count": tokens(item.content)}
+                for item in body.candidates
+            ],
+            "tokenizer": "cl100k_base",
+        }
+    )
 
 
 @app.post("/internal/v1/faq/chunk", response_model=ParseCompletion)
@@ -122,6 +139,11 @@ def rerank(body: Rerank):
 
 @app.post("/internal/v1/generate/stream")
 def stream(body: Generate):
+    from careflow.chunking import tokens
+
+    if sum(tokens(item.content) for item in body.evidence) > 6000:
+        raise HTTPException(422, "EVIDENCE_TOKEN_LIMIT")
+
     def generate():
         upstream = None
         try:

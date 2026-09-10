@@ -1,4 +1,7 @@
-import MetadataFilterEditor, { serializeFilters } from "../features/retrieval/MetadataFilterEditor";
+import { sourceLabels } from "../features/knowledge/sourceLabels";
+import MetadataFilterEditor, {
+  serializeFilters,
+} from "../features/retrieval/MetadataFilterEditor";
 import type { FilterDraft } from "../features/retrieval/MetadataFilterEditor";
 import RelevanceThreshold from "../components/RelevanceThreshold";
 import { ArrowRight, FileText, MagnifyingGlass } from "@phosphor-icons/react";
@@ -6,6 +9,18 @@ import { useState } from "react";
 import type { Row } from "../api";
 import { post } from "../api";
 import { Empty, ErrorNote, Loading, useData } from "../ui";
+function evidenceSource(row: Row): string {
+  try {
+    const location = JSON.parse(row.context_location || row.location || "{}");
+    return (
+      sourceLabels(location, row.origin === "MANUAL").join(" · ") ||
+      "来源定位待核对"
+    );
+  } catch {
+    return "来源定位待核对";
+  }
+}
+
 export default function SearchPage() {
   const k = useData<Row[]>("/knowledge-bases", []),
     [query, setQuery] = useState(""),
@@ -39,7 +54,8 @@ export default function SearchPage() {
                 mode: mode || null,
                 limit: 6,
                 debug: true,
-                minimum_rerank_score: minimumScore === "" ? null : Number(minimumScore),
+                minimum_rerank_score:
+                  minimumScore === "" ? null : Number(minimumScore),
                 filters: serializeFilters(filters),
               }),
             );
@@ -68,8 +84,16 @@ export default function SearchPage() {
             </button>
           </div>
         </label>
-<RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
-<MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
+        <RelevanceThreshold
+          value={minimumScore}
+          onChange={setMinimumScore}
+          disabled={busy}
+        />
+        <MetadataFilterEditor
+          value={filters}
+          onChange={setFilters}
+          disabled={busy}
+        />
         <div className="query-options">
           <label>
             知识范围
@@ -107,6 +131,12 @@ export default function SearchPage() {
               {debug ? "收起" : "查看"}调试详情
             </button>
           </div>
+          {result.evidence_tokens != null && (
+            <p>
+              证据内容 {result.evidence_tokens} / {result.evidence_token_limit}{" "}
+              Token（{result.evidence_tokenizer}）
+            </p>
+          )}
           {result.degraded && (
             <div className="notice">
               本次结果已降级，未完成全部模型处理阶段。
@@ -127,9 +157,17 @@ export default function SearchPage() {
                   <code>{c.version_id.slice(0, 8)}</code>
                 </header>
                 <p>{c.content}</p>
+                {c.context_kind && c.context_kind !== "CHUNK" && (
+                  <small>
+                    {c.context_kind === "NEIGHBORS"
+                      ? "已补充同版本相邻片段"
+                      : "已补充同版本父片段"}{" "}
+                    · {c.token_count} Token
+                  </small>
+                )}
                 <footer>
                   <FileText />
-                  {c.location}
+                  {evidenceSource(c)}
                 </footer>
               </article>
             ))

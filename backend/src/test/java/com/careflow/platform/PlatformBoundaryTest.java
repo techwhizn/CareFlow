@@ -46,6 +46,21 @@ class PlatformBoundaryTest {
 
   @BeforeEach
   void setup() {
+    org.mockito.Mockito.when(
+            worker.call(
+                org.mockito.ArgumentMatchers.eq("/internal/v1/context/tokens"),
+                org.mockito.ArgumentMatchers.any()))
+        .thenAnswer(
+            call -> {
+              var request = call.getArgument(1, WorkerProtocolV1.ContextTokensRequest.class);
+              return Map.of(
+                  "tokenizer",
+                  "cl100k_base",
+                  "counts",
+                  request.candidates().stream()
+                      .map(c -> Map.of("id", c.id(), "token_count", 4))
+                      .toList());
+            });
     tenant = Db.id();
     member = Db.id();
     kb = Db.id();

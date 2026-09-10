@@ -76,6 +76,20 @@ class TokenizeResponse(Contract):
     model_limit: int = Field(ge=1, le=131072)
 
 
+class ContextTokens(Contract):
+    candidates: list[Candidate] = Field(max_length=40)
+
+
+class TokenCount(Contract):
+    id: str = Field(min_length=1, max_length=100)
+    token_count: int = Field(ge=1, le=100000)
+
+
+class ContextTokensResponse(Contract):
+    counts: list[TokenCount] = Field(max_length=40)
+    tokenizer: Literal["cl100k_base"] = "cl100k_base"
+
+
 class GenerationEvent(Contract):
     text: str | None = None
     done: Literal[True] | None = None

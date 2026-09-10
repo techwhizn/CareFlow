@@ -5,6 +5,56 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/internal/v1/context/tokens": {
+      "post": {
+        "summary": "Context Tokens",
+        "operationId": "context_tokens_internal_v1_context_tokens_post",
+        "parameters": [
+          {
+            "name": "x-internal-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextTokens"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextTokensResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/v1/faq/chunk": {
       "post": {
         "summary": "Faq Chunk",
@@ -707,6 +757,48 @@
           "complete"
         ],
         "title": "CompactionResponse"
+      },
+      "ContextTokens": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "title": "Candidates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidates"
+        ],
+        "title": "ContextTokens"
+      },
+      "ContextTokensResponse": {
+        "properties": {
+          "counts": {
+            "items": {
+              "$ref": "#/components/schemas/TokenCount"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "title": "Counts"
+          },
+          "tokenizer": {
+            "type": "string",
+            "const": "cl100k_base",
+            "title": "Tokenizer",
+            "default": "cl100k_base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "counts"
+        ],
+        "title": "ContextTokensResponse"
       },
       "Generate": {
         "properties": {
@@ -1468,6 +1560,29 @@
           "degraded"
         ],
         "title": "RerankResponse"
+      },
+      "TokenCount": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "token_count": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 1.0,
+            "title": "Token Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "token_count"
+        ],
+        "title": "TokenCount"
       },
       "Tokenize": {
         "properties": {

@@ -144,3 +144,27 @@ def test_explicit_container_model_directory_does_not_depend_on_repository_layout
     monkeypatch.setenv("LOCAL_MODEL_DIRECTORY", "/models")
     monkeypatch.setattr(model_registry, "__file__", "/app/model_registry.py")
     assert str(model_registry.model_path("embedding")).startswith("/models/")
+
+
+def test_embedding_and_rerank_pair_windows_never_silently_truncate():
+    from types import SimpleNamespace
+
+    from fastapi import HTTPException
+
+    from model_server import Models
+
+    engine = Models.__new__(Models)
+    observed = []
+
+    def tokenizer(texts, **kwargs):
+        observed.append(kwargs)
+        return {"input_ids": SimpleNamespace(shape=(len(texts), 513))}
+
+    engine.tokenizers = {"embedding": tokenizer, "rerank": tokenizer}
+    for kind, pairs in [("embedding", None), ("rerank", ["passage"])]:
+        with pytest.raises(HTTPException) as error:
+            engine.encode(kind, ["query"], pairs)
+        assert error.value.status_code == 400
+        assert error.value.detail == "MODEL_INPUT_TOO_LONG"
+    assert all(item["truncation"] is False for item in observed)
+    assert observed[1]["text_pair"] == ["passage"]

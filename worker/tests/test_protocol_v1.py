@@ -119,3 +119,37 @@ def test_cleanup_adapter_failure_is_sanitized(monkeypatch):
     )
     assert response.status_code == 503
     assert response.json() == {"detail": "INDEX_PURGE_UNAVAILABLE"}
+
+
+def test_evidence_budget_uses_real_tokens_not_characters_and_blocks_generation(
+    monkeypatch,
+):
+    from careflow.chunking import tokens
+
+    c = client(monkeypatch)
+    english = "word " * 1500
+    chinese = "复杂" * 1500
+    response = c.post(
+        "/internal/v1/context/tokens",
+        json={
+            "candidates": [
+                {"id": "en", "content": english},
+                {"id": "zh", "content": chinese},
+            ]
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["counts"] == [
+        {"id": "en", "token_count": tokens(english)},
+        {"id": "zh", "token_count": tokens(chinese)},
+    ]
+    assert len(english) > 6000 and tokens(english) < 6000
+    response = c.post(
+        "/internal/v1/generate/stream",
+        json={
+            "query": "synthetic",
+            "evidence": [{"id": str(i), "content": chinese} for i in range(3)],
+        },
+    )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "EVIDENCE_TOKEN_LIMIT"}

@@ -8,7 +8,16 @@ import org.junit.jupiter.api.Test;
 class EvidenceSelectionTest {
   private Map<String, Object> candidate(String id, String document, String content) {
     return Map.of(
-        "id", id, "document_id", document, "content", content, "source_text", "private source");
+        "id",
+        id,
+        "document_id",
+        document,
+        "content",
+        content,
+        "source_text",
+        "private source",
+        "token_count",
+        Math.max(1, content.length()));
   }
 
   @Test
@@ -62,7 +71,7 @@ class EvidenceSelectionTest {
     List<Map<String, Object>> ranked = new ArrayList<>();
     for (int i = 0; i < 5; i++) {
       String id = "c" + i;
-      candidates.put(id, candidate(id, "d", "a"));
+      candidates.put(id, candidate(id, "d", id));
       ranked.add(Map.of("id", id, "score", 1));
     }
     candidates.put("long", candidate("long", "other", "a".repeat(6000)));
@@ -72,8 +81,31 @@ class EvidenceSelectionTest {
     assertThat(result.evidence()).hasSize(3);
     assertThat(result.excluded())
         .extracting(EvidenceSelection.Exclusion::reason)
-        .containsExactly("DOCUMENT_LIMIT", "DOCUMENT_LIMIT", "CONTEXT_LIMIT");
+        .containsExactly("DOCUMENT_LIMIT", "DOCUMENT_LIMIT", "CONTEXT_TOKEN_LIMIT");
     assertThat(EvidenceSelection.select(candidates, ranked, 1, null, false, false).evidence())
         .hasSize(1);
+  }
+
+  @Test
+  void budgetUsesTokensRatherThanCharactersAndDeduplicatesIdenticalSources() {
+    var english = new LinkedHashMap<>(candidate("english", "one", "word ".repeat(1500)));
+    english.put("token_count", 1501);
+    var chinese = new LinkedHashMap<>(candidate("chinese", "two", "复杂".repeat(1500)));
+    chinese.put("token_count", 5000);
+    var copy = new LinkedHashMap<>(english);
+    copy.put("id", "copy");
+    copy.put("document_id", "three");
+    var selected =
+        EvidenceSelection.select(
+            Map.of("english", english, "chinese", chinese, "copy", copy),
+            List.of(Map.of("id", "english"), Map.of("id", "copy"), Map.of("id", "chinese")),
+            6,
+            null,
+            false,
+            false);
+    assertThat(selected.evidence()).extracting(row -> row.get("id")).containsExactly("english");
+    assertThat(selected.excluded())
+        .extracting(EvidenceSelection.Exclusion::reason)
+        .containsExactly("DUPLICATE_CONTEXT", "CONTEXT_TOKEN_LIMIT");
   }
 }

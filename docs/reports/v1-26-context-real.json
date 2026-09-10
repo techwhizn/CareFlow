@@ -1,0 +1,101 @@
+{
+  "real_dependencies": true,
+  "synthetic_data": true,
+  "checks": [
+    {
+      "layout": "parent_child",
+      "passed": true,
+      "evidence_count": 3,
+      "tokens": 890,
+      "excluded": [
+        {
+          "id": "d81e921f-68a3-43de-b279-5f3a6ca0c493",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "c8074bb8-5e33-46b5-ab91-a3836294ed20",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "9b30d1cb-9498-429f-b018-590fd0506912",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "86cb1102-c7b8-4c8b-9702-2e87b042c86a",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "83f925f7-5ae9-4d1e-bced-8450c2f19ca2",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "606daf6b-8af5-4d11-985c-129c6dacf0ce",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "0341f49a-57d9-4d1b-b254-4c9ccbf75d20",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "c14330de-4114-44b4-be87-f7893a7eec76",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "f9fc961c-e8b0-4a3d-88b3-6438fe0daeb0",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "efac2198-184b-4058-95eb-e2f7f290a6f4",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "9af6d34a-3a65-40d8-bb3e-f41f76a3507e",
+          "reason": "DUPLICATE_CONTEXT"
+        }
+      ],
+      "covered_chunks": [
+        6,
+        6,
+        2
+      ]
+    },
+    {
+      "layout": "faq",
+      "passed": true,
+      "evidence_count": 3,
+      "tokens": 125,
+      "excluded": [],
+      "covered_chunks": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "layout": "neighbors",
+      "passed": true,
+      "evidence_count": 1,
+      "tokens": 63,
+      "unique_covered_chunks": 3,
+      "excluded": [
+        {
+          "id": "0aef7785-d72e-41c4-bb61-96fa1ea59d57",
+          "reason": "DUPLICATE_CONTEXT"
+        },
+        {
+          "id": "0de13bcd-fdd2-4d92-9f97-105f7d4b0d62",
+          "reason": "DUPLICATE_CONTEXT"
+        }
+      ]
+    },
+    {
+      "scenario": "real_parent_over_6000_characters_within_token_budget",
+      "passed": true,
+      "characters": 7270,
+      "tokens": 611,
+      "knowledge_base_id": "32396c5d-b250-4708-ae94-dcf33bbe376c",
+      "version_id": "333488da-07d5-4889-9735-05d58bf077f1"
+    }
+  ],
+  "complete": true
+}

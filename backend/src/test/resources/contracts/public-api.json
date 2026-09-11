@@ -2851,6 +2851,24 @@
         }
       }
     },
+    "/api/v1/quality/feedback-summary" : {
+      "get" : {
+        "tags" : [ "quality-feedback-controller" ],
+        "operationId" : "summary",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/operations/status" : {
       "get" : {
         "tags" : [ "operations-controller" ],

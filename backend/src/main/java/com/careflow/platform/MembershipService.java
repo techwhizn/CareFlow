@@ -37,7 +37,11 @@ public class MembershipService {
 
   public List<Map<String, Object>> list(Actor actor) {
     auth.admin(actor);
-    return db.list("SELECT * FROM members WHERE tenant_id=? ORDER BY name,id", actor.tenant());
+    return db
+        .list("SELECT * FROM members WHERE tenant_id=? ORDER BY name,id", actor.tenant())
+        .stream()
+        .map(this::publicMember)
+        .toList();
   }
 
   @Transactional
@@ -92,7 +96,8 @@ public class MembershipService {
     if (removed)
       db.exec("DELETE FROM permissions WHERE tenant_id=? AND subject_id=?", actor.tenant(), member);
     auth.audit(actor, "MEMBER_UPDATE", member, "role=" + input.role() + ",state=" + input.state());
-    return db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), member);
+    return publicMember(
+        db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), member));
   }
 
   @Transactional
@@ -128,7 +133,8 @@ public class MembershipService {
             input.revision())
         != 1) throw ApiException.conflict();
     auth.audit(actor, "MEMBER_EXTERNAL_IDENTITY_BIND", member, "issuer=" + input.issuer());
-    return db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), member);
+    return publicMember(
+        db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), member));
   }
 
   @Transactional
@@ -144,5 +150,11 @@ public class MembershipService {
       throw ApiException.hidden();
     auth.audit(actor, "MEMBER_CREDENTIAL_CREATE", member, "");
     return Map.of("token", auth.credential(actor.tenant(), member, "MEMBER", null));
+  }
+
+  private Map<String, Object> publicMember(Map<String, Object> row) {
+    var result = new LinkedHashMap<>(row);
+    result.remove("mfa_secret");
+    return result;
   }
 }

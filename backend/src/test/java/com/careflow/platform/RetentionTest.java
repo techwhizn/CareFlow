@@ -54,4 +54,23 @@ class RetentionTest extends ContentTestSupport {
         .containsEntry("body_state", "DISABLED");
     assertThat(db.list("SELECT id FROM audit_events WHERE tenant_id=?", tenant)).hasSize(1);
   }
+
+  @Test
+  void retentionRemovesOnlyTerminalIntegrationDeliveries() {
+    String delivered = id(), pending = id();
+    db.exec(
+        "INSERT INTO integration_deliveries(id,tenant_id,endpoint_id,event_type,payload,status,created_at) VALUES(?,?,?,'TEST','{}','DELIVERED',TIMESTAMPADD(DAY,-181,CURRENT_TIMESTAMP))",
+        delivered,
+        tenant,
+        id());
+    db.exec(
+        "INSERT INTO integration_deliveries(id,tenant_id,endpoint_id,event_type,payload,status) VALUES(?,?,?,'TEST','{}','PENDING')",
+        pending,
+        tenant,
+        id());
+    retention.sweepTenant(tenant);
+    assertThat(db.list("SELECT id FROM integration_deliveries WHERE tenant_id=?", tenant))
+        .extracting(row -> str(row, "id"))
+        .containsExactly(pending);
+  }
 }

@@ -112,6 +112,10 @@ public class RetentionService {
                   -num(policy, "audit_retention_days"));
           for (var row : audit)
             db.exec("DELETE FROM audit_events WHERE tenant_id=? AND id=?", tenant, str(row, "id"));
+          db.exec(
+              "DELETE FROM integration_deliveries WHERE tenant_id=? AND status IN ('DELIVERED','FAILED') AND created_at<TIMESTAMPADD(DAY,?,CURRENT_TIMESTAMP)",
+              tenant,
+              -num(policy, "audit_retention_days"));
           if (!questions.isEmpty() || !audit.isEmpty())
             org.slf4j.LoggerFactory.getLogger(RetentionService.class)
                 .info(

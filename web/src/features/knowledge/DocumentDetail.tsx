@@ -88,7 +88,7 @@ function DocumentFlow({
       <div><h2>文档生效流程</h2><p>按顺序完成后，内容才会进入查询和问答。</p></div>
       <div className="flow-actions">
         {state === "REVIEW" && <button className="flow-secondary" onClick={() => document.getElementById("chunk-source-preview")?.scrollIntoView({ behavior: "smooth", block: "start" })}>审核切片</button>}
-        {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在处理…" : "一键索引并发布"}</button>}
+        {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在自动处理…" : "一键自动处理并发布"}</button>}
       </div>
     </div>
     <div className="document-flow-steps" aria-label="文档处理流程">
@@ -102,7 +102,7 @@ function DocumentFlow({
       })}
     </div>
     {!version?.configuration_id && state !== "PUBLISHED" && <p className="document-flow-hint">当前知识库尚未发布处理配置，请先在上方“处理与查询配置”中创建并发布配置。</p>}
-    {version?.configuration_id && state === "REVIEW" && <p className="document-flow-hint">切片已生成。确认内容无误后，可以点击“一键索引并发布”。</p>}
+    {version?.configuration_id && state === "REVIEW" && <p className="document-flow-hint">切片已生成。确认内容无误后，点击“一键自动处理并发布”，系统会自动等待索引完成并发布当前版本。</p>}
   </section>;
 }
 export default function DocumentDetail({

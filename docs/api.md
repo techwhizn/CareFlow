@@ -32,6 +32,8 @@
 
 配置 OIDC introspection 后，`POST /api/v1/sso/exchange` 接受外部令牌并返回8小时 CareFlow 成员令牌。仅已绑定外部主体的成员可交换；不自动注册、不从外部声明授予角色。IdP 必须通过 HTTPS，配置缺失或不可用时返回 `503 SSO_UNAVAILABLE`。
 
+管理员使用 `PUT /api/v1/members/{id}/external-identity` 绑定 `{issuer, subject, revision}`；签发方必须是 HTTPS 且同一租户内唯一。绑定、变更和交换均记录审计。
+
 ## 企业系统集成
 
 `GET/POST /api/v1/integrations` 管理租户 Webhook 端点，创建请求需 `kind=webhook`、HTTPS 地址（本地联调可用 localhost HTTP）、至少16字符 secret 和事件集合。列表只返回配置元数据，不返回 secret；`DELETE /api/v1/integrations/{id}?revision=N` 按版本停用并写入审计。事件投递器未配置时不会伪造送达结果，详细边界见[企业系统集成](integrations.md)。

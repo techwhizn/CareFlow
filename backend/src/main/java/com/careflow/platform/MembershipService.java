@@ -20,6 +20,11 @@ public class MembershipService {
       @NotNull @Pattern(regexp = "ACTIVE|DISABLED|REMOVED") String state,
       @Min(0) long revision) {}
 
+  public record ExternalIdentity(
+      @NotBlank @Size(max = 500) String issuer,
+      @NotBlank @Size(max = 300) String subject,
+      @Min(0) long revision) {}
+
   private final Db db;
   private final Identity auth;
   private final EntitlementService entitlements;
@@ -99,6 +104,31 @@ public class MembershipService {
         actor,
         member,
         new Change(str(row, "name"), str(row, "role"), "DISABLED", num(row, "revision")));
+  }
+
+  @Transactional
+  public Map<String, Object> bindExternalIdentity(
+      Actor actor, String member, ExternalIdentity input) {
+    auth.admin(actor);
+    if (!input.issuer().startsWith("https://"))
+      throw new ApiException(400, "INVALID_ISSUER", "外部身份签发方必须使用 HTTPS");
+    if (!db.list(
+            "SELECT id FROM members WHERE tenant_id=? AND external_issuer=? AND external_subject=? AND id<>?",
+            actor.tenant(),
+            input.issuer(),
+            input.subject(),
+            member)
+        .isEmpty()) throw new ApiException(409, "EXTERNAL_IDENTITY_IN_USE", "外部身份已绑定其他成员");
+    if (db.exec(
+            "UPDATE members SET external_issuer=?,external_subject=?,revision=revision+1 WHERE tenant_id=? AND id=? AND revision=? AND active=TRUE AND removed=FALSE",
+            input.issuer(),
+            input.subject(),
+            actor.tenant(),
+            member,
+            input.revision())
+        != 1) throw ApiException.conflict();
+    auth.audit(actor, "MEMBER_EXTERNAL_IDENTITY_BIND", member, "issuer=" + input.issuer());
+    return db.one("SELECT * FROM members WHERE tenant_id=? AND id=?", actor.tenant(), member);
   }
 
   @Transactional

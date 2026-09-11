@@ -38,6 +38,14 @@ public class MembersController {
     service.disable(actor, id.toString());
   }
 
+  @PutMapping("/{id}/external-identity")
+  public Object bindExternalIdentity(
+      @RequestAttribute Actor actor,
+      @PathVariable UUID id,
+      @Valid @RequestBody MembershipService.ExternalIdentity input) {
+    return service.bindExternalIdentity(actor, id.toString(), input);
+  }
+
   @PostMapping("/{id}/credentials")
   public Object issue(@RequestAttribute Actor actor, @PathVariable UUID id) {
     return service.issueCredential(actor, id.toString());

@@ -12,12 +12,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class HttpBoundary extends OncePerRequestFilter {
   private final Identity identity;
+  private final MfaService mfa;
   private final ObjectMapper json;
   private final String internal;
 
   public HttpBoundary(
-      Identity identity, ObjectMapper json, @Value("${careflow.internal-token}") String internal) {
+      Identity identity,
+      MfaService mfa,
+      ObjectMapper json,
+      @Value("${careflow.internal-token}") String internal) {
     this.identity = identity;
+    this.mfa = mfa;
     this.json = json;
     this.internal = internal;
   }
@@ -44,6 +49,9 @@ public class HttpBoundary extends OncePerRequestFilter {
           && !(req.getMethod().equals("POST")
               && req.getRequestURI().equals("/api/v1/enterprises"))) {
         var actor = identity.authenticate(req.getHeader("Authorization"));
+        if (!req.getRequestURI().equals("/api/v1/mfa/enable")
+            && !req.getRequestURI().equals("/api/v1/mfa/disable"))
+          mfa.requireCode(actor, req.getHeader("X-MFA-Code"));
         identity.authorizeRequest(actor, req.getMethod(), req.getRequestURI());
         req.setAttribute("actor", actor);
       }

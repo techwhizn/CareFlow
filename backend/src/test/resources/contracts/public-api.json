@@ -829,6 +829,80 @@
         }
       }
     },
+    "/api/v1/mfa/enroll" : {
+      "post" : {
+        "tags" : [ "mfa-controller" ],
+        "operationId" : "enroll",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mfa/enable" : {
+      "post" : {
+        "tags" : [ "mfa-controller" ],
+        "operationId" : "enable",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Code"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mfa/disable" : {
+      "post" : {
+        "tags" : [ "mfa-controller" ],
+        "operationId" : "disable_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Code"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/members" : {
       "get" : {
         "tags" : [ "members-controller" ],
@@ -2715,6 +2789,24 @@
         }
       }
     },
+    "/api/v1/mfa" : {
+      "get" : {
+        "tags" : [ "mfa-controller" ],
+        "operationId" : "status_1",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/me" : {
       "get" : {
         "tags" : [ "identity-administration-controller" ],
@@ -4209,6 +4301,17 @@
         }
       }
     },
+    "Code" : {
+      "type" : "object",
+      "properties" : {
+        "code" : {
+          "type" : "string",
+          "maxLength" : 6,
+          "minLength" : 6
+        }
+      },
+      "required" : [ "code" ]
+    },
     "Create" : {
       "type" : "object",
       "properties" : {
@@ -4585,6 +4688,21 @@
           }
         },
         "unknown_source_objects" : {
+          "type" : "integer",
+          "format" : "int64"
+        }
+      }
+    },
+    "Status" : {
+      "type" : "object",
+      "properties" : {
+        "enabled" : {
+          "type" : "boolean"
+        },
+        "enrolled" : {
+          "type" : "boolean"
+        },
+        "revision" : {
           "type" : "integer",
           "format" : "int64"
         }

@@ -27,6 +27,11 @@ public class IntegrationDeliveryService {
 
   @Transactional
   public void enqueue(String tenant, String event, Map<String, Object> payload) {
+    enqueue(tenant, event, null, payload);
+  }
+
+  @Transactional
+  public void enqueue(String tenant, String event, String resourceId, Map<String, Object> payload) {
     String body;
     try {
       body = json.writeValueAsString(payload);
@@ -40,12 +45,13 @@ public class IntegrationDeliveryService {
       String events = Db.str(endpoint, "events");
       if (!events.isBlank() && !Set.of(events.split(",")).contains(event)) continue;
       db.exec(
-          "INSERT INTO integration_deliveries(id,tenant_id,endpoint_id,event_type,payload) VALUES(?,?,?,?,?)",
+          "INSERT INTO integration_deliveries(id,tenant_id,endpoint_id,event_type,payload,resource_id) VALUES(?,?,?,?,?,?)",
           Db.id(),
           tenant,
           Db.str(endpoint, "id"),
           event,
-          body);
+          body,
+          resourceId);
     }
   }
 

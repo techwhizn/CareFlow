@@ -49,6 +49,7 @@ public class FeedbackService {
     integrations.enqueue(
         actor.tenant(),
         "ANSWER_FEEDBACK",
+        id,
         Map.of("answer_id", id, "feedback", input.feedback(), "reason", reason));
     return Map.of(
         "feedback",

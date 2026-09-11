@@ -89,6 +89,7 @@ public class DocumentPublicationService {
     integrations.enqueue(
         actor.tenant(),
         "DOCUMENT_PUBLISHED",
+        id,
         Map.of("id", id, "version_id", body.version_id(), "publication_id", pub));
     return Map.of("publication_id", pub);
   }

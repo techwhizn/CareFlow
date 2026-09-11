@@ -77,11 +77,17 @@ public class ContentPurgeService {
         "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM query_record_evidence WHERE document_id=?)",
         tenant,
         document);
+    db.exec(
+        "DELETE FROM integration_deliveries WHERE tenant_id=? AND resource_id=?", tenant, document);
     for (var answer :
         db.list(
             "SELECT DISTINCT a.id FROM answers a JOIN answer_evidence e ON e.answer_id=a.id WHERE a.tenant_id=? AND e.document_id=?",
             tenant,
             document)) {
+      db.exec(
+          "DELETE FROM integration_deliveries WHERE tenant_id=? AND resource_id=?",
+          tenant,
+          str(answer, "id"));
       db.exec("DELETE FROM answer_evidence WHERE answer_id=?", str(answer, "id"));
       db.exec("DELETE FROM answers WHERE tenant_id=? AND id=?", tenant, str(answer, "id"));
     }

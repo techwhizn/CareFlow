@@ -38,6 +38,8 @@
 
 `GET/POST /api/v1/integrations` 管理租户 Webhook 端点，创建请求需 `kind=webhook`、HTTPS 地址（本地联调可用 localhost HTTP）、至少16字符 secret 和事件集合。列表只返回配置元数据，不返回 secret；`DELETE /api/v1/integrations/{id}?revision=N` 按版本停用并写入审计。事件投递器未配置时不会伪造送达结果，详细边界见[企业系统集成](integrations.md)。
 
+管理员可通过 `/integrations/{id}/deliveries` 查询最近投递的状态和错误类型，并通过 `/deliveries/{delivery}/retry` 重置最终失败投递；查询不会返回事件正文。
+
 ## 幂等边界
 
 上传的 Idempotency-Key 在同租户任务中唯一，重复请求返回既有任务并复核访问权限；客户端应为不同上传生成不同 key。V5起上传保存请求指纹（知识库、创建/替换目标、文件名、内容摘要）；同key不同请求返回409 IDEMPOTENCY_CONFLICT。旧任务没有指纹时不重放，返回冲突并要求核对原任务。

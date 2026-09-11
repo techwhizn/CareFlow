@@ -79,6 +79,30 @@ public class IntegrationService {
         .toList();
   }
 
+  public List<Map<String, Object>> deliveries(Actor actor, String endpoint) {
+    auth.manager(actor);
+    db.one(
+        "SELECT id FROM integration_endpoints WHERE tenant_id=? AND id=?",
+        actor.tenant(),
+        endpoint);
+    return db.list(
+        "SELECT id,event_type,attempts,status,next_attempt_at,last_error,created_at,delivered_at FROM integration_deliveries WHERE tenant_id=? AND endpoint_id=? ORDER BY created_at DESC LIMIT 100",
+        actor.tenant(),
+        endpoint);
+  }
+
+  @Transactional
+  public void retry(Actor actor, String endpoint, String delivery) {
+    auth.manager(actor);
+    if (db.exec(
+            "UPDATE integration_deliveries SET status='PENDING',attempts=0,next_attempt_at=CURRENT_TIMESTAMP,last_error=NULL,delivered_at=NULL WHERE tenant_id=? AND endpoint_id=? AND id=? AND status='FAILED'",
+            actor.tenant(),
+            endpoint,
+            delivery)
+        != 1) throw new ApiException(409, "DELIVERY_NOT_RETRYABLE", "仅最终失败的投递可重试");
+    auth.audit(actor, "INTEGRATION_DELIVERY_RETRY", delivery, "endpoint=" + endpoint);
+  }
+
   @Transactional
   public void disable(Actor actor, String id, long revision) {
     auth.manager(actor);

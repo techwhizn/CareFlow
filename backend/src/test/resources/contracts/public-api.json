@@ -1389,6 +1389,32 @@
         }
       }
     },
+    "/api/v1/integrations/{id}/deliveries/{delivery}/retry" : {
+      "post" : {
+        "tags" : [ "integrations-controller" ],
+        "operationId" : "retry",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "delivery",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/v1/improvements" : {
       "get" : {
         "tags" : [ "improvements-controller" ],
@@ -2201,7 +2227,7 @@
     "/api/v1/cleanup-requests/{id}/retry" : {
       "post" : {
         "tags" : [ "cleanup-controller" ],
-        "operationId" : "retry",
+        "operationId" : "retry_1",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -3153,6 +3179,32 @@
           "schema" : {
             "type" : "string",
             "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/{id}/deliveries" : {
+      "get" : {
+        "tags" : [ "integrations-controller" ],
+        "operationId" : "deliveries",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {

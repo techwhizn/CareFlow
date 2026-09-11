@@ -29,4 +29,15 @@ public class IntegrationsController {
       @RequestAttribute Actor actor, @PathVariable String id, @RequestParam long revision) {
     service.disable(actor, id, revision);
   }
+
+  @GetMapping("/{id}/deliveries")
+  public Object deliveries(@RequestAttribute Actor actor, @PathVariable String id) {
+    return service.deliveries(actor, id);
+  }
+
+  @PostMapping("/{id}/deliveries/{delivery}/retry")
+  public void retry(
+      @RequestAttribute Actor actor, @PathVariable String id, @PathVariable String delivery) {
+    service.retry(actor, id, delivery);
+  }
 }

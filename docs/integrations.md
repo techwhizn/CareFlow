@@ -7,6 +7,8 @@ CareFlow 通过租户级 Webhook 集成向企业门户、工单系统或审计�
 - `GET /api/v1/integrations`：列出当前租户集成及订阅事件。
 - `POST /api/v1/integrations`：创建 Webhook。请求包含 `name`、`kind=webhook`、`endpoint_url`、至少16字符的 `secret` 和事件集合 `events`。
 - `DELETE /api/v1/integrations/{id}?revision=N`：按乐观锁版本停用集成。
+- `GET /api/v1/integrations/{id}/deliveries`：查看最近100条投递状态、尝试次数和错误类型，不返回事件正文。
+- `POST /api/v1/integrations/{id}/deliveries/{delivery}/retry`：将最终失败投递重新放回队列并重置尝试次数。
 
 生产端点必须使用 HTTPS；仅允许 `localhost` 或 `127.0.0.1` 使用 HTTP 进行本地联调。每次创建和停用均写入租户审计日志。
 

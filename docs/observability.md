@@ -22,7 +22,7 @@ Java HTTP 日志只含 ID、方法、状态、耗时。SSE 的 HTTP 耗时表示
 
 ## 调试正文与审计保留
 
-企业管理员通过 `/api/v1/retention` GET/PUT 或套餐页面配置 debug_body_collection、debug_retention_days（默认30）、audit_retention_days（默认180），修改带 revision。天数允许1–3650，修改保留审计。关闭正文采集后新 query_records.question 为空并标记 DISABLED。
+企业管理员通过 `/api/v1/retention` GET/PUT 或套餐页面配置 debug_body_collection、debug_retention_days（默认30）、audit_retention_days（默认180），修改带 revision。天数允许1–3650，修改保留审计。关闭正文采集后新 query_records.question 为空并标记 DISABLED；保留期清理同时清空历史查询选项，避免过滤条件等业务输入残留。
 
 后台每五分钟按企业锁处理一批最多100条到期调试问题正文和100条审计元数据。过期问题置空，body_state=EXPIRED；关闭采集时既有问题逐批置空，保留依赖、配置和用量元数据。重复扫描幂等。大批历史数据需要多个周期完成；应结合日志中的 debug_removed/audit_removed 核对清理进度。
 

@@ -157,6 +157,43 @@
         }
       }
     },
+    "/api/v1/members/{id}/external-identity" : {
+      "put" : {
+        "tags" : [ "members-controller" ],
+        "operationId" : "bindExternalIdentity",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExternalIdentity"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/knowledge-bases/{id}" : {
       "get" : {
         "tags" : [ "knowledge-bases-controller" ],
@@ -3992,6 +4029,27 @@
         }
       },
       "required" : [ "name", "role", "state" ]
+    },
+    "ExternalIdentity" : {
+      "type" : "object",
+      "properties" : {
+        "issuer" : {
+          "type" : "string",
+          "maxLength" : 500,
+          "minLength" : 0
+        },
+        "subject" : {
+          "type" : "string",
+          "maxLength" : 300,
+          "minLength" : 0
+        },
+        "revision" : {
+          "type" : "integer",
+          "format" : "int64",
+          "minimum" : 0
+        }
+      },
+      "required" : [ "issuer", "subject" ]
     },
     "Attributes" : {
       "type" : "object",

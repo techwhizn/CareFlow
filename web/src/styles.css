@@ -535,6 +535,86 @@ nav button.active {
   color: #87958c;
   font-size: 11px;
 }
+.document-flow {
+  margin-bottom: 22px;
+  padding: 22px 25px;
+}
+.document-flow-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.document-flow-head h2 {
+  margin-bottom: 4px;
+}
+.document-flow-head p {
+  margin: 0;
+  color: #829187;
+  font-size: 12px;
+}
+.flow-action {
+  white-space: nowrap;
+}
+.document-flow-steps {
+  display: flex;
+  align-items: center;
+  margin-top: 22px;
+}
+.document-flow-step {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: #a0aca4;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.document-flow-step span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 1px solid #dce6df;
+  border-radius: 50%;
+  color: #93a198;
+  font-size: 10px;
+}
+.document-flow-step b {
+  margin-left: 7px;
+  font-weight: 500;
+}
+.document-flow-step i {
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin: 0 8px;
+  background: #e1e9e3;
+}
+.document-flow-step.is-active {
+  color: #397957;
+}
+.document-flow-step.is-active span {
+  border-color: #4b9871;
+  background: #e5f2e9;
+  color: #397957;
+}
+.document-flow-step.is-done {
+  color: #5c8e70;
+}
+.document-flow-step.is-done span {
+  border-color: #9ac7aa;
+  background: #eef8f1;
+  color: #397957;
+}
+.document-flow-hint {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f7faf7;
+  color: #738279;
+  font-size: 11px;
+}
 .welcome {
   background: #eef5f0;
   min-height: 253px;
@@ -1611,6 +1691,23 @@ td button {
   }
   .ops-card {
     padding: 17px;
+  }
+  .document-flow {
+    padding: 18px;
+  }
+  .document-flow-head {
+    flex-direction: column;
+  }
+  .flow-action {
+    width: 100%;
+  }
+  .document-flow-steps {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .document-flow-step i {
+    display: none;
   }
   h1 {
     font-size: 23px;

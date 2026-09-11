@@ -16,6 +16,92 @@ import PublicationHistory from "./PublicationHistory";
 import IndexMaintenance from "./IndexMaintenance";
 import ChunkWorkspace from "./ChunkWorkspace";
 import { knowledgeClient, knowledgePaths } from "./client";
+import { request } from "../../api";
+
+const flowSteps = [
+  ["UPLOAD", "上传"],
+  ["PARSED", "解析"],
+  ["REVIEW", "审核切片"],
+  ["INDEXED", "建立索引"],
+  ["PUBLISHED", "发布生效"],
+] as const;
+
+function flowState(version: Row | undefined) {
+  if (!version) return "UPLOAD";
+  if (version.ever_published) return "PUBLISHED";
+  if (version.state === "READY") return "INDEXED";
+  if (version.state === "PARSED") return "REVIEW";
+  return "PARSED";
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function DocumentFlow({
+  doc,
+  version,
+  busy,
+  action,
+  afterPublish,
+}: {
+  doc: Row;
+  version?: Row;
+  busy: boolean;
+  action: (fn: () => Promise<unknown>) => Promise<void>;
+  afterPublish: () => void;
+}) {
+  const [oneClick, setOneClick] = useState(false);
+  const state = flowState(version);
+  const canOneClick = !!version?.configuration_id && ["PARSED", "FAILED"].includes(version.state);
+  async function indexAndPublish() {
+    if (!version || !canOneClick || oneClick) return;
+    if (!window.confirm("将建立索引，等待处理完成后发布当前版本。是否继续？")) return;
+    setOneClick(true);
+    try {
+      await action(async () => {
+        await knowledgeClient.index(version.id);
+        for (let attempt = 0; attempt < 90; attempt += 1) {
+          await sleep(2000);
+          const versions = await request<Row[]>(knowledgePaths.versions(doc.id));
+          const latest = versions.find((item) => item.id === version.id);
+          if (!latest) throw new Error("文档版本已不存在，请刷新后重试");
+          if (latest.state === "FAILED") throw new Error("索引任务失败，请到任务中心查看错误详情");
+          if (latest.state === "READY") {
+            await knowledgeClient.publish(doc.id, {
+              version_id: latest.id,
+              revision: doc.revision,
+              version_revision: latest.revision,
+            });
+            afterPublish();
+            return;
+          }
+        }
+        throw new Error("索引仍在处理中，请到任务中心查看进度");
+      });
+    } finally {
+      setOneClick(false);
+    }
+  }
+  return <section className="document-flow panel">
+    <div className="document-flow-head">
+      <div><h2>文档生效流程</h2><p>按顺序完成后，内容才会进入查询和问答。</p></div>
+      {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在处理…" : "一键索引并发布"}</button>}
+    </div>
+    <div className="document-flow-steps" aria-label="文档处理流程">
+      {flowSteps.map(([key, label], index) => {
+        const current = flowSteps.findIndex(([step]) => step === state);
+        const done = index < current || state === "PUBLISHED";
+        const active = index === current;
+        return <div className={`document-flow-step${done ? " is-done" : ""}${active ? " is-active" : ""}`} key={key}>
+          <span>{done ? "✓" : index + 1}</span><b>{label}</b>{index < flowSteps.length - 1 && <i />}
+        </div>;
+      })}
+    </div>
+    {!version?.configuration_id && state !== "PUBLISHED" && <p className="document-flow-hint">当前知识库尚未发布处理配置，请先在上方“处理与查询配置”中创建并发布配置。</p>}
+    {version?.configuration_id && state === "REVIEW" && <p className="document-flow-hint">切片已生成。确认内容无误后，可以点击“一键索引并发布”。</p>}
+  </section>;
+}
 export default function DocumentDetail({
   doc,
   back,
@@ -166,6 +252,13 @@ export default function DocumentDetail({
           />
         </details>
       </div>
+      <DocumentFlow
+        doc={doc}
+        version={current}
+        busy={busy}
+        action={action}
+        afterPublish={back}
+      />
       {versions.loading ? (
         <Loading />
       ) : !versions.error && !current ? (

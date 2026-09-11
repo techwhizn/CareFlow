@@ -86,7 +86,10 @@ function DocumentFlow({
   return <section className="document-flow panel">
     <div className="document-flow-head">
       <div><h2>文档生效流程</h2><p>按顺序完成后，内容才会进入查询和问答。</p></div>
-      {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在处理…" : "一键索引并发布"}</button>}
+      <div className="flow-actions">
+        {state === "REVIEW" && <button className="flow-secondary" onClick={() => document.getElementById("chunk-source-preview")?.scrollIntoView({ behavior: "smooth", block: "start" })}>审核切片</button>}
+        {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在处理…" : "一键索引并发布"}</button>}
+      </div>
     </div>
     <div className="document-flow-steps" aria-label="文档处理流程">
       {flowSteps.map(([key, label], index) => {

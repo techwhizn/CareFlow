@@ -556,6 +556,17 @@ nav button.active {
 .flow-action {
   white-space: nowrap;
 }
+.flow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flow-secondary {
+  white-space: nowrap;
+  color: #397957;
+  background: #eef7f0;
+  border-color: #cfe5d5;
+}
 .document-flow-steps {
   display: flex;
   align-items: center;
@@ -1698,8 +1709,14 @@ td button {
   .document-flow-head {
     flex-direction: column;
   }
-  .flow-action {
+  .flow-actions {
     width: 100%;
+  }
+  .flow-action {
+    flex: 1;
+  }
+  .flow-secondary {
+    flex: 1;
   }
   .document-flow-steps {
     align-items: flex-start;

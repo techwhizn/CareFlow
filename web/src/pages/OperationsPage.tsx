@@ -1,3 +1,10 @@
+import {
+  ArrowsClockwise,
+  CheckCircle,
+  ClockCounterClockwise,
+  Pulse,
+  WarningCircle,
+} from "@phosphor-icons/react";
 import { ErrorNote, Loading, useData } from "../ui";
 type Count = {
   kind?: string;
@@ -26,7 +33,7 @@ const labels: Record<string, string> = {
   PENDING: "待处理",
 };
 function Counts({ rows, jobs = false }: { rows: Count[]; jobs?: boolean }) {
-  if (!rows.length) return <p>暂无记录</p>;
+  if (!rows.length) return <p className="ops-empty">暂无记录</p>;
   return (
     <table>
       <thead>
@@ -72,58 +79,61 @@ export default function OperationsPage() {
     <>
       <div className="page-heading">
         <div>
+          <span className="eyebrow">OPERATIONS CENTER</span>
           <h1>运行状态</h1>
           <p>当前企业的任务与处理状态汇总。</p>
         </div>
         <button
+          className="ops-refresh"
           onClick={() => {
             void status.reload();
             void metrics.reload();
           }}
         >
+          <ArrowsClockwise size={16} />
           刷新状态
         </button>
       </div>
       <ErrorNote error={status.error || metrics.error} />
-      {metrics.data && (
-        <section>
-          <h2>运行指标与告警</h2>
-          {metrics.data.alerts.length ? (
-            metrics.data.alerts.map((a) => (
-              <p role="alert" key={a.code}>
-                {metricLabels[a.code] || a.code}：{a.count}
-              </p>
-            ))
-          ) : (
-            <p>当前没有触发告警阈值。</p>
-          )}
-          <dl>
-            {Object.entries(metrics.data.gauges).map(([key, value]) => (
-              <div key={key}>
-                <dt>{metricLabels[key] || key}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
+      {metrics.data && <section className="ops-summary">
+        <div className="ops-summary-head">
+          <div>
+            <h2>运行指标</h2>
+            <p>实时查看任务、查询和清理状态。</p>
+          </div>
+          <span className={metrics.data.alerts.length ? "ops-status is-alert" : "ops-status"}>
+            {metrics.data.alerts.length ? <WarningCircle size={15} /> : <CheckCircle size={15} />}
+            {metrics.data.alerts.length ? `${metrics.data.alerts.length} 项需要关注` : "运行正常"}
+          </span>
+        </div>
+        <div className="ops-metric-grid">
+          {Object.entries(metrics.data.gauges).map(([key, value]) => (
+            <article className="ops-metric" key={key}>
+              <div className="ops-metric-icon"><Pulse size={18} /></div>
+              <div><dt>{metricLabels[key] || key}</dt><dd>{value}</dd></div>
+            </article>
+          ))}
+        </div>
+        <div className={metrics.data.alerts.length ? "ops-alerts is-alert" : "ops-alerts"}>
+          {metrics.data.alerts.length ? <WarningCircle size={18} /> : <CheckCircle size={18} />}
+          <div>
+            <strong>{metrics.data.alerts.length ? "需要处理的告警" : "当前没有触发告警阈值"}</strong>
+            {metrics.data.alerts.length > 0 && metrics.data.alerts.map(a => <p role="alert" key={a.code}>{metricLabels[a.code] || a.code}：{a.count}</p>)}
+          </div>
+        </div>
+      </section>}
       {status.loading ? (
         <Loading />
       ) : (
         status.data && (
           <>
-            <p>
-              统计时间：{new Date(status.data.generated_at).toLocaleString()}
-            </p>
-            <h2>处理任务</h2>
-            <Counts rows={status.data.jobs} jobs />
-            <h2>物理清理</h2>
-            <Counts rows={status.data.cleanup} />
-            <h2>回答生成</h2>
-            <Counts rows={status.data.generation} />
-            <p>
-              运维角色仅查看汇总状态；内容、模型配置和访问凭证由对应管理员管理。
-            </p>
+            <div className="ops-updated"><ClockCounterClockwise size={15} />统计时间：{new Date(status.data.generated_at).toLocaleString()}</div>
+            <div className="ops-card-grid">
+              <section className="ops-card"><div className="ops-card-title"><Pulse size={18} /><h2>处理任务</h2></div><Counts rows={status.data.jobs} jobs /></section>
+              <section className="ops-card"><div className="ops-card-title"><ArrowsClockwise size={18} /><h2>物理清理</h2></div><Counts rows={status.data.cleanup} /></section>
+              <section className="ops-card"><div className="ops-card-title"><CheckCircle size={18} /><h2>回答生成</h2></div><Counts rows={status.data.generation} /></section>
+            </div>
+            <p className="ops-note">运维角色仅查看汇总状态；内容、模型配置和访问凭证由对应管理员管理。</p>
           </>
         )
       )}

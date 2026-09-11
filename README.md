@@ -55,7 +55,7 @@ docker compose up -d --build
 
 打开 <http://localhost:5173>。首次进入时选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN` 创建企业。所有者凭证只显示一次，应通过密码管理器保存。
 
-完整的导入、索引、发布、检索和问答流程见[快速开始](docs/quickstart.md)。配置变量、密钥和模型版本规则见[配置参考](docs/configuration.md)。
+完整的导入、索引、发布、检索和问答流程见[快速开始](docs/quickstart.md)；逐步人工验证上传到查询请参阅[人工验收流程](docs/manual-test-flow.md)。配置变量、密钥和模型版本规则见[配置参考](docs/configuration.md)。
 
 ## 模型配置
 

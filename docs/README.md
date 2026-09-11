@@ -4,7 +4,7 @@ CareFlow 是“独立知识库底座 + 可扩展应用层”。当前版本优�
 
 ## 按读者进入
 
-- 新用户：先看 [快速开始](quickstart.md)，再看[用户操作手册](user-guide.md)、[配置参考](configuration.md) 和 [故障排查](troubleshooting.md)。
+- 新用户：先看 [快速开始](quickstart.md)，再按[人工验收流程](manual-test-flow.md)完成上传到查询，随后阅读[用户操作手册](user-guide.md)、[配置参考](configuration.md) 和 [故障排查](troubleshooting.md)。
 - 部署者：看 [生产部署](production-deployment.md)、[运维手册](operations.md)、[恢复手册](recovery.md) 和 [安全政策](../SECURITY.md)。
 - 集成开发者：看 [API](api.md)、[Java/Python SDK](../sdk/README.md)、[内部协议](internal-contracts.md) 和 [扩展指南](extension-guide.md)。
 - 贡献者：看 [质量标准](quality.md)、[架构](architecture.md)、[ADR](adr/) 和 [贡献指南](../CONTRIBUTING.md)。

@@ -28,6 +28,7 @@ careflow:
   s3-secret-key: ${S3_SECRET_KEY:}
   s3-bucket: ${S3_BUCKET:careflow}
   model-encryption-key: ${MODEL_CONFIG_ENCRYPTION_KEY:}
+  model-encryption-key-old: ${MODEL_CONFIG_ENCRYPTION_KEY_OLD:}
   model-external-bases: ${MODEL_EXTERNAL_BASES:https://api.deepseek.com}
   model-local-bases: ${MODEL_LOCAL_BASES:}
   sso:

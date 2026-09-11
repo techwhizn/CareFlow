@@ -12,6 +12,7 @@
 | `MILVUS_URI`、`MILVUS_TOKEN` | Python 向量/关键词索引 |
 | `INTERNAL_TOKEN` | Java 与 Worker 内部身份 |
 | `MODEL_CONFIG_ENCRYPTION_KEY` | 模型凭证加密主密钥，必须是 Base64 编码的32字节值 |
+| `MODEL_CONFIG_ENCRYPTION_KEY_OLD` | 仅主密钥轮换维护窗口临时使用的旧密钥，成功后必须移除 |
 | `SSO_INTROSPECTION_URL` | OIDC OAuth 2.0 introspection HTTPS 地址 |
 | `SSO_CLIENT_ID`、`SSO_CLIENT_SECRET` | 调用 IdP introspection 的客户端凭证 |
 

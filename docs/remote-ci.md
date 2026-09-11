@@ -1,6 +1,6 @@
 # 远端CI与分支保护待启用方案
 
-本文件和[保护配置示例](../.github/branch-protection.example.json)供远端核验使用。2026-09-11已将提交`5a4656f`推送到GitHub `main`，push事件按工作流定义触发`verify`；本机只有SSH推送身份，没有GitHub API凭据，应用内浏览器也没有登录会话，因此未能回读作业结论或当前保护规则。没有调用GitHub设置接口，V1-50的远端通过与分支保护验收仍未完成。
+本文件和[保护配置示例](../.github/branch-protection.example.json)供远端核验使用。当前远端 `main` 可通过只读 Git 访问读取，但本机没有 GitHub API 凭据，无法回读 Actions 作业结论或当前保护规则；本地新增提交也未据此文档宣称已推送。没有调用 GitHub 设置接口，V1-50 的远端通过与分支保护验收仍未完成。
 
 仓库已有`verify`工作流，作业为`secrets`、`backend`、`worker`、`milvus-integration`、`web`，Pull Request 额外运行`dependency-review`。基础工作流只读仓库权限，不需要真实模型密钥。Milvus作业只使用自动生成的临时基础设施凭证及合成资料，清理仅限自己的临时项目。
 

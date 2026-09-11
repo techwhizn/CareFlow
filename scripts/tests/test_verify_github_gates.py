@@ -20,7 +20,9 @@ class FakeApi:
         return self.responses[key]
 
 
-def api_for(*, conclusion="success", missing_jobs=(), missing_checks=()):
+def api_for(
+    *, conclusion="success", missing_jobs=(), missing_checks=(), run_sha="head-sha"
+):
     repo = "acme/careflow"
     branch = "main"
     branch_path = f"/repos/{repo}/git/ref/heads/{branch}"
@@ -37,7 +39,7 @@ def api_for(*, conclusion="success", missing_jobs=(), missing_checks=()):
                 {
                     "id": 42,
                     "name": "verify",
-                    "head_sha": "head-sha",
+                    "head_sha": run_sha,
                     "conclusion": conclusion,
                 }
             ]
@@ -70,6 +72,7 @@ def test_verify_requires_current_successful_head():
     "kwargs, message",
     [
         ({"conclusion": "failure"}, "conclusion is failure"),
+        ({"run_sha": "old-sha"}, "does not match main SHA head-sha"),
         ({"missing_jobs": {"worker"}}, "Successful verify jobs missing: worker"),
         ({"missing_checks": {"web"}}, "Branch protection does not require: web"),
     ],

@@ -1,119 +1,135 @@
-# CareFlow 企业知识平台
+# CareFlow
 
-依据 [PRD.md](PRD.md) 建设的独立知识库底座与应用层。当前为 **0.1 开发增量**，不是已完成全部 P0 的商业交付。真实服务未配置时明确失败，不返回模拟向量或模拟重排。
+CareFlow 是面向企业场景的开源知识库底座，采用“独立知识库底座 + 可扩展应用层”架构。系统负责文档生命周期、内容解析、检索、引用问答、权限隔离、应用接入和用量审计；业务意图识别、流程编排和 Agent 工具由上层应用配置与实现。
 
-## 文档
+> 当前版本：`0.1.0` 开发增量。项目面向单机、低并发部署进行验证，优先保证功能正确、权限边界清晰和数据可追溯；不承诺高并发容量、高可用或生产 SLA。当前没有创建公开 Release、发布镜像或上传 SDK 包。
 
-- [文档导航](docs/README.md) · [快速开始](docs/quickstart.md) · [部署说明](docs/production-deployment.md) · [故障排查](docs/troubleshooting.md)
-- [API](docs/api.md) · [Java/Python SDK](sdk/README.md) · [扩展指南](docs/extension-guide.md)
-- [运维与恢复](docs/operations.md) · [隐私与数据生命周期](docs/privacy.md) · [安全政策](SECURITY.md)
-- [贡献指南](CONTRIBUTING.md) · [治理](GOVERNANCE.md) · [行为准则](CODE_OF_CONDUCT.md) · [发布流程](docs/release-process.md)
+## 产品范围
 
-## 目录
+CareFlow 的知识库底座包括：
 
-- `backend/`：Java 21、Spring Boot，身份/权限、文件版本、任务 Outbox、发布、应用、问答交付和查询额度。
-- `worker/`：Python 3.12，文件解析、OCR、Token 切片、真实模型适配、Milvus dense + BM25、RRF、重排和生成。
-- `web/`：React + TypeScript 中文后台，连接实际 API。
-- `docs/`：M0、架构决策、运维说明、验收记录与未完成项。
+- 企业、成员、角色、应用凭证和租户隔离；
+- PDF、Office、Markdown、文本、表格及图片 OCR 导入；
+- 文档版本、解析任务、可追溯切片、草稿修订和内容发布；
+- Embedding、关键词 BM25、混合 RRF、Rerank 和类型化元数据过滤；
+- 证据上下文、引用定位、流式问答、多轮会话、取消和断流状态；
+- 用量、额度、成本核算、审计、任务恢复、备份和数据清理；
+- Java 和 Python SDK，以及面向应用层的公共 API。
 
-## 本地启动
+通用 Agent 执行平台、视频转写、高并发推理、GPU 调度和 Kubernetes 高可用部署不属于当前版本的承诺范围。
 
-需要 Docker Compose、足够运行 Milvus 的内存和磁盘。默认只绑定本机端口。
+## 架构
+
+```text
+Web / Java SDK / Python SDK
+            │  公共 Java API
+            ▼
+Java Backend ── MySQL（身份、授权、元数据、任务、发布、计量）
+      │
+      ├── RabbitMQ（异步任务）
+      ├── Object Storage（原始文件）
+      └── Python Worker
+             ├── 解析、OCR、Token 切片
+             ├── Embedding / Rerank / Generation 适配
+             └── Milvus（向量与关键词索引）
+```
+
+Java 拥有身份、授权、元数据、任务、发布和计量；Python 承担解析、模型和检索适配；Web 只调用公共 Java API。模型输出不授予权限，也不直接执行敏感业务动作。详细边界见[架构说明](docs/architecture.md)和[访问边界](docs/access-boundaries.md)。
+
+## 快速开始
+
+### 环境要求
+
+- Docker Desktop 与 Docker Compose；
+- Java 21（主机开发和 SDK 验证）；
+- Python 3.12、Node.js 22（构建和开发）；
+- 可用的 Embedding、Rerank 和 Generation 服务。
+
+### 启动服务
 
 ```bash
 python3 scripts/init-local-env.py
-# 编辑 .env：填写三个真实模型的地址、模型名称与密钥；不要提交真实凭证。
+# 编辑 .env，填写模型地址、模型名称和密钥；.env 不得提交到 Git。
 docker compose up -d --build
 ```
 
-打开 http://localhost:5173 。首次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN` 创建企业。返回的所有者凭证仅显示一次，请妥善保存。后续使用个人凭证登录。应用 API Key 不具备管理后台权限。部署管理员开通额外企业时，在初始化模式勾选“开通另一企业”；每家企业使用独立身份与数据范围。
+打开 <http://localhost:5173>。首次进入时选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN` 创建企业。所有者凭证只显示一次，应通过密码管理器保存。
 
-Embedding 需配置 `EMBEDDING_REVISION` 和真实维度；模型输出维度不匹配时任务失败，不裁切或伪造向量。Rerank 使用 `/rerank` 的 `results[].index/relevance_score` 契约。生成模型必须支持 `/chat/completions` SSE。使用自托管模型时 key 可空，地址和模型名仍为必填。
+完整的导入、索引、发布、检索和问答流程见[快速开始](docs/quickstart.md)。配置变量、密钥和模型版本规则见[配置参考](docs/configuration.md)。
 
-DeepSeek 生成服务：`GENERATION_BASE_URL=https://api.deepseek.com`，`GENERATION_MODEL=deepseek-v4-flash`，在 `.env` 的 `GENERATION_API_KEY` 填写个人密钥，然后重启 Worker API。密钥仅保存在本地配置，不写入前端。Embedding 与 Rerank 仍需分别配置；本机开发可按 [可选 CPU 模型服务](tools/local-models/README.md) 部署固定版本的真实 BGE 模型。
+## 模型配置
 
-显式连接检测：`uv run --project worker python scripts/check-models.py --env-file .env`。命令使用合成输入调用三个已配置服务，可能产生模型费用；返回脱敏状态、维度、耗时和可获得的输入量，不输出密钥或生成正文。配置、认证、超时、格式或流中断时返回非零退出码。
+模型配置由 Java 管理并按版本冻结。Embedding、Rerank 和 Generation 必须分别配置；服务不可用、响应格式错误、维度不匹配或流中断时，系统显式失败，不返回模拟结果。
 
-### 在主机开发
+DeepSeek Generation 配置示例：
+
+```text
+GENERATION_BASE_URL=https://api.deepseek.com
+GENERATION_MODEL=deepseek-v4-flash
+GENERATION_API_KEY=<个人密钥>
+```
+
+密钥只允许放在服务端环境或受控密钥管理系统中，不得写入前端、日志、截图、Issue 或提交。Embedding 与 Rerank 需要独立配置；本机可以按[可选 CPU 模型服务](tools/local-models/README.md)部署固定版本的 BGE 模型。
+
+配置完成后可执行真实连接检测：
 
 ```bash
-docker compose up -d mysql rabbitmq minio etcd milvus
-mvn -f backend/pom.xml package
+uv run --project worker python scripts/check-models.py --env-file .env
+```
+
+该命令使用合成输入验证三个模型服务，输出脱敏状态和计时，不输出密钥或生成正文，可能产生供应商费用。
+
+## API 与 SDK
+
+Java API 默认地址为 <http://localhost:8080>，Swagger UI 为 <http://localhost:8080/swagger-ui/index.html>，OpenAPI 文件见 [`docs/openapi.json`](docs/openapi.json)。REST 前缀为 `/api/v1`，使用 Bearer 凭证认证。
+
+- `POST /retrieval/search`：执行授权后的关键词、语义或混合检索；
+- `POST /answers`：执行带引用的流式问答；
+- POST 请求支持 `Idempotency-Key`，避免重复提交和重复计量；
+- 无权访问的对象统一返回 404，不泄露对象是否存在；
+- 客户端传入的 `tenant_id` 和 `user_id` 不参与可信授权。
+
+Java 与 Python SDK 覆盖知识库、文档、任务、索引、发布、检索和流式问答。SDK 使用方式和兼容范围见 [`sdk/README.md`](sdk/README.md)。内部 Java–Python 协议见[内部协议](docs/internal-contracts.md)。
+
+## 开发与验证
+
+```bash
+mvn -B -f backend/pom.xml spotless:check verify
+mvn -B -f sdk/java/pom.xml spotless:check verify
 uv sync --project worker --frozen
-npm ci --prefix web
-# 在四个独立终端分别运行：
-python3 scripts/run-local.py backend
-python3 scripts/run-local.py worker-api
-python3 scripts/run-local.py worker-consumer
-python3 scripts/run-local.py web
-```
-
-Java 21 为目标运行环境。可以用受 Spring Boot 支持的 Java 25 编译 `--release 21`；当前机器的 Java 26 不属于已验证范围，请通过 `JAVA_HOME` 指定兼容 JDK。
-
-## 第一次验证
-
-先在“模型配置”登记实际Embedding、Rerank和生成模型，在知识库“处理与查询配置”中选择模型并发布配置。新任务使用冻结配置；未配置的历史资料需在配置发布后重新处理，不能依赖后续改变的进程默认模型。
-
-1. 创建知识库，上传 `examples/product-guide.md`。
-2. 在任务中心等待解析完成，文档详情出现切片后核对来源。
-3. 点击“建立索引”，真实 Embedding 与 Milvus 校验完成后显示“处理就绪”。
-4. 点击“发布此版本”。上传/解析/索引完成都不会自动发布。
-5. 在检索调试台搜索 `CF-100 报 E404 怎么处理`，核对 dense/BM25/RRF/模型 Rerank。
-6. 在问答页面查看逐段流式输出与证据。切片修订先复制草稿，旧发布仍可检索。
-
-真实验收脚本（凭证从环境读取，不作为命令参数）：
-
-```bash
-# 将 CAREFLOW_TOKEN 通过本机安全方式放入进程环境
-uv run --project worker python scripts/real-smoke.py
-```
-
-该脚本创建一个明确标记的合成测试知识库，并写入真实步骤报告。缺少模型或服务会退出失败。
-
-## 多语言客户端
-
-提供 [Java 与 Python SDK](sdk/README.md)，覆盖知识库创建、上传、任务查询、索引、发布、搜索和流式问答。Python 支持同步与异步调用；所有权限由公共 API 校验。
-
-## API
-
-主服务提供 [Swagger UI](http://localhost:8080/swagger-ui/index.html) 和 [OpenAPI](http://localhost:8080/v3/api-docs)。REST 前缀 `/api/v1`，Bearer 凭证确定企业与身份。客户端 tenant_id/user_id 不参与可信认证。内部 API 用不同的服务密钥及任务租约保护。
-
-- 搜索：`POST /retrieval/search`，含 `query`、`mode`、`limit`、`knowledge_base_ids`，可选 `application_id`。
-- 问答：`POST /answers`，同上，事件 `start/status/delta/usage/citations/done/error`。
-- POST 调用携带 `Idempotency-Key`；问答/检索重复键返回 409，避免重复扣费，当前不重放旧响应。
-- 不可访问对象统一 404，不区分不存在与无权限。
-
-## 验证命令
-
-```bash
-mvn -f backend/pom.xml spotless:check verify
-uv run --project worker ruff check worker scripts
-uv run --project worker ruff format --check worker scripts
+uv run --project worker ruff check worker scripts sdk/python tools/local-models
+uv run --project worker ruff format --check worker scripts sdk/python tools/local-models
 uv run --project worker pytest worker/tests -q
+npm ci --prefix web
+npm test --prefix web
 npm run build --prefix web
-npm audit --prefix web
 ```
 
-单元/组件测试使用 H2 和明确的测试替身，不作为 Milvus、真实模型、MySQL 全链路或生产隔离的验收证据。详情见 [验收报告](docs/reports/acceptance.md) 和 [需求状态](docs/reports/requirements.md)。恢复、数据清理与生产限制见 [运维说明](docs/operations.md)。
+真实模型、Milvus、浏览器和恢复验证不由单元测试替代，复现命令和范围见[贡献指南](CONTRIBUTING.md)与[验收记录](docs/reports/acceptance.md)。
 
-## 1.0 开源质量完善计划
+## 部署边界与已知限制
 
-[剩余任务清单](docs/roadmap/v1.0-tasks.md)列出53个工作包、前置依赖与验收条件，覆盖原PRD全部P0及SDK、开源交付要求；当前仍是开发增量。
+- 当前验证目标是 Linux/amd64 单机、低并发运行；
+- 本地 CPU Rerank 适合开发和低并发使用，高并发请求可能返回模型忙碌或不可用错误；
+- 数据库迁移按 Flyway 顺序执行，禁止修改已应用迁移；
+- 删除先执行业务隔离，再由持久化清理任务处理文件、切片、缓存和索引；
+- 恢复前必须核对备份、密钥、删除、撤权和成员状态，不确定时保持入口关闭；
+- 当前版本仍有待完成的人工质量评审、安全审计及远端仓库保护核验。
 
-## 参与开发
+部署、升级、恢复和故障处理见[部署说明](docs/production-deployment.md)、[运维手册](docs/operations.md)、[恢复手册](docs/recovery.md)和[故障排查](docs/troubleshooting.md)。
 
-请先阅读 [贡献指南](CONTRIBUTING.md)、[质量基线与架构改进计划](docs/quality.md) 和 [安全政策](SECURITY.md)与[维护者信息](MAINTAINERS.md)。本项目采用 [Apache-2.0 许可证](LICENSE)。目前仍在完善1.0产品与工程验收，尚未公开发布。
+## 文档与参与方式
 
-套餐人工开通、限制单位、有效期和迁移规则见 [套餐与资源限制](docs/entitlements.md)。
+- [文档导航](docs/README.md)：按读者和主题索引全部文档；
+- [扩展指南](docs/extension-guide.md)：解析器、模型适配器、检索策略和应用层扩展；
+- [架构决策记录](docs/adr/)：重要设计取舍和兼容约束；
+- [贡献指南](CONTRIBUTING.md)：开发、测试、提交和评审要求；
+- [治理规则](GOVERNANCE.md)与[行为准则](CODE_OF_CONDUCT.md)：项目决策和社区协作；
+- [安全政策](SECURITY.md)：漏洞私密报告渠道和处理范围；
+- [变更记录](CHANGELOG.md)：版本变化与已知限制。
 
-文档发布需要同时校验文档与内容版本修订，详见 [发布隔离与客户端升级](docs/document-publications.md)。
+提交贡献前请先阅读 [AGENTS.md](AGENTS.md)、[质量标准](docs/quality.md)和[任务清单](docs/roadmap/v1.0-tasks.md)。
 
-知识库可独立保存、发布和回滚解析、切片、检索与模型配置，详见 [配置版本与历史索引升级](docs/knowledge-configurations.md)。
+## 许可证
 
-增量向量复用、实际模型调用用量与升级顺序见 [增量索引](docs/incremental-indexing.md)。
-
-多轮问答与历史授权规则见[会话文档](docs/conversations.md)。
-
-导入预估、费率版本和实际成本核算见[费用说明](docs/billing.md)。
-
-健康检查、指标、关联日志与保留策略见[可观测说明](docs/observability.md)。
+CareFlow 采用 [Apache License 2.0](LICENSE)。第三方依赖和分发声明见 [NOTICE](NOTICE)、[THIRD_PARTY.md](THIRD_PARTY.md)及 [`docs/licenses/`](docs/licenses/)。

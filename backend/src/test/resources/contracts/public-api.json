@@ -739,6 +739,34 @@
         }
       }
     },
+    "/api/v1/sso/exchange" : {
+      "post" : {
+        "tags" : [ "sso-controller" ],
+        "operationId" : "exchange",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Exchange"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/retrieval/search" : {
       "post" : {
         "tags" : [ "answers-controller" ],
@@ -4331,6 +4359,16 @@
           "minimum" : 0
         }
       }
+    },
+    "Exchange" : {
+      "type" : "object",
+      "properties" : {
+        "token" : {
+          "type" : "string",
+          "minLength" : 1
+        }
+      },
+      "required" : [ "token" ]
     },
     "Query" : {
       "type" : "object",

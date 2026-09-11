@@ -30,3 +30,7 @@ careflow:
   model-encryption-key: ${MODEL_CONFIG_ENCRYPTION_KEY:}
   model-external-bases: ${MODEL_EXTERNAL_BASES:https://api.deepseek.com}
   model-local-bases: ${MODEL_LOCAL_BASES:}
+  sso:
+    introspection-url: ${SSO_INTROSPECTION_URL:}
+    client-id: ${SSO_CLIENT_ID:}
+    client-secret: ${SSO_CLIENT_SECRET:}

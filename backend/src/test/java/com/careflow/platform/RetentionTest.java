@@ -15,7 +15,7 @@ class RetentionTest extends ContentTestSupport {
   String record(int age) {
     String id = id();
     db.exec(
-        "INSERT INTO query_records(id,tenant_id,subject_id,subject_kind,question,knowledge_base_ids,query_options,evidence_status,created_at) VALUES(?,?,?,'MEMBER','Synthetic debug body','[]','{}','NO_MATCH',TIMESTAMPADD(DAY,?,CURRENT_TIMESTAMP))",
+        "INSERT INTO query_records(id,tenant_id,subject_id,subject_kind,question,knowledge_base_ids,query_options,evidence_status,created_at) VALUES(?,?,?,'MEMBER','Synthetic debug body','[]','{\"filter\":\"sensitive\"}','NO_MATCH',TIMESTAMPADD(DAY,?,CURRENT_TIMESTAMP))",
         id,
         tenant,
         actor.subject(),
@@ -34,6 +34,10 @@ class RetentionTest extends ContentTestSupport {
     assertThat(db.one("SELECT question,body_state FROM query_records WHERE id=?", old))
         .containsEntry("question", "")
         .containsEntry("body_state", "EXPIRED");
+    assertThat(
+            Db.str(
+                db.one("SELECT query_options FROM query_records WHERE id=?", old), "query_options"))
+        .isEqualTo("{}");
     assertThat(str(db.one("SELECT question FROM query_records WHERE id=?", fresh), "question"))
         .isEqualTo("Synthetic debug body");
     assertThat(db.list("SELECT id FROM audit_events WHERE tenant_id=?", tenant)).isEmpty();

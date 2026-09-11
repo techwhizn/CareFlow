@@ -101,7 +101,7 @@ public class RetentionService {
                   -num(policy, "debug_retention_days"));
           for (var row : questions)
             db.exec(
-                "UPDATE query_records SET question='',body_state=? WHERE tenant_id=? AND id=?",
+                "UPDATE query_records SET question='',query_options='{}',body_state=? WHERE tenant_id=? AND id=?",
                 collect ? "EXPIRED" : "DISABLED",
                 tenant,
                 str(row, "id"));

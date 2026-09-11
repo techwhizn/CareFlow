@@ -1280,9 +1280,9 @@
         }
       }
     },
-    "/api/v1/improvements" : {
+    "/api/v1/integrations" : {
       "get" : {
-        "tags" : [ "improvements-controller" ],
+        "tags" : [ "integrations-controller" ],
         "operationId" : "list_4",
         "responses" : {
           "200" : {
@@ -1298,8 +1298,52 @@
         }
       },
       "post" : {
-        "tags" : [ "improvements-controller" ],
+        "tags" : [ "integrations-controller" ],
         "operationId" : "create_4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Create"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/improvements" : {
+      "get" : {
+        "tags" : [ "improvements-controller" ],
+        "operationId" : "list_5",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "improvements-controller" ],
+        "operationId" : "create_5",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1327,7 +1371,7 @@
     "/api/v1/evaluation-datasets" : {
       "get" : {
         "tags" : [ "evaluation-dataset-controller" ],
-        "operationId" : "list_5",
+        "operationId" : "list_6",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1343,7 +1387,7 @@
       },
       "post" : {
         "tags" : [ "evaluation-dataset-controller" ],
-        "operationId" : "create_5",
+        "operationId" : "create_6",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1460,7 +1504,7 @@
     "/api/v1/enterprises" : {
       "post" : {
         "tags" : [ "enterprises-controller" ],
-        "operationId" : "create_6",
+        "operationId" : "create_7",
         "parameters" : [ {
           "name" : "X-Bootstrap-Token",
           "in" : "header",
@@ -1658,7 +1702,7 @@
     "/api/v1/document-versions/{version}/faqs" : {
       "post" : {
         "tags" : [ "document-context-controller" ],
-        "operationId" : "create_7",
+        "operationId" : "create_8",
         "parameters" : [ {
           "name" : "Authorization",
           "in" : "header",
@@ -2048,7 +2092,7 @@
     "/api/v1/conversations" : {
       "get" : {
         "tags" : [ "conversations-controller" ],
-        "operationId" : "list_6",
+        "operationId" : "list_7",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2064,7 +2108,7 @@
       },
       "post" : {
         "tags" : [ "conversations-controller" ],
-        "operationId" : "create_8",
+        "operationId" : "create_9",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2158,7 +2202,7 @@
     "/api/v1/billing/rules" : {
       "get" : {
         "tags" : [ "billing-rules-controller" ],
-        "operationId" : "list_7",
+        "operationId" : "list_8",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2174,7 +2218,7 @@
       },
       "post" : {
         "tags" : [ "billing-rules-controller" ],
-        "operationId" : "create_9",
+        "operationId" : "create_10",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2246,7 +2290,7 @@
     "/api/v1/applications/{id}/credentials" : {
       "get" : {
         "tags" : [ "application-credentials-controller" ],
-        "operationId" : "list_8",
+        "operationId" : "list_9",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2271,7 +2315,7 @@
       },
       "post" : {
         "tags" : [ "application-credentials-controller" ],
-        "operationId" : "create_10",
+        "operationId" : "create_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2640,7 +2684,7 @@
     "/api/v1/usage/requests" : {
       "get" : {
         "tags" : [ "request-log-controller" ],
-        "operationId" : "list_9",
+        "operationId" : "list_10",
         "parameters" : [ {
           "name" : "before",
           "in" : "query",
@@ -2667,7 +2711,7 @@
     "/api/v1/applications/{app}/requests" : {
       "get" : {
         "tags" : [ "request-log-controller" ],
-        "operationId" : "list_10",
+        "operationId" : "list_11",
         "parameters" : [ {
           "name" : "app",
           "in" : "path",
@@ -3251,7 +3295,7 @@
     "/api/v1/document-versions/{version}/content-conflicts" : {
       "get" : {
         "tags" : [ "content-conflict-controller" ],
-        "operationId" : "list_11",
+        "operationId" : "list_12",
         "parameters" : [ {
           "name" : "version",
           "in" : "path",
@@ -3527,7 +3571,7 @@
     "/api/v1/cleanup-requests" : {
       "get" : {
         "tags" : [ "cleanup-controller" ],
-        "operationId" : "list_12",
+        "operationId" : "list_13",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3750,6 +3794,33 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations/{id}" : {
+      "delete" : {
+        "tags" : [ "integrations-controller" ],
+        "operationId" : "disable_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "revision",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
           }
         }
       }

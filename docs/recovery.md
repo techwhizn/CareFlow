@@ -24,6 +24,22 @@ python3 scripts/cold-backup.py verify \
 
 卷内容直接管道加密，默认不产生明文tar。使用随机256位密钥、OpenSSL AES-256-CBC/PBKDF2加密，各文件密文摘要由独立派生的HMAC密钥认证。必须先验证整个清单及全部密文，再解密；不允许绕过校验直接运行解密命令。密钥只通过权限受限文件传给OpenSSL，不写入命令参数或备份。丢失密钥无法恢复。失败归档保留未完成状态，不能作为恢复输入。
 
+## 轮换备份密钥
+
+密钥轮换生成新的完整密文目录，源目录保持不变。旧密钥必须在轮换完成并验证后继续保留，确认新目录可恢复后再按企业密钥销毁流程处理：
+
+```bash
+python3 scripts/rotate-backup-key.py \
+  /backups/careflow-20260911 /backups/careflow-20260911-key2 \
+  --old-key /secure/careflow-backup.key \
+  --new-key /secure/careflow-backup-key2.key
+python3 scripts/cold-backup.py verify \
+  --directory /backups/careflow-20260911-key2 \
+  --key-file /secure/careflow-backup-key2.key
+```
+
+轮换过程逐文件流式解密和加密，不在磁盘写出明文；新目录必须不存在且与密钥文件分离。任何校验失败都会停止并保留源备份，禁止覆盖源目录或复用同一密钥。
+
 冷备份与数据库增量使用独立的保留期工具，不能用旧版MySQL淘汰器或按单文件年龄删除。将同一密钥签名的完整恢复链置于专用0700目录，密钥置于目录外；在独占维护窗口执行：
 
 ```bash

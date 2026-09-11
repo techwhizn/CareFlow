@@ -105,6 +105,16 @@ public class ContentPurgeService {
   }
 
   public void knowledgeBase(String tenant, String kb) {
+    db.exec(
+        "DELETE FROM integration_deliveries WHERE tenant_id=? AND resource_id IN (SELECT id FROM documents WHERE tenant_id=? AND kb_id=?)",
+        tenant,
+        tenant,
+        kb);
+    db.exec(
+        "DELETE FROM integration_deliveries WHERE tenant_id=? AND resource_id IN (SELECT DISTINCT answer_id FROM answer_evidence WHERE document_id IN (SELECT id FROM documents WHERE tenant_id=? AND kb_id=?))",
+        tenant,
+        tenant,
+        kb);
     db.exec("DELETE FROM evaluation_datasets WHERE tenant_id=? AND kb_id=?", tenant, kb);
     db.exec(
         "DELETE FROM query_records WHERE tenant_id=? AND id IN (SELECT query_record_id FROM improvement_tasks WHERE tenant_id=? AND kb_id=?)",

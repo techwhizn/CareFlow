@@ -2,6 +2,13 @@
 
 依据 [PRD.md](PRD.md) 建设的独立知识库底座与应用层。当前为 **0.1 开发增量**，不是已完成全部 P0 的商业交付。真实服务未配置时明确失败，不返回模拟向量或模拟重排。
 
+## 文档
+
+- [文档导航](docs/README.md) · [快速开始](docs/quickstart.md) · [部署说明](docs/production-deployment.md) · [故障排查](docs/troubleshooting.md)
+- [API](docs/api.md) · [Java/Python SDK](sdk/README.md) · [扩展指南](docs/extension-guide.md)
+- [运维与恢复](docs/operations.md) · [隐私与数据生命周期](docs/privacy.md) · [安全政策](SECURITY.md)
+- [贡献指南](CONTRIBUTING.md) · [治理](GOVERNANCE.md) · [行为准则](CODE_OF_CONDUCT.md) · [发布流程](docs/release-process.md)
+
 ## 目录
 
 - `backend/`：Java 21、Spring Boot，身份/权限、文件版本、任务 Outbox、发布、应用、问答交付和查询额度。

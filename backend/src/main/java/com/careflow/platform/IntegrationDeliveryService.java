@@ -1,10 +1,13 @@
 package com.careflow.platform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +73,7 @@ public class IntegrationDeliveryService {
               Db.str(delivery, "secret_ciphertext"));
       String signature = sign(secret, Db.str(delivery, "payload"));
       int status =
-          RestClient.create(Db.str(delivery, "endpoint_url"))
+          client(Db.str(delivery, "endpoint_url"))
               .post()
               .header("Content-Type", "application/json")
               .header("X-CareFlow-Event", Db.str(delivery, "event_type"))
@@ -102,5 +105,16 @@ public class IntegrationDeliveryService {
     } catch (Exception e) {
       throw new IllegalStateException("Webhook signing unavailable", e);
     }
+  }
+
+  private static RestClient client(String endpoint) {
+    var factory =
+        new JdkClientHttpRequestFactory(
+            HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .build());
+    factory.setReadTimeout(Duration.ofSeconds(10));
+    return RestClient.builder().baseUrl(endpoint).requestFactory(factory).build();
   }
 }

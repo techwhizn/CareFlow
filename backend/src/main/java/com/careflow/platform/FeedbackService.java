@@ -19,11 +19,14 @@ public class FeedbackService {
   private final Db db;
   private final Identity auth;
   private final AnswerHistoryService history;
+  private final IntegrationDeliveryService integrations;
 
-  public FeedbackService(Db db, Identity auth, AnswerHistoryService history) {
+  public FeedbackService(
+      Db db, Identity auth, AnswerHistoryService history, IntegrationDeliveryService integrations) {
     this.db = db;
     this.auth = auth;
     this.history = history;
+    this.integrations = integrations;
   }
 
   @Transactional
@@ -43,6 +46,10 @@ public class FeedbackService {
         actor.tenant(),
         id);
     auth.audit(actor, "ANSWER_FEEDBACK", id, input.feedback());
+    integrations.enqueue(
+        actor.tenant(),
+        "ANSWER_FEEDBACK",
+        Map.of("answer_id", id, "feedback", input.feedback(), "reason", reason));
     return Map.of(
         "feedback",
         input.feedback(),

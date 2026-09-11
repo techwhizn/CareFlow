@@ -14,13 +14,19 @@ public class DocumentPublicationService {
   private final Identity auth;
   private final ContentConflictService conflicts;
   private final CleanupRepository cleanup;
+  private final IntegrationDeliveryService integrations;
 
   public DocumentPublicationService(
-      Db db, Identity auth, ContentConflictService conflicts, CleanupRepository cleanup) {
+      Db db,
+      Identity auth,
+      ContentConflictService conflicts,
+      CleanupRepository cleanup,
+      IntegrationDeliveryService integrations) {
     this.db = db;
     this.auth = auth;
     this.conflicts = conflicts;
     this.cleanup = cleanup;
+    this.integrations = integrations;
   }
 
   public record Publish(
@@ -80,6 +86,10 @@ public class DocumentPublicationService {
         body.version_revision(),
         document.get("published_version"));
     auth.audit(actor, "DOCUMENT_PUBLISH", id, body.version_id());
+    integrations.enqueue(
+        actor.tenant(),
+        "DOCUMENT_PUBLISHED",
+        Map.of("id", id, "version_id", body.version_id(), "publication_id", pub));
     return Map.of("publication_id", pub);
   }
 

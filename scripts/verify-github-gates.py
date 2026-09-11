@@ -52,6 +52,12 @@ class GithubApi:
 
 
 def verify(api: GithubApi, repository: str, branch: str) -> dict:
+    branch_ref = api.get(
+        f"/repos/{repository}/git/ref/heads/{urllib.parse.quote(branch, safe='')}"
+    )
+    current_sha = branch_ref.get("object", {}).get("sha")
+    if not current_sha:
+        raise RuntimeError(f"Unable to resolve current {repository}:{branch} SHA")
     runs = api.get(
         f"/repos/{repository}/actions/runs",
         {"branch": branch, "status": "completed", "per_page": "20"},
@@ -59,6 +65,10 @@ def verify(api: GithubApi, repository: str, branch: str) -> dict:
     if not runs:
         raise RuntimeError(f"No completed Actions run found for {repository}:{branch}")
     run = next((item for item in runs if item.get("name") == "verify"), runs[0])
+    if run.get("head_sha") != current_sha:
+        raise RuntimeError(
+            f"Latest verify run SHA {run.get('head_sha')} does not match {branch} SHA {current_sha}"
+        )
     if run.get("conclusion") != "success":
         raise RuntimeError(
             f"Latest verify run {run.get('id')} conclusion is {run.get('conclusion')}"
@@ -90,7 +100,7 @@ def verify(api: GithubApi, repository: str, branch: str) -> dict:
         "repository": repository,
         "branch": branch,
         "run_id": run["id"],
-        "run_sha": run.get("head_sha"),
+        "run_sha": current_sha,
         "run_url": run.get("html_url"),
         "successful_jobs": sorted(successful_jobs),
         "required_status_checks": sorted(required_names),

@@ -69,8 +69,10 @@ public class ImportCostService {
         method = "NATIVE_TOKENS_WITH_OVERLAP_ESTIMATE";
       }
     }
-    Long pages =
-        Set.of("png", "jpg", "jpeg").contains(extension) ? 1L : extension.equals("pdf") ? null : 0L;
+    Long pages;
+    if (Set.of("png", "jpg", "jpeg").contains(extension)) pages = 1L;
+    else if (extension.equals("pdf")) pages = null;
+    else pages = 0L;
     var provider = new LinkedHashMap<String, CostCalculation.Quantity>();
     provider.put("SOURCE_WRITE_BYTE", CostCalculation.Quantity.known(data.bytes().length));
     provider.put("OCR_PAGE", new CostCalculation.Quantity(pages, pages == null));

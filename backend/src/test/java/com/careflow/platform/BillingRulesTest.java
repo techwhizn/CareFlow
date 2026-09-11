@@ -121,6 +121,25 @@ class BillingRulesTest extends ContentTestSupport {
 
   @Test
   @SuppressWarnings("unchecked")
+  void pdfEstimateKeepsUnknownOcrPagesWithoutUnboxingNull() throws Exception {
+    String kb =
+        str(
+            db.one(
+                "SELECT d.kb_id FROM documents d JOIN document_versions v ON v.document_id=d.id WHERE v.id=?",
+                version),
+            "kb_id");
+    var file =
+        new MockMultipartFile(
+            "file", "estimate.pdf", "application/pdf", "%PDF-1.4\nsynthetic\n".getBytes());
+
+    var estimate = (Map<String, Object>) estimates.estimate(actor, token, kb, file);
+
+    assertThat(estimate).containsEntry("estimated_ocr_pages", null);
+    assertThat(db.list("SELECT id FROM jobs WHERE tenant_id=?", tenant)).isEmpty();
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
   void jobFeeIsFrozenAndProviderBreakdownIsRestricted() {
     String first = rule("0.1");
     billing.activate(actor, new BillingRulesService.Activate(UUID.fromString(first), 0));

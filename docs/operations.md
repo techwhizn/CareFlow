@@ -13,6 +13,15 @@
 加密的整套停止服务冷备份与隔离存储恢复工具见[恢复说明](recovery.md)。存储恢复不自动开放业务入口，最新删除与撤权重放仍需单独验收。
 
 1. 进入维护窗口，停用 API 写入入口，停止 consumer，等待 RUNNING 任务完成或租约失效。
+
+单机环境可使用 `deploy/systemd/careflow-backup.service` 与 `.timer` 自动执行每日受管备份。复制到 `/etc/systemd/system/` 前将 service 的 `WorkingDirectory`、`ExecStart` 和 `ReadWritePaths` 改为实际路径，并创建权限为 `0600` 的 `/etc/careflow/backup.env`：
+
+```text
+CAREFLOW_BACKUP_ROOT=/var/lib/careflow-backups
+CAREFLOW_BACKUP_RETENTION_DAYS=30
+```
+
+启用后检查 `systemctl status careflow-backup.timer` 和 `journalctl -u careflow-backup.service`。失败会使 service 返回非零，且脚本仍执行保留期清理；该 timer 只覆盖 MySQL 逻辑备份，跨存储冷备份仍须在独占维护窗口手动执行。
 2. `scripts/backup.sh /absolute/backup-root` 创建带标记的独立子目录，保存 MySQL 一致性逻辑快照；它不是跨存储备份。
 3. 使用存储管理员工具为 S3 卷做快照，覆盖原文件；保存 `.env` 的加密副本到受控密钥存储，不能进入 Git。
 4. 导出这次备份之后的删除、撤权、凭证撤销日志到独立于备份的持久记录。恢复时这些记录必须存在。

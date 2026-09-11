@@ -1,0 +1,15 @@
+[Unit]
+Description=CareFlow managed MySQL backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/careflow
+EnvironmentFile=/etc/careflow/backup.env
+ExecStart=/opt/careflow/scripts/managed-backup-cycle.sh
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/careflow-backups
+NoNewPrivileges=true

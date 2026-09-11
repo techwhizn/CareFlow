@@ -1,0 +1,6 @@
+# Changes to platform boundaries, authentication and security require maintainer review.
+* @techwhizn
+/.github/ @techwhizn
+/backend/src/main/java/com/careflow/platform/Identity.java @techwhizn
+/backend/src/main/resources/db/migration/ @techwhizn
+/SECURITY.md @techwhizn

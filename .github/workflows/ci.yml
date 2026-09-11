@@ -6,6 +6,17 @@ concurrency:
   group: verify-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
   secrets:
     runs-on: ubuntu-latest
     steps:

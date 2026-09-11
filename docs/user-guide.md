@@ -46,6 +46,26 @@ CareFlow 把企业散落在 PDF、Word、表格、Markdown、文本和图片里�
 
 只有部署管理员需要做初始化，普通使用者跳过本节。
 
+### 3.1 找到初始化密钥
+
+CareFlow **没有通用或默认的初始化密钥**。运行 `python3 scripts/init-local-env.py` 后，密钥会随机写入项目根目录的 `.env` 文件中的 `BOOTSTRAP_TOKEN`。不要把这个值粘贴到聊天、截图或代码仓库。
+
+在 macOS 上可以直接将密钥复制到剪贴板而不显示在终端：
+
+```bash
+sed -n 's/^BOOTSTRAP_TOKEN=//p' .env | pbcopy
+```
+
+然后把剪贴板内容粘贴到登录页的“初始化密钥”输入框。Linux 桌面环境可使用系统对应的剪贴板工具，或在受控终端中读取 `.env`。
+
+如果你刚修改过 `.env`，必须重新创建后端容器使新值生效：
+
+```bash
+docker compose up -d --force-recreate backend
+```
+
+### 3.2 创建企业
+
 1. 打开 CareFlow 首页，选择“初始化企业”。
 2. 输入部署环境提供的初始化密钥、企业名称和所有者姓名。
 3. 提交后保存显示的一次性所有者凭证。建议立即放入企业密码管理器。

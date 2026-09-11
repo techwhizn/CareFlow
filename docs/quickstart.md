@@ -16,7 +16,9 @@ python3 scripts/init-local-env.py
 docker compose up -d --build
 ```
 
-打开 <http://localhost:5173>。第一次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN`。所有者凭证只显示一次，请通过密码管理器保存。
+打开 <http://localhost:5173>。第一次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN`；项目没有固定默认密钥。可在 macOS 通过 `sed -n 's/^BOOTSTRAP_TOKEN=//p' .env | pbcopy` 安全复制，修改 `.env` 后需要 `docker compose up -d --force-recreate backend`。所有者凭证只显示一次，请通过密码管理器保存。
+
+如果企业已经初始化过，不要再次使用初始化入口；请改用所有者或管理员访问凭证登录。初始化接口只允许创建首个企业一次。
 
 ## 完成第一条检索
 

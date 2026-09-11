@@ -24,6 +24,14 @@
 
 应用凭证默认 90 天到期；`DELETE /credentials/{id}` 立即撤销。轮换采用先创建新凭证、迁移调用方、再撤销旧凭证的流程。应用密钥界面可配置动作范围和有效期，详见V1-06。
 
+## 成员 MFA
+
+成员可通过 `GET /api/v1/mfa` 查看状态，`POST /api/v1/mfa/enroll` 生成一次性 TOTP 绑定信息，随后使用 `POST /api/v1/mfa/enable` 和 `{code}` 启用。启用后，除 MFA 管理操作外的公共请求必须携带当前 `X-MFA-Code`；`POST /api/v1/mfa/disable` 也必须提供有效验证码。密钥加密存储，响应不会返回加密值。OPS 运维只读角色和应用凭证不走成员 MFA 流程，仍受原有权限边界保护。
+
+## 企业系统集成
+
+`GET/POST /api/v1/integrations` 管理租户 Webhook 端点，创建请求需 `kind=webhook`、HTTPS 地址（本地联调可用 localhost HTTP）、至少16字符 secret 和事件集合。列表只返回配置元数据，不返回 secret；`DELETE /api/v1/integrations/{id}?revision=N` 按版本停用并写入审计。事件投递器未配置时不会伪造送达结果，详细边界见[企业系统集成](integrations.md)。
+
 ## 幂等边界
 
 上传的 Idempotency-Key 在同租户任务中唯一，重复请求返回既有任务并复核访问权限；客户端应为不同上传生成不同 key。V5起上传保存请求指纹（知识库、创建/替换目标、文件名、内容摘要）；同key不同请求返回409 IDEMPOTENCY_CONFLICT。旧任务没有指纹时不重放，返回冲突并要求核对原任务。

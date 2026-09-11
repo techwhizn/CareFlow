@@ -34,7 +34,7 @@ mvn install:install-file -Dfile=careflow-sdk-0.1.0.jar \
 
 Java最低21；SDK已在21/25核验。Python SDK在3.10/3.12/3.14核验；Worker为3.12，Node构建为22。当前本机容器产物仅验证Linux/amd64，未宣称ARM兼容；浏览器验证为Chromium，见[兼容性矩阵](reports/v1-49-browser-compatibility.md)。
 
-数据库按Flyway顺序升级至V36，禁止修改已应用迁移。已有模型身份、配置版本和发布修订的迁移要求分别见[配置](knowledge-configurations.md)、[增量索引](incremental-indexing.md)和[文档发布](document-publications.md)。升级前保存经过校验的停写备份；回退恢复整套匹配的旧数据/镜像及删除撤权记录，不能只降低JAR版本，见[恢复手册](recovery.md)。候选MySQL/RabbitMQ/S3升级尚未进入默认部署，不混用候选镜像与历史恢复工具。
+数据库按Flyway顺序升级至V41，禁止修改已应用迁移。V37–V41增加成员MFA、企业集成投递、OIDC外部身份绑定及删除关联字段。已有模型身份、配置版本和发布修订的迁移要求分别见[配置](knowledge-configurations.md)、[增量索引](incremental-indexing.md)和[文档发布](document-publications.md)。升级前保存经过校验的停写备份；回退恢复整套匹配的旧数据/镜像及删除撤权记录，不能只降低JAR版本，见[恢复手册](recovery.md)。候选MySQL/RabbitMQ/S3升级尚未进入默认部署，不混用候选镜像与历史恢复工具。
 
 ## 尚未关闭的1.0门禁
 

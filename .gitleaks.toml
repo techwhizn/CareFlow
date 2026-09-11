@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "RFC 6238 public test vector (not a credential)"
+paths = ['''backend/src/test/java/com/careflow/platform/MfaServiceTest\.java''']
+regexes = ['''GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ''']

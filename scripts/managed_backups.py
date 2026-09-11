@@ -127,10 +127,16 @@ def main():
         parser.error("retention-days must be positive")
     os.umask(0o077)
     root = backup_root(args.root)
-    if args.action == "mysql":
-        directory = mysql_backup(root)
-        print(f"MySQL-only snapshot: {directory}; cross-store recovery not verified.")
-    print(f"Expired managed snapshots removed: {retire(root, args.retention_days)}")
+    try:
+        if args.action == "mysql":
+            directory = mysql_backup(root)
+            print(
+                f"MySQL-only snapshot: {directory}; cross-store recovery not verified."
+            )
+    finally:
+        # Retention remains scheduled even when the producer fails, so an
+        # interrupted run cannot silently disable lifecycle cleanup.
+        print(f"Expired managed snapshots removed: {retire(root, args.retention_days)}")
 
 
 if __name__ == "__main__":

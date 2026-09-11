@@ -27,7 +27,9 @@ def rotate(source: Path, destination: Path, old_key: Path, new_key: Path) -> Non
     metadata = verify_bundle(source, old_key)
     signature({}, new_key)  # validate permissions and key format before output
     destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(dir=destination.parent, prefix=".careflow-key-rotate-") as tmp:
+    with tempfile.TemporaryDirectory(
+        dir=destination.parent, prefix=".careflow-key-rotate-"
+    ) as tmp:
         staged = Path(tmp)
         for entry in metadata["entries"]:
             name = entry["file"]

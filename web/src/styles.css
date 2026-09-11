@@ -602,7 +602,7 @@ nav button.active {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 9px;
-  padding: 24px;
+  padding: 28px;
 }
 .panel > .section-title:first-child {
   margin-top: 0;

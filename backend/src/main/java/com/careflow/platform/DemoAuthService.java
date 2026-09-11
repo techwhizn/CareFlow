@@ -33,7 +33,7 @@ public class DemoAuthService {
     var owner =
         db.one(
             "SELECT id,role FROM members WHERE tenant_id=? AND role='OWNER' "
-                + "AND active=TRUE AND removed=FALSE ORDER BY created_at LIMIT 1",
+                + "AND active=TRUE AND removed=FALSE ORDER BY id LIMIT 1",
             INITIAL_TENANT);
     String member = Db.str(owner, "id");
     String token =

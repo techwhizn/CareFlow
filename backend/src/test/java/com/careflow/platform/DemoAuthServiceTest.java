@@ -26,7 +26,7 @@ class DemoAuthServiceTest {
     Identity identity = mock(Identity.class);
     when(db.one(
             "SELECT id,role FROM members WHERE tenant_id=? AND role='OWNER' "
-                + "AND active=TRUE AND removed=FALSE ORDER BY created_at LIMIT 1",
+                + "AND active=TRUE AND removed=FALSE ORDER BY id LIMIT 1",
             "00000000-0000-0000-0000-000000000001"))
         .thenReturn(java.util.Map.of("id", "member"));
     when(identity.credential(

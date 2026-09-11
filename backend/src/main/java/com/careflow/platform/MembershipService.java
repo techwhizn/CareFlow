@@ -4,6 +4,7 @@ import static com.careflow.platform.Db.*;
 
 import com.careflow.platform.Identity.Actor;
 import jakarta.validation.constraints.*;
+import java.net.URI;
 import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,7 +116,7 @@ public class MembershipService {
   public Map<String, Object> bindExternalIdentity(
       Actor actor, String member, ExternalIdentity input) {
     auth.admin(actor);
-    if (!input.issuer().startsWith("https://"))
+    if (!validIssuer(input.issuer()))
       throw new ApiException(400, "INVALID_ISSUER", "外部身份签发方必须使用 HTTPS");
     if (!db.list(
             "SELECT id FROM members WHERE tenant_id=? AND external_issuer=? AND external_subject=? AND id<>?",
@@ -156,5 +157,18 @@ public class MembershipService {
     var result = new LinkedHashMap<>(row);
     result.remove("mfa_secret");
     return result;
+  }
+
+  static boolean validIssuer(String issuer) {
+    try {
+      URI uri = URI.create(issuer);
+      return "https".equalsIgnoreCase(uri.getScheme())
+          && uri.getHost() != null
+          && uri.getUserInfo() == null
+          && uri.getQuery() == null
+          && uri.getFragment() == null;
+    } catch (IllegalArgumentException error) {
+      return false;
+    }
   }
 }

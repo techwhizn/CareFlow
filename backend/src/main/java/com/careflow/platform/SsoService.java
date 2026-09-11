@@ -52,6 +52,10 @@ public class SsoService {
       throw new ApiException(503, "SSO_UNAVAILABLE", "企业统一身份认证未配置");
     }
     if (!"https".equalsIgnoreCase(endpoint.getScheme())
+        || endpoint.getHost() == null
+        || endpoint.getUserInfo() != null
+        || endpoint.getQuery() != null
+        || endpoint.getFragment() != null
         || clientId.isBlank()
         || clientSecret.isBlank()) throw new ApiException(503, "SSO_UNAVAILABLE", "企业统一身份认证未配置");
     try {

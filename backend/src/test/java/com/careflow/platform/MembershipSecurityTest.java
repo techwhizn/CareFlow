@@ -22,4 +22,12 @@ class MembershipSecurityTest extends ContentTestSupport {
             .orElseThrow();
     assertThat(view).doesNotContainKey("mfa_secret");
   }
+
+  @Test
+  void externalIssuerRequiresAPlainHttpsOrigin() {
+    assertThat(MembershipService.validIssuer("https://id.example.com")).isTrue();
+    assertThat(MembershipService.validIssuer("http://id.example.com")).isFalse();
+    assertThat(MembershipService.validIssuer("https://user:pass@id.example.com")).isFalse();
+    assertThat(MembershipService.validIssuer("https://id.example.com?tenant=other")).isFalse();
+  }
 }

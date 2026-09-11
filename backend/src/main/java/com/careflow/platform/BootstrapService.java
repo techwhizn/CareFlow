@@ -33,6 +33,11 @@ public class BootstrapService {
             bootstrap.getBytes(java.nio.charset.StandardCharsets.UTF_8),
             token.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
       throw new ApiException(401, "UNAUTHENTICATED", "初始化密钥无效");
+    if (!db
+        .list("SELECT id FROM tenants WHERE id=?", "00000000-0000-0000-0000-000000000001")
+        .isEmpty())
+      throw new ApiException(
+          409, "ALREADY_INITIALIZED", "企业已初始化，请使用所有者或管理员访问凭证登录");
     // Fixed primary key makes concurrent attempts at first initialization mutually exclusive.
     String tenant = "00000000-0000-0000-0000-000000000001", member = id();
     db.exec("INSERT INTO tenants(id,name) VALUES(?,?)", tenant, input.name());

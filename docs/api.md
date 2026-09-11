@@ -4,7 +4,7 @@
 
 ## 关键流程
 
-1. `POST /api/v1/bootstrap`：仅持部署初始化密钥调用，创建首个企业及所有者，只能成功一次。后续多企业自助注册尚未实现。
+1. `POST /api/v1/bootstrap`：仅持部署初始化密钥调用，创建首个企业及所有者，只能成功一次。若首个企业已存在，返回 `409 ALREADY_INITIALIZED`；请改用所有者或管理员访问凭证登录。后续多企业自助注册尚未实现。
 2. `POST /knowledge-bases`：名称与说明。
 3. `POST /knowledge-bases/{id}/documents`：multipart `file`、`Idempotency-Key`；返回文档、版本和任务 ID。
 4. `GET /jobs/{id}`：阶段、状态、次数和安全错误码。

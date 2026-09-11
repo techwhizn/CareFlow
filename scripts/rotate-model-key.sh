@@ -9,8 +9,10 @@ if [[ "$MODEL_CONFIG_ENCRYPTION_KEY_OLD" == "$MODEL_CONFIG_ENCRYPTION_KEY" ]]; t
   echo "old and new encryption keys must differ" >&2
   exit 2
 fi
-curl --fail --silent --show-error --max-time 30 \
-  -H "X-Internal-Token: $INTERNAL_TOKEN" \
-  -H 'Content-Type: application/json' \
-  -X POST "$CAREFLOW_API_URL/internal/v1/maintenance/model-key-rotation"
+curl --fail --silent --show-error --max-time 30 --config - <<CURL_CONFIG
+url = "$CAREFLOW_API_URL/internal/v1/maintenance/model-key-rotation"
+request = POST
+header = "X-Internal-Token: $INTERNAL_TOKEN"
+header = "Content-Type: application/json"
+CURL_CONFIG
 printf '\n'

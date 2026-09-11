@@ -47,7 +47,7 @@ CAREFLOW_BACKUP_RETENTION_DAYS=30
 
 ## 模型密钥存储与批准地址
 
-`MODEL_CONFIG_ENCRYPTION_KEY`是标准Base64编码的32字节AES主密钥。新部署初始化脚本自动生成；已有部署需安全生成并配置，禁止写入Git、终端日志或普通数据库备份。丢失主密钥将无法恢复已存模型凭证，备份应保存受控加密副本。轮换时先将旧值放入仅进程可读的`MODEL_CONFIG_ENCRYPTION_KEY_OLD`，将新值放入`MODEL_CONFIG_ENCRYPTION_KEY`，在内部维护网络使用`X-Internal-Token`调用`POST /internal/v1/maintenance/model-key-rotation`；返回成功后重启并移除旧值。该操作在单个数据库事务中重加密模型、成员MFA和集成密钥，解密失败会回滚且不会伪造成功。
+`MODEL_CONFIG_ENCRYPTION_KEY`是标准Base64编码的32字节AES主密钥。新部署初始化脚本自动生成；已有部署需安全生成并配置，禁止写入Git、终端日志或普通数据库备份。丢失主密钥将无法恢复已存模型凭证，备份应保存受控加密副本。轮换时先将旧值放入仅进程可读的`MODEL_CONFIG_ENCRYPTION_KEY_OLD`，将新值放入`MODEL_CONFIG_ENCRYPTION_KEY`，在内部维护网络使用`X-Internal-Token`调用`POST /internal/v1/maintenance/model-key-rotation`，或执行`CAREFLOW_API_URL=... INTERNAL_TOKEN=... MODEL_CONFIG_ENCRYPTION_KEY_OLD=... MODEL_CONFIG_ENCRYPTION_KEY=... scripts/rotate-model-key.sh`；返回成功后重启并移除旧值。该操作在单个数据库事务中重加密模型、成员MFA和集成密钥，解密失败会回滚且不会伪造成功。
 
 `MODEL_EXTERNAL_BASES`默认仅批准`https://api.deepseek.com`；`MODEL_LOCAL_BASES`默认为空。两者是逗号分隔的精确base URL，仅根路径或/v1路径。部署管理员增加地址前检查所属方、TLS与数据外发策略；更改后重启后端。普通企业管理员只能在批准列表中选地址，不能任意探测内网。
 

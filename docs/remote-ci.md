@@ -6,6 +6,16 @@
 
 获得远端操作授权后，维护者按以下顺序执行并保存实际证据：
 
+可先使用只读核验脚本检查作业和保护规则（Token 仅通过环境变量传入，不写入仓库）：
+
+```bash
+export GITHUB_TOKEN='按最小权限创建的 fine-grained token'
+export GITHUB_REPOSITORY='OWNER/REPOSITORY'
+python3 scripts/verify-github-gates.py --branch main
+```
+
+脚本要求最新 `verify` 工作流成功，并核对 `secrets`、`backend`、`worker`、`milvus-integration`、`web` 五个作业及分支保护的必需检查；失败时返回非零状态并说明缺失项。
+
 1. 确认目标仓库、默认分支及现有保护规则，先导出当前配置；不要直接覆盖已有更严格限制或访问名单。
 2. 通过实际PR运行全部5项作业，保存提交SHA、运行链接、每项状态；核对远端显示的检查名称，不能仅凭本地作业ID假定名称和来源。
 3. 审查示例：要求分支最新、所有检查、1名审批者、重新审批新改动、解决讨论，并禁止强推及删分支。**1名审批者方案需要另一位有权限的维护者；只有一位维护者时，应先明确评审安排，不能直接启用后再绕过规则。**

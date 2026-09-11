@@ -29,6 +29,14 @@ public class ModelKeyRotationService {
     count += rotateTable("model_profiles", "api_key_ciphertext");
     count += rotateTable("members", "mfa_secret");
     count += rotateTable("integration_endpoints", "secret_ciphertext");
+    for (var tenant : db.list("SELECT id FROM tenants"))
+      db.exec(
+          "INSERT INTO audit_events(id,tenant_id,actor_id,action,resource_id,details) VALUES(?,?,?,'MODEL_KEY_ROTATED',?,?)",
+          Db.id(),
+          Db.str(tenant, "id"),
+          "SYSTEM",
+          Db.str(tenant, "id"),
+          "encrypted_credentials_rewrapped=" + count);
     return Map.of("rotated", count, "status", "COMPLETED");
   }
 

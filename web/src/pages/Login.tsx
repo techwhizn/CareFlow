@@ -1,5 +1,5 @@
 import { ArrowRight, Books } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { request, setToken } from "../api";
 import { ErrorNote } from "../ui";
 export default function Login({ done }: { done: () => void }) {
@@ -9,7 +9,26 @@ export default function Login({ done }: { done: () => void }) {
     [provision, setProvision] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [issued, setIssued] = useState("");
+    [issued, setIssued] = useState(""),
+    [demoEnabled, setDemoEnabled] = useState(false);
+  useEffect(() => {
+    void request<{ enabled: boolean }>("/demo/status")
+      .then(result => setDemoEnabled(result.enabled))
+      .catch(() => setDemoEnabled(false));
+  }, []);
+  async function demoLogin() {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await request<{ token: string }>("/demo/login", { method: "POST" });
+      setToken(result.token);
+      done();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function login(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -107,6 +126,11 @@ export default function Login({ done }: { done: () => void }) {
             {busy ? "连接中…" : bootstrap ? "创建企业" : "进入工作空间"}
             <ArrowRight />
           </button>
+          {demoEnabled && !bootstrap && (
+            <button type="button" className="text-button" onClick={() => void demoLogin()} disabled={busy}>
+              测试模式快速进入（8 小时）
+            </button>
+          )}
           <button
             type="button"
             className="text-button"

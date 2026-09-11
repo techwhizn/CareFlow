@@ -46,6 +46,8 @@ public class HttpBoundary extends OncePerRequestFilter {
           throw new ApiException(401, "UNAUTHENTICATED", "内部身份无效");
       } else if (req.getRequestURI().startsWith("/api/v1/")
           && !req.getRequestURI().equals("/api/v1/bootstrap")
+          && !req.getRequestURI().equals("/api/v1/demo/status")
+          && !req.getRequestURI().equals("/api/v1/demo/login")
           && !req.getRequestURI().equals("/api/v1/sso/exchange")
           && !(req.getMethod().equals("POST")
               && req.getRequestURI().equals("/api/v1/enterprises"))) {

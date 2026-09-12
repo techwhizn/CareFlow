@@ -27,6 +27,8 @@ export default function ModelsPage() {
     <div className="notice">此处保存模型连接配置。请在知识库的处理与查询配置中选择模型并发布配置；保存模型档案不会自动切换已发布配置。</div>
     <ErrorNote error={error || profiles.error || policy.error} />
     {notice && <div className="notice" role="status">{notice}</div>}
+    <details className="model-config" open>
+    <summary>{form.id ? "编辑模型配置" : "新增模型配置"}</summary>
     <form className="query-panel model-profile-form" onSubmit={async event => {
       event.preventDefault(); setBusy(true); setError(""); setNotice("");
       const body = {...form, dimensions: form.kind === "EMBEDDING" ? Number(form.dimensions) : null,
@@ -61,6 +63,7 @@ export default function ModelsPage() {
         <button className="primary" type="submit">{busy ? "保存中…" : "保存配置"}</button>{form.id && <button type="button" onClick={reset}>取消编辑</button>}
       </fieldset>
     </form>
+    </details>
     {busy && <Loading/>}
     <div className="section-title"><h2>已保存配置</h2></div>
     {profiles.loading ? <Loading/> : !profiles.error && profiles.data.length===0 && <p>暂无可见模型配置。</p>}

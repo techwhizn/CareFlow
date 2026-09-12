@@ -13,7 +13,7 @@ export default function DocumentUpload({
 }: {
   knowledgeBaseId: string;
   documentId?: string;
-  onUploaded: () => Promise<void>;
+  onUploaded: (result?: Row) => Promise<void>;
 }) {
   const [items, setItems] = useState<Item[]>([]),
     [selected, setSelected] = useState<File[]>([]);
@@ -63,6 +63,7 @@ export default function DocumentUpload({
     setBusy(true);
     setError("");
     const failed: File[] = [];
+    const uploaded: Row[] = [];
     try {
       for (let i = 0; i < selected.length; i++) {
         if (!items[i]?.quote) continue;
@@ -77,7 +78,8 @@ export default function DocumentUpload({
           ? `/documents/${documentId}/versions`
           : `/knowledge-bases/${knowledgeBaseId}/documents`;
         try {
-          await request(path, { method: "POST", body: data });
+          const result = await request<Row>(path, { method: "POST", body: data });
+          uploaded.push(result);
           update(i, {
             state: "已接收",
             detail: "等待解析；不代表处理完成或已发布",
@@ -88,7 +90,7 @@ export default function DocumentUpload({
         }
       }
       setSelected(failed);
-      await onUploaded();
+      await onUploaded(uploaded[0]);
     } catch (e) {
       setError((e as Error).message);
     } finally {

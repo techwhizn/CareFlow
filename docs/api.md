@@ -13,6 +13,9 @@
 7. `POST /documents/{id}/publications`：携带 version_id 和文档 revision；选择旧版本同样经过当前授权检查。
 8. `POST /retrieval/search`：query、mode（hybrid/semantic/keyword）、limit（1–20，最终证据最多 6）、knowledge_base_ids、可选 application_id/debug。没有授权发布内容返回空证据；依赖故障返回 503。
 9. `POST /answers`：同样请求字段，SSE 事件为 start/status/delta/citations/done/error。消费者必须以 done 为完成标志，连接结束不代表回答完成。
+10. `PUT /knowledge-bases/{id}/state`：将知识库设为 `DELETED`，立即撤销可见性并创建后台清理任务；请求携带当前 revision。应用删除使用 `DELETE /applications/{id}`，服务端会在同一事务中清理应用配置、发布记录、绑定和应用凭证，并写入审计事件。
+11. `GET /tenant` 返回企业名称与修订号；企业所有者或管理员可使用 `PUT /tenant`（提交 `name` 和当前 `revision`）修改名称。服务端使用乐观锁校验并写入审计。
+12. `POST /me/credentials` 允许成员轮换自己的个人凭证；旧的个人凭证立即失效，新 token 只在响应中返回一次并写入审计。应用凭证不能调用此接口。
 
 ## 应用配置
 

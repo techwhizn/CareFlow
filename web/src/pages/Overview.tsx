@@ -41,11 +41,11 @@ export default function Overview({ go }: { go: (p: Page) => void }) {
       </div>
       <ErrorNote error={k.error || j.error} />
       <div className="metrics">
-        <div>
+        <button className="metric-link" onClick={() => go("knowledge")}>
           <p>知识库</p>
           <strong>{k.loading ? "—" : k.data.length}</strong>
           <span>当前可访问</span>
-        </div>
+        </button>
         <div>
           <p>待处理任务</p>
           <strong>
@@ -66,6 +66,29 @@ export default function Overview({ go }: { go: (p: Page) => void }) {
           <span>检查失败阶段与原因</span>
         </div>
       </div>
+      <section className="quick-actions panel">
+        <div>
+          <h2>从这里开始</h2>
+          <p className="muted">用最少步骤完成资料上传、知识整理和问答。</p>
+        </div>
+        <div className="quick-actions-grid">
+          <button onClick={() => go("answers")}>
+            <strong>直接提问</strong>
+            <span>基于已发布知识获取答案</span>
+            <ArrowRight />
+          </button>
+          <button onClick={() => go("knowledge")}>
+            <strong>整理知识库</strong>
+            <span>上传资料并查看处理进度</span>
+            <ArrowRight />
+          </button>
+          <button onClick={() => go("tasks")}>
+            <strong>查看处理任务</strong>
+            <span>了解失败或等待中的任务</span>
+            <ArrowRight />
+          </button>
+        </div>
+      </section>
       <div className="section-title">
         <h2>知识库概览</h2>
         <button className="text-button" onClick={() => go("knowledge")}>

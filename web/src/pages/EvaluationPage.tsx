@@ -53,7 +53,7 @@ export default function EvaluationPage() {
     );
   }
   return (
-    <>
+    <div className="evaluation-page">
       <div className="page-heading">
         <div>
           <h1>测试集与评审</h1>
@@ -398,6 +398,6 @@ export default function EvaluationPage() {
           )}
         </section>
       )}
-    </>
+    </div>
   );
 }

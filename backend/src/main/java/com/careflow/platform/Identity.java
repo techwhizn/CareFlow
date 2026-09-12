@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class Identity {
@@ -22,9 +23,11 @@ public class Identity {
   }
 
   private final Db db;
+  private final String defaultAccessToken;
 
-  public Identity(Db db) {
+  public Identity(Db db, @Value("${careflow.default-access-token:}") String defaultAccessToken) {
     this.db = db;
+    this.defaultAccessToken = defaultAccessToken;
   }
 
   public static String hash(String raw) {
@@ -40,10 +43,24 @@ public class Identity {
   public Actor authenticate(String authorization) {
     if (authorization == null || !authorization.startsWith("Bearer "))
       throw new ApiException(401, "UNAUTHENTICATED", "请提供有效凭证");
+    String supplied = authorization.substring(7);
+    if (defaultAccessToken != null && !defaultAccessToken.isBlank()
+        && MessageDigest.isEqual(hash(supplied).getBytes(StandardCharsets.UTF_8), hash(defaultAccessToken).getBytes(StandardCharsets.UTF_8))) {
+      var owner = db.one("SELECT m.id, m.tenant_id FROM members m WHERE m.role='OWNER' AND m.active=TRUE AND m.removed=FALSE ORDER BY m.tenant_id,m.id LIMIT 1");
+      if (owner != null) {
+        String tenant = Db.str(owner, "tenant_id"), subject = Db.str(owner, "id");
+        var existing = db.list("SELECT active FROM credentials WHERE digest=?", hash(supplied));
+        if (!existing.isEmpty() && !Db.bool(existing.getFirst(), "active"))
+          throw new ApiException(401, "UNAUTHENTICATED", "凭证无效或已失效");
+        if (existing.isEmpty())
+          db.exec("INSERT INTO credentials(id,tenant_id,subject_id,kind,digest,expires_at) VALUES(?,?,?,?,?,NULL)", Db.id(), tenant, subject, "MEMBER", hash(supplied));
+        return new Actor(tenant, subject, "MEMBER", "OWNER");
+      }
+    }
     var rows =
         db.list(
             "SELECT * FROM credentials WHERE digest=? AND active=TRUE AND (expires_at IS NULL OR expires_at>CURRENT_TIMESTAMP)",
-            hash(authorization.substring(7)));
+            hash(supplied));
     if (rows.isEmpty()) throw new ApiException(401, "UNAUTHENTICATED", "凭证无效或已失效");
     var c = rows.getFirst();
     String t = Db.str(c, "tenant_id"), s = Db.str(c, "subject_id"), kind = Db.str(c, "kind");
@@ -188,6 +205,14 @@ public class Identity {
         kind,
         hash(raw),
         expires);
+    return raw;
+  }
+
+  public String credential(String raw, String tenant, String subject, String kind, java.sql.Timestamp expires) {
+    if (raw == null || raw.length() < 32) throw new IllegalArgumentException("credential too short");
+    db.exec(
+        "INSERT INTO credentials(id,tenant_id,subject_id,kind,digest,expires_at) VALUES(?,?,?,?,?,?)",
+        Db.id(), tenant, subject, kind, hash(raw), expires);
     return raw;
   }
 }

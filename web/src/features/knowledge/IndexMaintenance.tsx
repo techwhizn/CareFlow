@@ -42,7 +42,7 @@ export default function IndexMaintenance({
     : undefined;
   const ready = version.state === "READY" && !!version.configuration_id;
   return (
-    <section>
+    <section className="index-maintenance">
       <h2>索引核对与重建</h2>
       <p>
         当前代际：
@@ -75,7 +75,7 @@ export default function IndexMaintenance({
           刷新索引记录
         </button>
       </div>
-      <form
+      <form className="index-rebuild-form"
         onSubmit={(event) => {
           event.preventDefault();
           void action(async () => {
@@ -105,7 +105,7 @@ export default function IndexMaintenance({
         <Loading />
       ) : (
         report && (
-          <p role="status">
+          <p className="index-report" role="status">
             最近核对 {new Date(latest.created_at).toLocaleString()}（
             {latest.generation_id ===
               (version.active_index_generation ?? null) &&

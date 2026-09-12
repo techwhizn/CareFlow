@@ -167,16 +167,13 @@ export default function AnswerPage() {
               <small>查询配置不同的知识库，请分别选择后提问。</small>
             </label>
             <ErrorNote error={knowledge.error} />
-            <RelevanceThreshold
-              value={minimumScore}
-              onChange={setMinimumScore}
-              disabled={busy}
-            />
-            <MetadataFilterEditor
-              value={filters}
-              onChange={setFilters}
-              disabled={busy}
-            />
+            <details className="search-advanced">
+              <summary>高级筛选（可选）</summary>
+              <div className="search-advanced-body">
+                <RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
+                <MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
+              </div>
+            </details>
             <label>
               向知识库提问
               <textarea

@@ -46,6 +46,11 @@ public class ApplicationController {
     return service.app(actor, body);
   }
 
+  @DeleteMapping("/applications/{id}")
+  public void delete(@RequestAttribute Actor actor, @PathVariable String id) {
+    service.delete(actor, id);
+  }
+
   @GetMapping("/applications/{id}/bindings")
   public Object bindings(@RequestAttribute Actor actor, @PathVariable String id) {
     return service.bindings(actor, id);

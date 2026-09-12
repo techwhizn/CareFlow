@@ -3,10 +3,22 @@ package com.careflow.platform;
 import static com.careflow.platform.Db.str;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /** Applies evidence limits only to candidates already authorized by RetrievalService. */
 public final class EvidenceSelection {
   private EvidenceSelection() {}
+
+  private static final Pattern EXPLICIT_TERM = Pattern.compile("[A-Za-z][A-Za-z0-9+#.-]{1,}");
+
+  /** Extracts technology/product terms whose absence is strong evidence of a mismatch. */
+  public static Set<String> explicitTerms(String query) {
+    if (query == null || query.isBlank()) return Set.of();
+    var terms = new LinkedHashSet<String>();
+    var matcher = EXPLICIT_TERM.matcher(query);
+    while (matcher.find()) terms.add(matcher.group().toLowerCase(Locale.ROOT));
+    return Set.copyOf(terms);
+  }
 
   public record Exclusion(String id, String reason) {}
 
@@ -28,6 +40,17 @@ public final class EvidenceSelection {
       Double minimumScore,
       boolean degraded,
       boolean debug) {
+    return select(authorized, ranked, limit, minimumScore, degraded, debug, Set.of());
+  }
+
+  public static Selection select(
+      Map<String, Map<String, Object>> authorized,
+      List<Map<String, Object>> ranked,
+      int limit,
+      Double minimumScore,
+      boolean degraded,
+      boolean debug,
+      Set<String> explicitTerms) {
     List<Map<String, Object>> result = new ArrayList<>();
     List<Exclusion> excluded = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
@@ -45,6 +68,12 @@ public final class EvidenceSelection {
       if (minimumScore != null) {
         if (degraded || score == null || !Double.isFinite(score)) reason = "SCORE_UNAVAILABLE";
         else if (score < minimumScore) reason = "BELOW_MINIMUM_SCORE";
+      }
+      if (reason == null && !explicitTerms.isEmpty()) {
+        String searchable =
+            (str(candidate, "title") + " " + str(candidate, "content")).toLowerCase(Locale.ROOT);
+        if (explicitTerms.stream().anyMatch(term -> !searchable.contains(term)))
+          reason = "EXPLICIT_TERM_MISMATCH";
       }
       String document = str(candidate, "document_id");
       List<?> originalParts =

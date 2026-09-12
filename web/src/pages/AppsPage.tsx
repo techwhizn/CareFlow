@@ -1,7 +1,7 @@
-import { PlugsConnected, Plus } from "@phosphor-icons/react";
+import { ArrowRight, PlugsConnected, Plus } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Row } from "../api";
-import { post } from "../api";
+import { post, request } from "../api";
 import { Badge, Dialog, Empty, ErrorNote, useData } from "../ui";
 import ApplicationEditor from "../features/applications/ApplicationEditor";
 
@@ -12,7 +12,8 @@ export default function AppsPage() {
     models = useData<Row[]>("/applications/model-options", []);
   const [creating, setCreating] = useState(false),
     [selected, setSelected] = useState<Row | null>(null),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false);
   return (
     <>
       <div className="page-heading">
@@ -35,20 +36,25 @@ export default function AppsPage() {
       ) : (
         <div className="kb-grid">
           {apps.data.map((app) => (
-            <button
-              key={app.id}
-              className="kb-card"
-              onClick={() => setSelected(app)}
-            >
+            <div className="kb-card-wrap" key={app.id}><button className="kb-card" onClick={() => setSelected(app)}>
+              <div className="kb-icon"><PlugsConnected size={22} /></div>
               <Badge value={app.published ? "已发布" : "草稿"} />
               <h3>{app.name}</h3>
               <p>{app.description || "知识问答应用"}</p>
-              <small>
+              <small className="app-owner">
                 负责人：
                 {owners.data.find((o) => o.id === app.owner_id)?.name ||
                   "待配置"}
               </small>
-            </button>
+              <footer>打开应用<ArrowRight /></footer>
+            </button><button className="kb-delete" disabled={busy} onClick={async event => {
+              event.stopPropagation();
+              if (!window.confirm(`确认删除应用“${app.name}”？已签发的 API Key 将失效，应用将停止访问。`)) return;
+              setBusy(true); setError("");
+              try { await request(`/applications/${app.id}`, { method: "DELETE" }); await apps.reload(); }
+              catch (e) { setError((e as Error).message); }
+              finally { setBusy(false); }
+            }}>删除应用</button></div>
           ))}
         </div>
       )}

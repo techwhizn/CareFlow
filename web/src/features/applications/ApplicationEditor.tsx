@@ -148,7 +148,9 @@ export default function ApplicationEditor({
           ))}
         </select>
       </label>
-      <label>
+      <details className="application-advanced">
+        <summary>高级配置（可选）</summary>
+      <label className="application-check">
         <input
           type="checkbox"
           checked={custom}
@@ -187,7 +189,7 @@ export default function ApplicationEditor({
           </label>
         </>
       )}
-      <label>
+      <label className="application-check">
         <input
           type="checkbox"
           checked={degraded}
@@ -267,6 +269,7 @@ export default function ApplicationEditor({
           />
         </label>
       ))}
+      </details>
       {!loaded && app.published && (
         <p className="notice">
           尚未载入当前配置；填写表单后将保存新的完整配置。
@@ -308,6 +311,8 @@ export default function ApplicationEditor({
           发布新配置
         </button>
       </div>
+      <details className="application-advanced">
+        <summary>版本、用量与访问凭证</summary>
       <h3>配置版本</h3>
       {configs.data.map((c) => (
         <div key={c.id} className="section-title">
@@ -363,6 +368,7 @@ export default function ApplicationEditor({
           <textarea readOnly value={secret} />
         </label>
       )}
+      </details>
     </>
   );
 }

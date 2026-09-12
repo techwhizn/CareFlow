@@ -104,6 +104,18 @@ public class ApplicationService {
     return Map.of("id", app);
   }
 
+  @Transactional
+  public void delete(Actor actor, String id) {
+    auth.developer(actor);
+    appOwned(actor, id);
+    db.exec("DELETE FROM application_publications WHERE tenant_id=? AND application_id=?", actor.tenant(), id);
+    db.exec("DELETE FROM application_configurations WHERE tenant_id=? AND application_id=?", actor.tenant(), id);
+    db.exec("DELETE FROM application_bindings WHERE tenant_id=? AND application_id=?", actor.tenant(), id);
+    db.exec("DELETE FROM credentials WHERE tenant_id=? AND subject_id=? AND kind='APP'", actor.tenant(), id);
+    db.exec("DELETE FROM applications WHERE tenant_id=? AND id=?", actor.tenant(), id);
+    auth.audit(actor, "APP_DELETE", id, "");
+  }
+
   public Object bindings(Actor actor, String id) {
     auth.developer(actor);
     appOwned(actor, id);

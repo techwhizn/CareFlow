@@ -9,6 +9,7 @@ import type { Page } from "./navigation";
 import { nav } from "./navigation";
 import AdminPage from "./pages/AdminPage";
 import AnswerPage from "./pages/AnswerPage";
+import QuickAnswerPage from "./pages/QuickAnswerPage";
 import AppsPage from "./pages/AppsPage";
 import Knowledge from "./pages/Knowledge";
 import ModelsPage from "./pages/ModelsPage";
@@ -18,12 +19,24 @@ import SearchPage from "./pages/SearchPage";
 import TasksPage from "./pages/TasksPage";
 import OperationsPage from "./pages/OperationsPage";
 import "./styles.css";
-import { ErrorNote, Loading } from "./ui";
+import { Dialog, ErrorNote, Loading } from "./ui";
 function App() {
   const [logged, setLogged] = useState(!!getToken()),
-    [page, setPage] = useState<Page>("overview"),
+    [page, setPage] = useState<Page>("answers"),
     [me, setMe] = useState<Row | null>(null),
-    [connectionError, setConnectionError] = useState("");
+    [connectionError, setConnectionError] = useState(""),
+    [newCredential, setNewCredential] = useState("");
+  async function rotateCredential() {
+    if (!window.confirm("更换后当前凭证会立即失效，确认继续？")) return;
+    try {
+      const result = await request<{ token: string }>("/me/credentials", { method: "POST" });
+      setToken(result.token);
+      setNewCredential(result.token);
+      setMe((current) => current ? { ...current, default_credential: false } : current);
+    } catch (error) {
+      setConnectionError((error as Error).message);
+    }
+  }
   useEffect(() => {
     if (logged)
       request("/me")
@@ -39,11 +52,13 @@ function App() {
         });
   }, [logged]);
   if (!logged) return <Login done={() => setLogged(true)} />;
-  const visibleNav = nav.filter((item) =>
-    me?.role === "OPS"
-      ? item.id === "operations"
-      : item.id !== "operations" || ["OWNER", "ADMIN"].includes(me?.role),
-  );
+  const adminPages = new Set(["usage", "members", "models", "audit", "settings"]);
+  const visibleNav = nav.filter((item) => {
+    if (me?.role === "OPS") return item.id === "operations";
+    if (item.id === "operations") return ["OWNER", "ADMIN"].includes(me?.role || "");
+    if (adminPages.has(item.id)) return ["OWNER", "ADMIN"].includes(me?.role || "");
+    return true;
+  });
   const effectivePage = me?.role === "OPS" ? "operations" : page;
   return (
     <div className="app">
@@ -53,7 +68,7 @@ function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            setPage("overview");
+            setPage("answers");
           }}
         >
           <div>
@@ -111,6 +126,7 @@ function App() {
             </div>
             <SignOut size={20} />
           </button>
+          <button className="text-button" onClick={() => void rotateCredential()}>更换我的访问凭证</button>
         </div>
       </aside>
       <div className="main-shell">
@@ -127,6 +143,13 @@ function App() {
         </header>
         <main className="main-content" key={effectivePage}>
           <ErrorNote error={connectionError} />
+          {me?.default_credential && effectivePage !== "members" && (
+            <div className="security-banner" role="alert">
+              <strong>当前使用的是默认访问凭证，存在安全风险。</strong>
+              <span>请立即签发新的个人凭证并撤销默认凭证。</span>
+              <button className="text-button" onClick={() => void rotateCredential()}>立即更换</button>
+            </div>
+          )}
           {!me ? (
             <Loading />
           ) : effectivePage === "improvements" ? (
@@ -145,6 +168,8 @@ function App() {
             <TasksPage />
           ) : page === "search" ? (
             <SearchPage />
+          ) : page === "quick-answer" ? (
+            <QuickAnswerPage />
           ) : page === "answers" ? (
             <AnswerPage />
           ) : page === "apps" ? (
@@ -157,6 +182,10 @@ function App() {
           CareFlow · 独立知识底座<span>草稿经审核与发布后才参与检索</span>
         </footer>
       </div>
+      {newCredential && <Dialog title="新的访问凭证" close={() => setNewCredential("")}>
+        <p>旧凭证已立即失效。请复制并安全保存；关闭后不会再次显示。</p>
+        <textarea readOnly value={newCredential} aria-label="新的访问凭证" />
+      </Dialog>}
     </div>
   );
 }

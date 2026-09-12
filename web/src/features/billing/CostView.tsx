@@ -36,7 +36,7 @@ export function CostView({ quote }: { quote: Row }) {
 export function ExecutionCost({ path }: { path: string }) {
   const cost = useData<Row | null>(path, null);
   return (
-    <section>
+    <section className="cost-panel">
       <h3>成本核算</h3>
       <ErrorNote error={cost.error} />
       {cost.data && <CostView quote={cost.data} />}

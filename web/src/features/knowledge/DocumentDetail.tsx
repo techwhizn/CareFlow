@@ -44,19 +44,21 @@ function DocumentFlow({
   busy,
   action,
   afterPublish,
+  autoStart = true,
 }: {
   doc: Row;
   version?: Row;
   busy: boolean;
   action: (fn: () => Promise<unknown>) => Promise<void>;
   afterPublish: () => void;
+  autoStart?: boolean;
 }) {
   const [oneClick, setOneClick] = useState(false);
   const state = flowState(version);
-  const canOneClick = !!version?.configuration_id && ["PARSED", "FAILED"].includes(version.state);
-  async function indexAndPublish() {
+  const canOneClick = !!version?.configuration_id && version.state === "PARSED";
+  async function indexAndPublish(automatic = false) {
     if (!version || !canOneClick || oneClick) return;
-    if (!window.confirm("将建立索引，等待处理完成后发布当前版本。是否继续？")) return;
+    if (!automatic && !window.confirm("将建立索引，等待处理完成后发布当前版本。是否继续？")) return;
     setOneClick(true);
     try {
       await action(async () => {
@@ -83,12 +85,15 @@ function DocumentFlow({
       setOneClick(false);
     }
   }
+  useEffect(() => {
+    if (autoStart && canOneClick && !oneClick) void indexAndPublish(true);
+  }, [autoStart, canOneClick, oneClick, version?.id]);
   return <section className="document-flow panel">
     <div className="document-flow-head">
       <div><h2>文档生效流程</h2><p>按顺序完成后，内容才会进入查询和问答。</p></div>
       <div className="flow-actions">
         {state === "REVIEW" && <button className="flow-secondary" onClick={() => document.getElementById("chunk-source-preview")?.scrollIntoView({ behavior: "smooth", block: "start" })}>审核切片</button>}
-        {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在自动处理…" : "一键自动处理并发布"}</button>}
+        {canOneClick && <button className="primary flow-action" disabled={busy || oneClick} onClick={() => void indexAndPublish()}>{oneClick ? "正在自动处理…" : "自动处理并发布"}</button>}
       </div>
     </div>
     <div className="document-flow-steps" aria-label="文档处理流程">
@@ -142,6 +147,12 @@ export default function DocumentDetail({
     }
   }
   const current = versions.data.find((version) => version.id === active?.id);
+  useEffect(() => {
+    if (!current || current.ever_published || ["READY", "FAILED"].includes(current.state)) return;
+    const timer = window.setInterval(() => void versions.reload(), 3000);
+    return () => window.clearInterval(timer);
+  }, [current?.id, current?.state, current?.ever_published]);
+  const processing = !!current && !current.ever_published && !["READY", "FAILED"].includes(current.state);
   return (
     <>
       <button className="back" onClick={back}>
@@ -165,6 +176,12 @@ export default function DocumentDetail({
         </div>
       </div>
       <ErrorNote error={error || versions.error} />
+      {processing && (
+        <div className="notice processing-notice" role="status" aria-live="polite">
+          <strong>正在处理此文档</strong>
+          <span>当前阶段：{stateNames[current!.state] || current!.state}。页面会自动更新，无需手动刷新。</span>
+        </div>
+      )}
       <DocumentMetadata id={doc.id} onSaved={back} />
       <div className="version-bar">
         <label>
@@ -282,17 +299,23 @@ export default function DocumentDetail({
         )
       )}
       {current && (
-        <IndexMaintenance
-          key={`${current.id}:${refreshEpoch}`}
-          version={current}
-          busy={busy}
-          action={action}
-        />
+        <details className="document-maintenance">
+          <summary>索引维护与一致性核对</summary>
+          <IndexMaintenance
+            key={`${current.id}:${refreshEpoch}`}
+            version={current}
+            busy={busy}
+            action={action}
+          />
+        </details>
       )}
-      <PublicationHistory
-        key={`${doc.id}:${refreshEpoch}`}
-        documentId={doc.id}
-      />
+      <details className="document-maintenance">
+        <summary>发布历史</summary>
+        <PublicationHistory
+          key={`${doc.id}:${refreshEpoch}`}
+          documentId={doc.id}
+        />
+      </details>
       <div className="danger-area">
         <div>
           <b>删除文档</b>

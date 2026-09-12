@@ -41,13 +41,8 @@ export default function TasksPage() {
               <tr>
                 <th>任务</th>
                 <th>阶段</th>
-                <th>最后检查点</th>
-                <th>最近心跳</th>
                 <th>状态</th>
-                <th>尝试次数</th>
-                <th>索引与用量</th>
-                <th>等待原因</th>
-                <th>错误类型</th>
+                <th>进度信息</th>
                 <th />
               </tr>
             </thead>
@@ -61,74 +56,22 @@ export default function TasksPage() {
                     {j.kind === "PARSE" ? "文档解析与切片" : "向量化与索引"}
                   </td>
                   <td>
-                    {(
-                      {
-                        QUEUED: "排队",
-                        STARTED: "已领取",
-                        SOURCE_READY: "原文件已读取",
-                        PARSED: "解析完成",
-                        INDEXING: "索引处理中",
-                        INDEX_VERIFIED: "索引已验证",
-                        DONE: "已完成",
-                      } as Record<string, string>
-                    )[j.checkpoint] || j.checkpoint}
-                  </td>
-                  <td>
-                    {j.heartbeat_at
-                      ? new Date(j.heartbeat_at).toLocaleString()
-                      : "—"}
-                  </td>
-                  <td>
                     <Badge value={j.state} />
                   </td>
-                  <td>{j.attempts} / 3</td>
                   <td>
-                    {j.ocr_usage && (
-                      <div>
-                        OCR 完成 {j.ocr_usage.completed_pages} 页 · 失败{" "}
-                        {j.ocr_usage.failed_pages} 页 · 处理中或结果未知{" "}
-                        {j.ocr_usage.uncertain_pages} 页（新计量启用后记录）
+                    <div>{j.checkpoint || "等待开始"}</div>
+                    <small className="task-meta">{j.state === "QUEUED" ? (j.wait_reason || "等待处理器领取") : j.error_code || (j.heartbeat_at ? `最近更新 ${new Date(j.heartbeat_at).toLocaleString()}` : `第 ${j.attempts || 0} 次尝试`)}</small>
+                    <details className="task-details">
+                      <summary>查看详细信息</summary>
+                      <div className="task-details-body">
+                        <span>检查点：{j.checkpoint || "—"}</span>
+                        <span>尝试次数：{j.attempts || 0} / 3</span>
+                        {j.indexed_chunks != null && <span>索引切片：{j.indexed_chunks}（新算 {j.embedded_texts}，复用 {j.reused_chunks}）</span>}
+                        {j.ocr_usage && <span>OCR：完成 {j.ocr_usage.completed_pages} 页，失败 {j.ocr_usage.failed_pages} 页</span>}
+                        {j.index_usage && <span>Embedding：{j.index_usage.known_embedding_tokens} Token，调用 {j.index_usage.model_calls} 次</span>}
                       </div>
-                    )}
-                    {j.indexed_chunks != null && (
-                      <div>
-                        共 {j.indexed_chunks} 片 · 新算 {j.embedded_texts} ·
-                        复用 {j.reused_chunks}
-                      </div>
-                    )}
-                    {j.index_usage &&
-                    (j.index_usage.model_calls > 0 ||
-                      j.indexed_chunks != null) ? (
-                      <>
-                        <div>
-                          已知 Embedding：{j.index_usage.known_embedding_tokens}{" "}
-                          Token
-                        </div>
-                        <small>
-                          {j.index_usage.model_calls} 次调用（含重试）
-                          {j.index_usage.unknown_usage_calls > 0
-                            ? ` · ${j.index_usage.unknown_usage_calls} 次用量未知或待回报`
-                            : ""}
-                        </small>
-                      </>
-                    ) : (
-                      "—"
-                    )}
+                    </details>
                   </td>
-                  <td>
-                    {j.state === "QUEUED"
-                      ? (
-                          {
-                            TENANT_NOTIFICATION_PENDING:
-                              "等待本企业前序任务领取",
-                            ENTITLEMENT_INACTIVE: "套餐未生效或已停用",
-                            TASK_QUOTA_OR_CONCURRENCY: "等待处理额度或并发名额",
-                            WAITING_FOR_WORKER: "已通知，等待处理器领取",
-                          } as Record<string, string>
-                        )[j.wait_reason] || "等待公平调度"
-                      : "—"}
-                  </td>
-                  <td>{j.error_code || "—"}</td>
                   <td>
                     <button onClick={() => setCostId(j.id)}>成本核算</button>
                     {["QUEUED", "RUNNING"].includes(j.state) && (

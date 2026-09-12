@@ -39,6 +39,7 @@ export default function ChunkWorkspace({
     chunks = useData<Row[]>(knowledgePaths.chunks(version.id, page), []),
     [selected, setSelected] = useState<Row | null>(null),
     [pendingSelection, setPendingSelection] = useState<string | null>(null),
+    [issueLabel, setIssueLabel] = useState(""),
     [edit, setEdit] = useState(""),
     [reason, setReason] = useState(""),
     [editing, setEditing] = useState(false),
@@ -54,6 +55,12 @@ export default function ChunkWorkspace({
     );
     if (requested) setPendingSelection(null);
   }, [chunks.data, pendingSelection]);
+  useEffect(() => {
+    if (!selected) return;
+    window.requestAnimationFrame(() => {
+      document.getElementById("chunk-source-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [selected?.id]);
   const location = selected ? sourceLocation(selected.location) : {};
   return (
     <>
@@ -116,23 +123,22 @@ export default function ChunkWorkspace({
       </div>
       <ErrorNote error={chunks.error} />
       {!version.ever_published && (
-        <ContentConflicts
-          key={`conflicts:${version.id}:${version.revision}`}
-          version={version}
-          saved={async () => {
-            await chunks.reload();
-            await action(async () => {});
-          }}
-        />
+        <details className="chunk-tools-panel">
+          <summary>内容冲突处理（有冲突时展开）</summary>
+          <ContentConflicts
+            key={`conflicts:${version.id}:${version.revision}`}
+            version={version}
+            saved={async () => {
+              await chunks.reload();
+              await action(async () => {});
+            }}
+          />
+        </details>
       )}
-      <QualityPanel
-        key={`${version.id}:${version.revision}`}
-        versionId={version.id}
-        select={(target, id) => {
-          setPendingSelection(id);
-          setPage(target);
-        }}
-      />
+      <details className="chunk-tools-panel" open>
+        <summary>切片质量检查</summary>
+        <QualityPanel key={`${version.id}:${version.revision}`} versionId={version.id} />
+      </details>
       {typeof location.warning === "string" && location.warning && (
         <div className="notice" role="note">
           解析质量提示：{location.warning}
@@ -153,7 +159,8 @@ export default function ChunkWorkspace({
           <div className="source-pane" id="chunk-source-preview">
             <header>
               <FileText />
-              来源原文<span>选中切片对应内容</span>
+              {issueLabel && <span className="source-issue">{issueLabel}</span>}
+              来源原文{selected && <span className="source-current">已定位 · 切片 {page * 100 + chunks.data.findIndex((item) => item.id === selected.id) + 1}</span>}
             </header>
             {selected && (
               <>
@@ -175,6 +182,7 @@ export default function ChunkWorkspace({
                   className={`chunk-card ${selected?.id === c.id ? "selected" : ""}`}
                   onClick={() => {
                     setSelected(c);
+                    setIssueLabel("");
                     setEditing(false);
                   }}
                 >

@@ -14,6 +14,6 @@ export default function PublicationHistory({documentId}:{documentId:string}) {
         <td>{row.previous_version || "未记录"}</td><td>{row.actor_id}</td>
       </tr>)}</tbody>
     </table></div>}
-    <p>展示最近100条有权访问的记录；回滚也是一次新发布，不恢复历史权限。</p>
+    <p className="publication-note">展示最近100条有权访问的记录；回滚也是一次新发布，不恢复历史权限。</p>
   </section>;
 }

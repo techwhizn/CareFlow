@@ -32,7 +32,7 @@ export default function CleanupRequests() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   return (
-    <section>
+    <section className="cleanup-panel">
       <h2>数据清理记录</h2>
       <p>
         删除后立即停止访问；清理任务按阶段移除索引、独占缓存、原文件和正文副本。最近100条记录按当前身份权限展示。

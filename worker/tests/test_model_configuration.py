@@ -70,6 +70,20 @@ def test_nested_context_restores_outer_model(monkeypatch):
         assert value("RERANK_MODEL") == "deployment-rerank"
 
 
+def test_docker_host_alias_rewrites_local_model_endpoint_without_changing_identity(
+    monkeypatch,
+):
+    monkeypatch.setenv("MODEL_HOST_ALIAS", "host.docker.internal")
+    config = configuration()
+    config = config.model_copy(update={"base_url": "http://localhost:8092/v1"})
+    with use_configuration(config):
+        url, _, _ = models.endpoint("EMBEDDING", "/embeddings")
+    assert url == "http://host.docker.internal:8092/v1/embeddings"
+    assert config.identity() == models.embedding_identity(
+        "http://localhost:8092/v1", config.model, config.revision, str(config.dimensions)
+    )
+
+
 @pytest.mark.parametrize(
     "url",
     [

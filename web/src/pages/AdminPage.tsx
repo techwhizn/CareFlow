@@ -12,7 +12,7 @@ import { nav } from "../navigation";
 import { DataTable, Dialog, ErrorNote, Loading, useData } from "../ui";
 export default function AdminPage({ page }: { page: Page }) {
   const path =
-      page === "usage" ? "/usage" : page === "members" ? "/members" : "/audit",
+      page === "usage" ? "/usage" : page === "members" ? "/members" : page === "settings" ? "/tenant" : "/audit",
     data = useData<any>(path, page === "usage" ? null : []),
     keys = useData<Row[]>("/credentials", []),
     [error, setError] = useState(""),
@@ -29,6 +29,8 @@ export default function AdminPage({ page }: { page: Page }) {
               ? "查询已结算用量与额度预占，调整均保留审计。"
               : page === "members"
                 ? "管理企业成员与访问凭证。"
+                : page === "settings"
+                  ? "维护企业名称。修改会立即同步到工作空间，并记录在审计日志中。"
                 : "跟踪关键资源与权限变更。"}
           </p>
         </div>
@@ -42,6 +44,25 @@ export default function AdminPage({ page }: { page: Page }) {
       <ErrorNote error={error || data.error} />
       {data.loading ? (
         <Loading />
+      ) : page === "settings" && data.data ? (
+        <form className="query-panel" onSubmit={async (event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          setError("");
+          try {
+            await put("/tenant", { name: form.get("name"), revision: data.data.revision });
+            await data.reload();
+          } catch (e) {
+            setError((e as Error).message);
+          }
+        }}>
+          <fieldset>
+            <legend>企业信息</legend>
+            <label>企业名称<input name="name" defaultValue={data.data.name} maxLength={200} required /></label>
+            <p className="muted">企业名称会显示在工作空间和登录后的导航区域。名称修改不影响成员、知识库或应用权限。</p>
+            <button className="primary" type="submit">保存企业设置</button>
+          </fieldset>
+        </form>
       ) : page === "usage" && data.data ? (
         <>
           <div className="metrics">
@@ -80,7 +101,7 @@ export default function AdminPage({ page }: { page: Page }) {
               !r.removed ? (
                 <>
                   <button onClick={() => setEditing(r)}>编辑</button>
-                  {r.active && (
+                      {r.active && (
                     <button
                       onClick={async () => {
                         try {
@@ -96,7 +117,7 @@ export default function AdminPage({ page }: { page: Page }) {
                     >
                       签发新凭证
                     </button>
-                  )}
+                      )}
                 </>
               ) : null
             }

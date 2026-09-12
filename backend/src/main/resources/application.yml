@@ -20,6 +20,7 @@ spring:
     publisher-returns: true
 careflow:
   bootstrap-token: ${BOOTSTRAP_TOKEN:}
+  default-access-token: ${DEFAULT_ACCESS_TOKEN:}
   demo-auth-enabled: ${DEMO_AUTH_ENABLED:false}
   internal-token: ${INTERNAL_TOKEN:}
   worker-url: ${WORKER_URL:http://localhost:8090}

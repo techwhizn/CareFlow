@@ -75,11 +75,8 @@ export default function Knowledge() {
           {k.data
             .filter((x) => x.name.includes(filter))
             .map((x) => (
-              <button
-                className="kb-card"
-                key={x.id}
-                onClick={() => setSelected(x)}
-              >
+              <div className="kb-card-wrap" key={x.id}>
+              <button className="kb-card" onClick={() => setSelected(x)}>
                 <div className="kb-icon">
                   <Books size={24} />
                 </div>
@@ -91,6 +88,15 @@ export default function Knowledge() {
                   <ArrowRight />
                 </footer>
               </button>
+              <button className="kb-delete" onClick={async (event) => {
+                event.stopPropagation();
+                if (!window.confirm(`确认删除知识库“${x.name}”？其中的文档、索引和历史答案将停止访问并进入清理流程。`)) return;
+                setBusy(true); setError("");
+                try { await knowledgeClient.removeKnowledgeBase(x.id, x.revision); await k.reload(); }
+                catch (e) { setError((e as Error).message); }
+                finally { setBusy(false); }
+              }} disabled={busy}>删除知识库</button>
+              </div>
             ))}
         </div>
       )}

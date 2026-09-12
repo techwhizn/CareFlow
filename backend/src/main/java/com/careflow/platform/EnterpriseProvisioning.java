@@ -19,12 +19,17 @@ public class EnterpriseProvisioning {
   private final Db db;
   private final Identity auth;
   private final String bootstrap;
+  private final String defaultAccessToken;
 
   public EnterpriseProvisioning(
-      Db db, Identity auth, @Value("${careflow.bootstrap-token}") String bootstrap) {
+      Db db,
+      Identity auth,
+      @Value("${careflow.bootstrap-token}") String bootstrap,
+      @Value("${careflow.default-access-token:}") String defaultAccessToken) {
     this.db = db;
     this.auth = auth;
     this.bootstrap = bootstrap;
+    this.defaultAccessToken = defaultAccessToken;
   }
 
   @Transactional
@@ -50,12 +55,16 @@ public class EnterpriseProvisioning {
         "ENTERPRISE_PROVISION",
         tenant,
         "deployment_operator");
+    String ownerToken = defaultAccessToken == null || defaultAccessToken.length() < 32
+        || !db.list("SELECT id FROM credentials WHERE digest=?", Identity.hash(defaultAccessToken)).isEmpty()
+        ? auth.credential(tenant, owner, "MEMBER", null)
+        : auth.credential(defaultAccessToken, tenant, owner, "MEMBER", null);
     return Map.of(
         "tenant_id",
         tenant,
         "member_id",
         owner,
         "token",
-        auth.credential(tenant, owner, "MEMBER", null));
+        ownerToken);
   }
 }

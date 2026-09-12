@@ -8,6 +8,7 @@ export const knowledgePaths = {
 };
 export const knowledgeClient = {
   create: (input: { name: FormDataEntryValue | null; description: FormDataEntryValue | null }) => post(knowledgePaths.list, input),
+  removeKnowledgeBase: (id: string, revision: number) => put(`/knowledge-bases/${id}/state`, { status: "DELETED", revision }),
   uploadVersion: (id: string, file: FormData) => request(knowledgePaths.versions(id), { method: "POST", body: file }),
   removeDocument: (id: string, revision: number) => request(`/documents/${id}?revision=${revision}`, { method: "DELETE" }),
   download: downloadSource,

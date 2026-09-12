@@ -8,11 +8,14 @@ import KnowledgeOverview from "../../components/KnowledgeOverview";
 import KnowledgeLifecycle from "../../components/KnowledgeLifecycle";
 import DocumentDetail from "./DocumentDetail";
 import ConfigurationVersions from "./ConfigurationVersions";
-import { knowledgePaths } from "./client";
+import { knowledgeClient, knowledgePaths } from "./client";
+import { request } from "../../api";
 export default function KnowledgeDetail({ kb, back }: { kb: Row; back: () => void }) {
   const [page, setPage] = useState(0),
     [doc, setDoc] = useState<Row | null>(null),
-    [acl, setAcl] = useState(false);
+    [acl, setAcl] = useState(false),
+    [actionError, setActionError] = useState(""),
+    [busy, setBusy] = useState(false);
   const docs = useData<Row[]>(
     knowledgePaths.documents(kb.id, page),
     [],
@@ -47,14 +50,24 @@ export default function KnowledgeDetail({ kb, back }: { kb: Row; back: () => voi
         </button>
       </div>
       <KnowledgeOverview id={kb.id} onSaved={back} />
-      <KnowledgeLifecycle id={kb.id} onChanged={back} />
-      <ConfigurationVersions kb={kb.id} />
+      <details className="knowledge-settings">
+        <summary>知识库设置与处理配置</summary>
+        <KnowledgeLifecycle id={kb.id} onChanged={back} />
+        <ConfigurationVersions kb={kb.id} />
+      </details>
       <div className="tabs">
         <button className="active">文档</button>
         <span>上传 → 解析 → 审核切片 → 索引 → 发布</span>
       </div>
-      <ErrorNote error={docs.error} />
-      <DocumentUpload knowledgeBaseId={kb.id} onUploaded={docs.reload} />
+      <ErrorNote error={docs.error || actionError} />
+      <DocumentUpload knowledgeBaseId={kb.id} onUploaded={async (result) => {
+        await docs.reload();
+        if (result?.document_id) {
+          const latest = await request<Row[]>(knowledgePaths.documents(kb.id, page));
+          const uploaded = latest.find((item) => item.id === result.document_id);
+          if (uploaded) setDoc(uploaded);
+        }
+      }} />
       <div className="section-title">
         <h2>文档列表</h2>
         <button onClick={() => void docs.reload()}>
@@ -95,10 +108,16 @@ export default function KnowledgeDetail({ kb, back }: { kb: Row; back: () => voi
                   <td>{d.revision}</td>
                   <td>{new Date(d.created_at).toLocaleDateString()}</td>
                   <td>
-                    <button className="text-button" onClick={() => setDoc(d)}>
-                      查看与编辑
-                      <CaretRight />
-                    </button>
+                    <div className="table-actions">
+                      <button className="text-button" onClick={() => setDoc(d)}>查看与编辑 <CaretRight /></button>
+                      <button className="text-button danger-text" disabled={busy} onClick={async () => {
+                        if (!window.confirm(`确认删除文档“${d.title}”？文档、索引和历史答案将停止访问并进入清理流程。`)) return;
+                        setBusy(true); setActionError("");
+                        try { await knowledgeClient.removeDocument(d.id, d.revision); await docs.reload(); }
+                        catch (e) { setActionError((e as Error).message); }
+                        finally { setBusy(false); }
+                      }}>删除</button>
+                    </div>
                   </td>
                 </tr>
               ))}

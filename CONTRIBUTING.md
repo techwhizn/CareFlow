@@ -2,6 +2,10 @@
 
 CareFlow 当前是 0.1 开发增量。开始贡献前阅读 [README](README.md)、[架构](docs/architecture.md)、[质量标准](docs/quality.md) 与 [需求状态](docs/reports/requirements.md)。项目所有者已选择 [Apache-2.0](LICENSE)。贡献按该许可证提供；添加许可证不代表1.0功能或发布验收完成。
 
+## 当前贡献状态
+
+本仓库当前仅用于代码展示和项目内部维护，**暂不接受外部 Pull Request、代码贡献或功能分支提交**。请勿创建 PR 期待合并，也不要向仓库上传凭证、业务资料或未经授权的第三方内容。后续是否开放贡献以及开放范围，由维护者在 README 和治理文档中统一更新。
+
 ## 开发与变更
 
 按 README 安装 Java 21、Python 3.12、uv、Node.js 22 和 Docker Compose。Python 与前端依赖使用锁文件安装。`.env` 由初始化脚本在本机生成，不提交凭证。测试使用合成数据。

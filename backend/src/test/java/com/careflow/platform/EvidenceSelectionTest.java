@@ -67,6 +67,25 @@ class EvidenceSelectionTest {
   }
 
   @Test
+  void explicitTechnologyTermsMustAppearInEvidence() {
+    var candidates = new LinkedHashMap<String, Map<String, Object>>();
+    candidates.put("java", candidate("java", "d", "Java 后端开发经验"));
+    candidates.put("php", candidate("php", "d", "PHP 项目开发经验"));
+    var result =
+        EvidenceSelection.select(
+            candidates,
+            List.of(Map.of("id", "java", "score", .9), Map.of("id", "php", "score", .8)),
+            6,
+            null,
+            false,
+            true,
+            EvidenceSelection.explicitTerms("PHP 好学吗？"));
+    assertThat(result.evidence()).extracting(row -> row.get("id")).containsExactly("php");
+    assertThat(result.excluded())
+        .containsExactly(new EvidenceSelection.Exclusion("java", "EXPLICIT_TERM_MISMATCH"));
+  }
+
+  @Test
   void unavailableScoresCannotPassAnExplicitThreshold() {
     for (Object score : Arrays.asList(null, Double.NaN, Double.POSITIVE_INFINITY, "0.9")) {
       var hit = new HashMap<String, Object>();

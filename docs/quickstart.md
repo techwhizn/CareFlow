@@ -10,13 +10,25 @@
 
 ## 启动
 
+推荐使用一键安装脚本：
+
+```bash
+./scripts/install.sh
+```
+
+脚本会保留已有 `.env`，首次运行时生成本地密钥，构建 `backend`、`worker`、`web` 镜像，并启动 MySQL、RabbitMQ、MinIO、etcd、Milvus 及两个 Worker 容器。Docker 镜像下载需要网络；安装完成后可用 `docker compose ps` 查看健康状态。
+
+如果需要分步执行，也可以使用下面的命令：
+
 ```bash
 python3 scripts/init-local-env.py
 # 编辑 .env，填写模型地址、名称和密钥；不要把 .env 提交到 Git。
 docker compose up -d --build
 ```
 
-打开 <http://localhost:5173>。第一次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN`；项目没有固定默认密钥。可在 macOS 通过 `sed -n 's/^BOOTSTRAP_TOKEN=//p' .env | pbcopy` 安全复制，修改 `.env` 后需要 `docker compose up -d --force-recreate backend`。所有者凭证只显示一次，请通过密码管理器保存。
+`tools/mysql-recovery` 和 `tools/local-models` 是可选工具，不属于默认安装；DeepSeek 通过 API 调用，不需要额外 Docker 镜像。
+
+打开 <http://localhost:5173>。第一次选择“初始化企业”，使用 `.env` 中的 `BOOTSTRAP_TOKEN`；创建成功后页面显示一次性所有者访问凭证，点击“进入工作空间”完成登录。生成环境时可直接运行 `python3 scripts/init-local-env.py --copy-bootstrap-token`，在 macOS、Wayland Linux 或安装了 xclip 的 Linux 上自动复制初始化密钥到剪贴板；已生成过的环境运行 `python3 scripts/copy-bootstrap-token.py` 即可复制，不会在终端显示。`DEFAULT_ACCESS_TOKEN` 仅用于部署管理员通过“开通另一企业”创建额外租户，不用于首个企业初始化。修改 `.env` 后需要 `docker compose up -d --force-recreate backend`。访问凭证只保存在部署机 `.env` 或浏览器会话中，请通过密码管理器保存并按需轮换。
 
 如果企业已经初始化过，不要再次使用初始化入口；请改用所有者或管理员访问凭证登录。初始化接口只允许创建首个企业一次。
 
@@ -24,10 +36,10 @@ docker compose up -d --build
 
 1. 创建知识库并上传 `examples/product-guide.md`。
 2. 在任务中心等待解析完成，打开文档详情核对切片来源。
-3. 点击“建立索引”，等待真实 Embedding 和 Milvus 校验完成。
-4. 点击“发布此版本”；解析或索引完成不会自动发布。
+3. 上传成功后系统默认自动完成解析、索引和发布；在文档详情或任务中心等待真实 Embedding 和 Milvus 校验完成。
+4. 如果自动流程因未配置处理模型、内容冲突或任务失败而停止，修正问题后可在文档流程卡中手动执行“建立索引”和“发布此版本”。
 5. 在检索调试台查询 `CF-100 报 E404 怎么处理`，检查命中证据和来源。
-6. 在问答页查看流式回答、引用和用量。
+6. 在“知识库问答”页查看流式回答、引用、历史记录和用量；如需评价答案，可在回答下方提交反馈。
 
 ## 模型配置
 

@@ -45,7 +45,7 @@ export default function SearchPage() {
         </div>
       </div>
       <form
-        className="query-panel"
+        className="query-panel search-panel"
         onSubmit={async (e) => {
           e.preventDefault();
           setBusy(true);
@@ -108,38 +108,31 @@ export default function SearchPage() {
           </select>
         </label>
         <ErrorNote error={applications.error} />
-        <RelevanceThreshold
-          value={minimumScore}
-          onChange={setMinimumScore}
-          disabled={busy}
-        />
-        <MetadataFilterEditor
-          value={filters}
-          onChange={setFilters}
-          disabled={busy}
-        />
-        <div className="query-options">
-          <label>
-            知识范围
-            <select value={kb} onChange={(e) => setKb(e.target.value)}>
-              <option value="">全部授权知识库</option>
-              {k.data.map((x) => (
-                <option value={x.id} key={x.id}>
-                  {x.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            检索策略
-            <select value={mode} onChange={(e) => setMode(e.target.value)}>
-              <option value="">使用已发布配置</option>
-              <option value="hybrid">混合检索</option>
-              <option value="semantic">语义检索</option>
-              <option value="keyword">关键词检索</option>
-            </select>
-          </label>
-        </div>
+        <details className="search-advanced">
+          <summary>检索范围与高级选项</summary>
+          <div className="search-advanced-body">
+            <div className="query-options">
+              <label>
+                知识范围
+                <select value={kb} onChange={(e) => setKb(e.target.value)}>
+                  <option value="">全部授权知识库</option>
+                  {k.data.map((x) => <option value={x.id} key={x.id}>{x.name}</option>)}
+                </select>
+              </label>
+              <label>
+                检索策略
+                <select value={mode} onChange={(e) => setMode(e.target.value)}>
+                  <option value="">使用已发布配置</option>
+                  <option value="hybrid">混合检索</option>
+                  <option value="semantic">语义检索</option>
+                  <option value="keyword">关键词检索</option>
+                </select>
+              </label>
+            </div>
+            <RelevanceThreshold value={minimumScore} onChange={setMinimumScore} disabled={busy} />
+            <MetadataFilterEditor value={filters} onChange={setFilters} disabled={busy} />
+          </div>
+        </details>
       </form>
       <ErrorNote error={error || k.error} />
       {busy ? (

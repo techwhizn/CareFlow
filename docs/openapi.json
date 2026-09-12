@@ -4032,6 +4032,48 @@
           }
         }
       }
+    },
+    "/api/v1/tenant": {
+      "get": {
+        "tags": [
+          "identity-administration-controller"
+        ],
+        "operationId": "tenant",
+        "summary": "查看企业设置",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "identity-administration-controller"
+        ],
+        "operationId": "changeTenant",
+        "summary": "修改企业名称",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantChange"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "409": {
+            "description": "版本冲突"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5593,6 +5635,24 @@
           },
           "content": {
             "type": "string"
+          }
+        }
+      },
+      "TenantChange": {
+        "type": "object",
+        "required": [
+          "name",
+          "revision"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       }

@@ -293,7 +293,7 @@ public class RetrievalService {
       String chunk = str(hit, "id");
       var rows =
           db.list(
-              "SELECT c.*,v.document_id,d.title,d.valid_from AS document_valid_from,d.valid_until AS document_valid_until,v.valid_from AS version_valid_from,v.valid_until AS version_valid_until FROM chunks c JOIN document_versions v ON v.id=c.version_id JOIN documents d ON d.id=v.document_id WHERE c.tenant_id=? AND c.id=? AND c.enabled=TRUE",
+              "SELECT c.*,v.document_id,d.title,d.source,d.valid_from AS document_valid_from,d.valid_until AS document_valid_until,v.valid_from AS version_valid_from,v.valid_until AS version_valid_until FROM chunks c JOIN document_versions v ON v.id=c.version_id JOIN documents d ON d.id=v.document_id WHERE c.tenant_id=? AND c.id=? AND c.enabled=TRUE",
               actor.tenant(),
               chunk);
       if (rows.isEmpty()) continue;
@@ -351,7 +351,8 @@ public class RetrievalService {
             resultLimit,
             minimumScore,
             Boolean.TRUE.equals(ranked.get("degraded")),
-            debug);
+            debug,
+            EvidenceSelection.explicitTerms(q.query()));
     reauthenticate(actor, authorization);
     for (var c : byId.values()) checkEvidence(actor, c, scope);
     var response = new LinkedHashMap<String, Object>();

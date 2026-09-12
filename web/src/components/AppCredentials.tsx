@@ -17,7 +17,7 @@ export default function AppCredentials({applicationId,onIssued}:{applicationId:s
       catch(error){setError((error as Error).message);} finally{setBusy(false);}
     }}>
       <fieldset disabled={busy}><legend>新密钥作用范围</legend>
-        {[["READ","读取元数据、历史与授权原文"],["SEARCH","搜索"],["ANSWER","问答"]].map(([scope,label])=><label key={scope}>
+        {[["READ","读取元数据、历史与授权原文"],["SEARCH","搜索"],["ANSWER","问答"]].map(([scope,label])=><label className="credential-scope" key={scope}>
           <input type="checkbox" checked={scopes.includes(scope)} onChange={event=>setScopes(event.target.checked?[...scopes,scope]:scopes.filter(value=>value!==scope))}/>{label}
         </label>)}
         <label>有效天数<input type="number" min={1} max={365} required value={days} onChange={event=>setDays(Number(event.target.value))}/></label>
@@ -25,8 +25,8 @@ export default function AppCredentials({applicationId,onIssued}:{applicationId:s
       </fieldset>
     </form>
     <p>轮换时先签发新密钥并迁移调用方，验证成功后撤销旧密钥。密钥不能绕过应用绑定和资源权限。</p>
-    {keys.data.map(key=><div className="section-title" key={key.id}>
-      <span><code>{key.id.slice(0,8)}</code> · {key.scopes} · {key.active?"有效":"已撤销"} · {new Date(key.expires_at).toLocaleString()}</span>
+    {keys.data.map(key=><div className="section-title credential-row" key={key.id}>
+      <span className="credential-info"><code>{key.id.slice(0,8)}</code><span>{key.scopes}</span><span className={key.active ? "credential-active" : "credential-revoked"}>{key.active?"有效":"已撤销"}</span><span>{new Date(key.expires_at).toLocaleString()}</span></span>
       {key.active && <button disabled={busy} onClick={async()=>{
         if(!window.confirm("撤销后使用此密钥的请求立即失败，确认撤销？"))return;
         setBusy(true);setError("");

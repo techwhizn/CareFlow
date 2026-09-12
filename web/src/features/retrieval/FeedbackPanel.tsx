@@ -29,7 +29,7 @@ export default function FeedbackPanel({
     }
   }, [saved.data]);
   return (
-    <div>
+    <div className="feedback-panel">
       <h3>回答反馈</h3>
       <label>
         是否有帮助

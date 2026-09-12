@@ -13,13 +13,18 @@ public class IdentityAdministrationController {
   }
 
   @GetMapping("/me")
-  public Object me(@RequestAttribute Actor actor) {
-    return service.me(actor);
+  public Object me(@RequestAttribute Actor actor, @RequestHeader(value = "Authorization", required = false) String authorization) {
+    return service.me(actor, authorization);
   }
 
   @GetMapping("/credentials")
   public Object keys(@RequestAttribute Actor actor) {
     return service.keys(actor);
+  }
+
+  @PostMapping("/me/credentials")
+  public Object rotateOwnCredential(@RequestAttribute Actor actor) {
+    return service.rotateOwnCredential(actor);
   }
 
   @DeleteMapping("/credentials/{id}")

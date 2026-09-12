@@ -1,8 +1,8 @@
-# 远端CI与分支保护待启用方案
+# 远端 CI 与分支保护待启用方案
 
-本文件和[保护配置示例](../.github/branch-protection.example.json)供远端核验使用。当前远端 `main` 可通过只读 Git 访问读取，但本机没有 GitHub API 凭据，无法回读 Actions 作业结论或当前保护规则；本地新增提交也未据此文档宣称已推送。没有调用 GitHub 设置接口，V1-50 的远端通过与分支保护验收仍未完成。
+仓库当前仅用于代码展示和内部维护，`verify` 工作流已关闭 `push` 与 `pull_request` 自动触发，仅保留维护者手动触发。分支保护仍未作为本次变更自动启用；本文件和[保护配置示例](../.github/branch-protection.example.json)仅供后续维护者核验使用。
 
-仓库已有`verify`工作流，作业为`secrets`、`backend`、`worker`、`milvus-integration`、`web`，Pull Request 额外运行`dependency-review`。基础工作流只读仓库权限，不需要真实模型密钥。Milvus作业只使用自动生成的临时基础设施凭证及合成资料，清理仅限自己的临时项目。
+仓库保留`verify`工作流，作业为`secrets`、`backend`、`worker`、`milvus-integration`、`web`，手动运行时不再额外运行 Pull Request 专用的`dependency-review`。基础工作流只读仓库权限，不需要真实模型密钥。Milvus作业只使用自动生成的临时基础设施凭证及合成资料，清理仅限自己的临时项目。
 
 获得远端操作授权后，维护者按以下顺序执行并保存实际证据：
 

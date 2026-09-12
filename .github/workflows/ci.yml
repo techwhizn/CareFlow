@@ -1,5 +1,8 @@
 name: verify
-on: [push, pull_request]
+# External Pull Requests and automatic runs are currently disabled. Maintainers
+# may run this workflow manually from the Actions page when needed.
+on:
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
